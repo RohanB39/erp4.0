@@ -9,7 +9,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  scroll-behavior: smoot h;
+  scroll-behavior: smooth;
 
   font-family: "Poppins", sans-serif;
 
