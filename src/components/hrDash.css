@@ -1,0 +1,185 @@
+/* Default styles */
+:root {
+  font-family: "normal";
+  line-height: 1.5;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  scroll-behavior: smooth;
+
+  --primary: #cbe2c8;
+  --secondary: #e8fd9d;
+  --pure: #d6dfea;
+  --tertiory: #cbe2c8;
+  --optional: #f3f7f5;
+  --dark-bg: #0f1122;
+  --btn-bg:#D49D1F;
+  --btn-bg2:#FFBC25;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+.employee-heading h3 {
+  font-size: 18px;
+  color: black;
+  padding: 5px;
+  margin-top: 4rem;
+  margin-bottom: 2rem;
+  background-color: var(--optional);
+  text-indent: 6px;
+  border-radius: 4px;
+}
+
+.employee-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.single-employee-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: rgba(0, 0, 0, 0.45) 0px 25px 20px -20px;
+}
+
+.single-employee-card .employee-icon {
+  font-size: 1.4rem;
+  background-color: var(--btn-bg2);
+  padding: 6px 12px;
+  border-radius: 50%;
+}
+
+.single-employee-card .employee-detail {
+  text-align: start;
+  margin-top: 12px;
+}
+
+.single-employee-card .employee-detail h3 {
+  color: black;
+  font-size: 15px;
+}
+
+.single-employee-card .employee-detail p {
+  font-weight: 600;
+  letter-spacing: 1px;
+  font-size: 20px;
+}
+
+.employee-profile {
+  margin-top: 2rem;
+  border-radius: 4px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ccc;
+}
+
+.employee-profile h3 {
+  font-size: 16px;
+  letter-spacing: 0.4px;
+}
+
+.employee-profile .employee-search input {
+  border: 1px solid gray;
+  padding: 8px 12px;
+  border-radius: 4px;
+  outline: none;
+  width: 360px;
+}
+
+.employee-profile .add-employee-btn button {
+  background-color: var(--btn-bg2);
+  color: black;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  outline: 1px solid gray;
+  display: flex;
+  align-items: center;
+  border: none;
+}
+
+.employee-profile .add-employee-btn .add-icon {
+  margin-right: 4px;
+  font-size: 20px;
+}
+
+.employee-profile .add-employee-btn button:hover {
+  outline: none;
+}
+.employee-table {
+  background-color: white;
+  border-radius: 4px;
+}
+
+.employee-list table thead {
+  background-color: var(--optional);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid #ccc;
+}
+
+.employee-list table tbody tr {
+  border-bottom: 1px solid #ccc;
+}
+
+.employee-list table button {
+  border: none;
+  font-size: 1.2rem;
+  margin-left: 6px;
+  padding: 2px 8px;
+}
+
+.pagination {
+  width: fit-content;
+  padding: 1rem 0;
+  margin-left: 1rem;
+}
+
+.pagination button {
+  background-color: var(--optional);
+  border: none;
+  color: black;
+  padding: 2px 8px;
+}
+
+.pagination span {
+  display: flex;
+  align-items: center;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+@media only screen and (max-width: 600px) {
+  .employee-cards {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  .employee-profile .employee-search input {
+    width: 100%;
+  }
+}
+
+@media only screen and (min-width: 601px) and (max-width: 1024px) {
+  .employee-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media only screen and (min-width: 1025px) {
+}

@@ -1,0 +1,106 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+:root {
+  font-family: "normal";
+  line-height: 1.5;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  scroll-behavior: smooth;
+
+  --primary: #cbe2c8;
+  --secondary: #e8fd9d;
+  --pure: #d6dfea;
+  --tertiory: #cbe2c8;
+  --optional: #f3f7f5;
+  --bg: #e8eeea;
+  --dark-bg: #0f1122;
+  --btn-bg: #d49d1f;
+  --btn-bg2: #ffbc25;
+}
+* {
+  list-style: none;
+}
+
+#main {
+  font-family: "Poppins", sans-serif;
+  margin-top: 6rem;
+  padding: 0px 20px;
+  transition: all 3s;
+  flex-grow: 1;
+}
+
+@media (max-width: 1199px) {
+  #main {
+    padding: 20px;
+  }
+}
+#main h4 {
+  font-size: 18px;
+  padding: 0.6rem;
+  letter-spacing: 2px;
+}
+
+/* for main dashboard */
+.mainDashContainer {
+  padding-left: 1.4rem;
+}
+.mainDashContainer .dashHeader p {
+  font-size: 14px;
+  color: var(--dark-bg);
+  padding-bottom: -4px;
+}
+.mainDashContainer .dashHeader h3 {
+  font-size: 20px;
+  font-family: "Poppins", sans-serif;
+}
+.mainDashInfoCards {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.mainDashInfoCards .singleCard {
+  background-color: white;
+  padding: 12px;
+  border-radius: 4px;
+}
+.mainDashInfoCards .singleCard p {
+  font-size: 12px;
+  padding-bottom: -1rem;
+}
+.mainDashInfoCards .singleCard h3 {
+  font-size: 22px;
+  margin-top: -0.5rem;
+}
+.mainDashInfoCards .singleCard small {
+  font-size: 12px;
+  color: red;
+}
+.mainDash-graph-container {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+.graph-container {
+  padding: 1rem;
+}
+.graph-container h3 {
+  font-size: 20px;
+}
+.graph-container p {
+  font-size: 14px;
+}
+.dispach-table-container{
+  margin-top: 3rem;
+}
+.data-table-container{
+  background-color: white;
+  margin-top: 2rem;
+  border-radius: 4px;
+  overflow-x: hidden;
+ 
+}

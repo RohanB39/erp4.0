@@ -1,0 +1,149 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+:root {
+  font-family: "Poppins", sans-serif;
+  line-height: 1.5;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  scroll-behavior: smooth;
+
+  --primary: #cbe2c8;
+  --secondary: #e8fd9d;
+  --pure: #d6dfea;
+  --tertiory: #cbe2c8;
+  --optional: #f3f7f5;
+  --dark-bg: #0f1122;
+  --btn-bg:#D49D1F;
+  --btn-bg2:#FFBC25;
+}
+
+.leave-page {
+  padding: 1rem;
+}
+
+.leave-stats h2 {
+  color: black;
+  font-size: 20px;
+  margin-bottom: 1rem;
+  background-color: var(--optional);
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  place-content: center;
+  gap: 5px;
+}
+
+.stats-cards .card {
+  display: flex;
+  justify-content: space-between;
+  background-color: white;
+  flex-direction: row;
+  padding: 1rem;
+  height: 8vh;
+  box-shadow: rgba(0, 0, 0, 0.45) 0px 25px 20px -20px;
+  transition: 0.4s ease-in-out;
+}
+.stats-cards .card:hover {
+  transform: translateY(6px);
+  box-shadow: rgba(14, 63, 126, 0.04) 0px 0px 0px 1px,
+    rgba(42, 51, 69, 0.04) 0px 1px 1px -0.5px,
+    rgba(42, 51, 70, 0.04) 0px 3px 3px -1.5px,
+    rgba(42, 51, 70, 0.04) 0px 6px 6px -3px,
+    rgba(14, 63, 126, 0.04) 0px 12px 12px -6px,
+    rgba(14, 63, 126, 0.04) 0px 24px 24px -12px;
+}
+.stats-cards .card h3 {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.leave-list h3 {
+  color: black;
+  font-size: 20px;
+  margin-bottom: 1rem;
+  background-color: var(--optional);
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+.leave-list table {
+  background-color: white;
+}
+.leave-list table thead {
+  background-color: var(--optional);
+  font-weight: 500;
+  font-family: "Poppins", sans-serif;
+}
+.leave-list table tbody tr {
+  font-size: 14px;
+  border-bottom: 1px solid var(--pure);
+}
+.leave-btns button {
+  border: none;
+  margin-right: 4px;
+  font-size: 1rem;
+  padding: 4px 8px;
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+  .stats-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .stats-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-cards .card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    height: auto;
+  }
+
+  .leave-stats h2,
+  .leave-list h3 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 576px) {
+  .leave-page {
+    padding: 0.5rem;
+  }
+
+  .stats-cards {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .stats-cards .card {
+    padding: 0.5rem;
+  }
+
+  .leave-stats h2,
+  .leave-list h3 {
+    font-size: 16px;
+  }
+
+  .leave-btns button {
+    font-size: 0.875rem;
+    padding: 4px 6px;
+  }
+}
