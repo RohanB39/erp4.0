@@ -9,12 +9,14 @@ import 'jspdf-autotable'; // Table Sathi
 import { collection, getDocs } from 'firebase/firestore';
 import { fireDB } from '../FirebaseConfig';
 import logo from '../../assets/Tectigon_logo.png';
+import PurchaseOrderPopup from './PurchaseOrderPopup';
 
 function SalesPurchase() {
     const [isPopupOpen, setPopupOpen] = useState(false);
     const [searchInput, setSearchInput] = useState('');
     const [filterStatus, setFilterStatus] = useState('All');
     const [data, setData] = useState([]);
+    const [isPurchaseOrderPopupOpen, setPurchaseOrderPopupOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -133,6 +135,7 @@ function SalesPurchase() {
                         <div className="purchase-process">
                             <button onClick={exportToPDF}> <MdOutlineFileDownload className='icon' />Export</button>
                             <button className='invoice' onClick={() => setPopupOpen(true)}> <IoAdd className='icon' />Add Invoice</button>
+                            <button className='invoice' onClick={() => setPurchaseOrderPopupOpen(true)}> <IoAdd className='icon' />Create Purchase Order</button> 
                         </div>
                     </div>
                     <hr />
@@ -216,6 +219,7 @@ function SalesPurchase() {
                 </div>
             </div>
             <InvoicePopup isOpen={isPopupOpen} onClose={() => setPopupOpen(false)} />
+            <PurchaseOrderPopup isOpen={isPurchaseOrderPopupOpen} onClose={() => setPurchaseOrderPopupOpen(false)} />
         </>
     );
 }
