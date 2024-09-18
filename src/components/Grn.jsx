@@ -20,9 +20,6 @@ const Grn = () => {
   const [status, setStatus] = useState('');
   const [items, setItems] = useState([]);
 
-  const [isMaterialLocationSame, setIsMaterialLocationSame] = useState(false);
-  const [currentMaterialLocation, setCurrentMaterialLocation] = useState('');
-
   useEffect(() => {
     const generateGrnNumber = () => {
       const date = new Date();
@@ -179,6 +176,26 @@ const Grn = () => {
         </div>
 
         <div>
+          <label htmlFor='vendorName'>Purchase Order</label>
+          <input
+            type='text'
+            id='vendorName'
+            value={vendorName}
+            readOnly
+          />
+        </div>
+
+        <div>
+          <label htmlFor='vendorName'>Invoice Number</label>
+          <input
+            type='text'
+            id='vendorName'
+            value={vendorName} // User Enter invoice number manually
+            readOnly
+          />
+        </div>
+
+        <div>
           <label htmlFor='materialId'>Material:</label>
           <select
             id='materialId'
@@ -215,40 +232,6 @@ const Grn = () => {
           />
         </div>
 
-        {/* <div>
-          <label htmlFor='materialLocation'>Material Location:</label>
-          <input
-            type='text'
-            id='materialLocation'
-            value={materialLocation}
-            readOnly
-          />
-        </div> */}
-
-        {/* Checkbox for Material Location */}
-        {/* <div>
-          <label htmlFor='isMaterialLocationSame'>Keep Material Location Same:</label>
-          <input
-            type='checkbox'
-            id='isMaterialLocationSame'
-            checked={isMaterialLocationSame}
-            onChange={(e) => setIsMaterialLocationSame(e.target.checked)}
-          />
-        </div> */}
-
-        {/* Conditionally disable this field based on the checkbox */}
-        {/* <div>
-          <label htmlFor='currentMaterialLocation'>Current Material Location:</label>
-          <input
-            type='text'
-            id='currentMaterialLocation'
-            value={currentMaterialLocation}
-            onChange={(e) => setCurrentMaterialLocation(e.target.value)}
-            disabled={isMaterialLocationSame}  
-            required={!isMaterialLocationSame} 
-          />
-        </div> */}
-
         <div>
           <label htmlFor='quantityReceived'>Quantity Received:</label>
           <input
@@ -261,31 +244,13 @@ const Grn = () => {
         </div>
 
         <div>
-          <label htmlFor='inspectionDate'>Inspection Date:</label>
+          <label htmlFor='inspectionDate'>GRN Date:</label>
           <input
             type='date'
             id='inspectionDate'
             value={inspectionDate}
             onChange={(e) => setInspectionDate(e.target.value)}
             required
-          />
-        </div>
-
-        <div>
-          <label htmlFor='inspectionNotes'>Inspection Notes:</label>
-          <textarea
-            id='inspectionNotes'
-            value={inspectionNotes}
-            onChange={(e) => setInspectionNotes(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <label htmlFor='discrepancies'>Discrepancies:</label>
-          <textarea
-            id='discrepancies'
-            value={discrepancies}
-            onChange={(e) => setDiscrepancies(e.target.value)}
           />
         </div>
 
@@ -298,8 +263,8 @@ const Grn = () => {
             required
           >
             <option value=''>Select Status</option>
-            <option value='Approved'>Approved</option>
-            <option value='Rejected'>Rejected</option>
+            <option value='Approved'>INWARD</option>
+            <option value='Rejected'>HOLD</option>
           </select>
         </div>
 

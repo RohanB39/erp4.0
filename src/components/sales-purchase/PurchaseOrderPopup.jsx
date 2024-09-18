@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, addDoc, query, doc, getDoc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, query, doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, fireDB } from '../FirebaseConfig';
 import { IoCloseSharp } from "react-icons/io5";
 import { Country, State, City } from 'country-state-city';
@@ -8,16 +8,21 @@ const PurchaseOrderPopup = ({ isOpen, onClose }) => {
     const [vendorSearch, setVendorSearch] = useState('');
     const [vendorList, setVendorList] = useState([]);
     const [selectedVendor, setSelectedVendor] = useState(null);
+    // PO Date PO ID
     const [poDate, setPoDate] = useState('');
     const [poId, setPoId] = useState('');
+
     const [itemSearch, setItemSearch] = useState('');
     const [itemList, setItemList] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
     const [quantity, setQuantity] = useState('');
     const [price, setPrice] = useState('');
+
+    // Company Info
     const [companyName, setCompanyName] = useState('');
     const [companyContact, setCompanyContact] = useState('');
     const [companyAddress, setCompanyAddress] = useState('');
+
     const [billingAddress, setBillingAddress] = useState('');
     const [shippingCountry, setShippingCountry] = useState('');
     const [shippingState, setShippingState] = useState('');
@@ -26,6 +31,7 @@ const PurchaseOrderPopup = ({ isOpen, onClose }) => {
     const [shippingPincode, setShippingPincode] = useState('');
     const [shippingStates, setShippingStates] = useState([]);
     const [shippingCities, setShippingCities] = useState([]);
+
     const [billingCountry, setBillingCountry] = useState('');
     const [billingState, setBillingState] = useState('');
     const [billingDistrict, setBillingDistrict] = useState('');
@@ -33,6 +39,7 @@ const PurchaseOrderPopup = ({ isOpen, onClose }) => {
     const [billingPincode, setBillingPincode] = useState('');
     const [billingStates, setBillingStates] = useState([]);
     const [billingCities, setBillingCities] = useState([]);
+    
     const countryData = Country.getAllCountries();
     const [unit, setUnit] = useState("Nos");
 
@@ -173,10 +180,72 @@ const PurchaseOrderPopup = ({ isOpen, onClose }) => {
         setSelectedItem(item);
     };
 
+    const generatePDF = () => {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.70/pdfmake.min.js';
+        script.onload = () => {
+            const pdfMake = window.pdfMake;
+            pdfMake.vfs = window.pdfMake.vfs;
+
+            const docDefinition = {
+                content: [
+                    { text: 'PURCHASE ORDER', style: 'header' },
+                    {
+                        columns: [
+                            { text: `Company Name: ${companyName}\nDate: ${poDate}\nPO ID: ${poId}` },
+                            { text: `Vendor Name: ${selectedVendor ? selectedVendor.name : ''}\nShip To: ${shippingCountry}, ${shippingState}, ${shippingDistrict}, ${shippingTaluka}, ${shippingPincode}` }
+                        ]
+                    },
+                    { text: 'Item Details', style: 'subheader' },
+                    {
+                        table: {
+                            widths: ['*', '*', '*', '*', '*'],
+                            body: [
+                                ['Item ID', 'Name', 'Quantity', 'Unit Price', 'Total'],
+                                [
+                                    selectedItem ? selectedItem.id : '',
+                                    selectedItem ? selectedItem.materialName : '',
+                                    quantity,
+                                    price,
+                                    (quantity * price).toFixed(2)
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        text: `Subtotal: ${quantity * price}\nTax: TBD\nShipping: TBD\nGrand Total: ${quantity * price}`,
+                        style: 'total'
+                    }
+                ],
+                styles: {
+                    header: {
+                        fontSize: 18,
+                        bold: true,
+                        margin: [0, 0, 0, 10]
+                    },
+                    subheader: {
+                        fontSize: 14,
+                        margin: [0, 20, 0, 10]
+                    },
+                    total: {
+                        fontSize: 14,
+                        bold: true,
+                        margin: [0, 20, 0, 10]
+                    }
+                }
+            };
+
+            pdfMake.createPdf(docDefinition).download('purchase-order.pdf');
+        };
+        document.body.appendChild(script);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         const newPurchaseOrder = {
             companyName,
+            companyContact,
+            companyAddress,
             vendorDetails: selectedVendor || {},
             shippingAddress: {
                 country: shippingCountry || '',
@@ -196,7 +265,6 @@ const PurchaseOrderPopup = ({ isOpen, onClose }) => {
                 }
             ]
         };
-    
         try {
             await setDoc(doc(fireDB, "Purchase_Orders", poId), newPurchaseOrder);
             alert("Purchase Order added successfully!");
@@ -395,6 +463,7 @@ const PurchaseOrderPopup = ({ isOpen, onClose }) => {
                         />
                     </div>
 
+                    {/* Submit Button */}
                     <div>
                         <button type="submit">Create Purchase Order</button>
                     </div>
