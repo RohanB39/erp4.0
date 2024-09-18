@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, addDoc, query, where } from 'firebase/firestore';
-import { fireDB } from '../FirebaseConfig';
-import './invoicepopup.css';
+import { collection, getDocs, addDoc, query, doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, fireDB } from '../FirebaseConfig';
 import { IoCloseSharp } from "react-icons/io5";
-import { v4 as uuidv4 } from 'uuid';  // For generating unique PO ID
+import { Country, State, City } from 'country-state-city';
 
-const PurchaseOrderPopup = ({ isOpen, onClose, currentUserId }) => {
-    const [userData, setUserData] = useState({});
+const PurchaseOrderPopup = ({ isOpen, onClose }) => {
     const [vendorSearch, setVendorSearch] = useState('');
     const [vendorList, setVendorList] = useState([]);
     const [selectedVendor, setSelectedVendor] = useState(null);
-    const [shippingAddress, setShippingAddress] = useState('');
     const [poDate, setPoDate] = useState('');
     const [poId, setPoId] = useState('');
     const [itemSearch, setItemSearch] = useState('');
@@ -18,19 +15,108 @@ const PurchaseOrderPopup = ({ isOpen, onClose, currentUserId }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [quantity, setQuantity] = useState('');
     const [price, setPrice] = useState('');
+    const [companyName, setCompanyName] = useState('');
+    const [companyContact, setCompanyContact] = useState('');
+    const [companyAddress, setCompanyAddress] = useState('');
+    const [billingAddress, setBillingAddress] = useState('');
+    const [shippingCountry, setShippingCountry] = useState('');
+    const [shippingState, setShippingState] = useState('');
+    const [shippingDistrict, setShippingDistrict] = useState('');
+    const [shippingTaluka, setShippingTaluka] = useState('');
+    const [shippingPincode, setShippingPincode] = useState('');
+    const [shippingStates, setShippingStates] = useState([]);
+    const [shippingCities, setShippingCities] = useState([]);
+    const [billingCountry, setBillingCountry] = useState('');
+    const [billingState, setBillingState] = useState('');
+    const [billingDistrict, setBillingDistrict] = useState('');
+    const [billingTaluka, setBillingTaluka] = useState('');
+    const [billingPincode, setBillingPincode] = useState('');
+    const [billingStates, setBillingStates] = useState([]);
+    const [billingCities, setBillingCities] = useState([]);
+    const countryData = Country.getAllCountries();
+    const [unit, setUnit] = useState("Nos");
 
-    // Fetch current user details from "users" collection
     useEffect(() => {
         const fetchUserData = async () => {
-            if (!currentUserId) return;
-            const userQuery = query(collection(fireDB, "users"), where("userId", "==", currentUserId));
-            const querySnapshot = await getDocs(userQuery);
-            const userData = querySnapshot.docs.map(doc => doc.data())[0];
-            setUserData(userData);
+            const user = auth.currentUser;
+
+            if (user) {
+                try {
+                    const userDoc = await getDoc(doc(fireDB, 'users', user.uid));
+
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        setCompanyName(userData.companyName || 'Company name null');
+                        setCompanyContact(userData.contactNumber || 'Contact number null');
+                        setCompanyAddress(formatAddress(userData));
+                    } else {
+                        console.log('No such document!');
+                    }
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                }
+            } else {
+                console.log('No user is signed in.');
+            }
         };
+
         fetchUserData();
-        setPoId(uuidv4()); // Generate PO ID
-    }, [currentUserId]);
+    }, []);
+
+    // Update shipping states based on selected country
+    useEffect(() => {
+        if (shippingCountry) {
+            setShippingStates(State.getStatesOfCountry(shippingCountry));
+        } else {
+            setShippingStates([]);
+        }
+    }, [shippingCountry]);
+
+    // Update shipping cities based on selected state
+    useEffect(() => {
+        if (shippingState) {
+            setShippingCities(City.getCitiesOfState(shippingCountry, shippingState));
+        } else {
+            setShippingCities([]);
+        }
+    }, [shippingState, shippingCountry]);
+
+    // Update billing states based on selected country
+    useEffect(() => {
+        if (billingCountry) {
+            setBillingStates(State.getStatesOfCountry(billingCountry));
+        } else {
+            setBillingStates([]);
+        }
+    }, [billingCountry]);
+
+    // Update billing cities based on selected state
+    useEffect(() => {
+        if (billingState) {
+            setBillingCities(City.getCitiesOfState(billingCountry, billingState));
+        } else {
+            setBillingCities([]);
+        }
+    }, [billingState, billingCountry]);
+
+    const formatAddress = (data) => {
+        const { country, state, district, taluka } = data;
+        return `${country}, ${state}, ${district}, ${taluka}`;
+    };
+
+    // Generate unique PO ID based on vendor and company names
+    useEffect(() => {
+        const generateUniquePOID = (vendorName, companyName) => {
+            const vendorInitials = vendorName.split(' ').map(word => word.charAt(0).toLowerCase()).join('');
+            const companyInitials = companyName.split(' ').map(word => word.charAt(0).toLowerCase()).join('');
+            const randomDigits = Math.floor(1000 + Math.random() * 9000);
+            return `${vendorInitials}${companyInitials}PO@${randomDigits}`;
+        };
+
+        if (selectedVendor && companyName) {
+            setPoId(generateUniquePOID(selectedVendor.name, companyName));
+        }
+    }, [selectedVendor, companyName]);
 
     // Fetch vendors based on search input
     useEffect(() => {
@@ -54,48 +140,73 @@ const PurchaseOrderPopup = ({ isOpen, onClose, currentUserId }) => {
             const items = querySnapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
-            })).filter(item => item.name.toLowerCase().includes(itemSearch.toLowerCase()));
+            })).filter(item => item.materialName && item.materialName.toLowerCase().includes(itemSearch.toLowerCase()));
             setItemList(items);
         };
         fetchItems();
     }, [itemSearch]);
 
-    const handleVendorSelect = (vendor) => {
+    const handleVendorSelect = async (e) => {
+        const selectedVendorId = e.target.value;
+        const vendor = vendorList.find(v => v.id === selectedVendorId);
         setSelectedVendor(vendor);
-        setVendorSearch(vendor.name);
+
+        if (vendor) {
+            try {
+                const vendorDoc = await getDoc(doc(fireDB, 'Vendors', vendor.id));
+                if (vendorDoc.exists()) {
+                    const vendorData = vendorDoc.data();
+                    const billingAddr = `${vendorData.billingAddress.address}, ${vendorData.billingAddress.country}, ${vendorData.billingAddress.district}, ${vendorData.billingAddress.state}, ${vendorData.billingAddress.taluka}, ${vendorData.billingAddress.pincode}`;
+                    setBillingAddress(billingAddr);
+                } else {
+                    console.log('No such vendor document!');
+                }
+            } catch (error) {
+                console.error('Error fetching vendor data:', error);
+            }
+        }
     };
 
-    const handleItemSelect = (item) => {
+    const handleItemSelect = (e) => {
+        const selectedItemId = e.target.value;
+        const item = itemList.find(i => i.id === selectedItemId);
         setSelectedItem(item);
-        setItemSearch(item.name);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const newPurchaseOrder = {
-            userId: currentUserId,
-            userDetails: userData,
-            vendorDetails: selectedVendor,
-            shippingAddress,
+            companyName,
+            vendorDetails: selectedVendor || {},
+            shippingAddress: {
+                country: shippingCountry || '',
+                state: shippingState || '',
+                district: shippingDistrict || '',
+                taluka: shippingTaluka || '',
+                pincode: shippingPincode || ''
+            },
             poDate,
             poId,
             items: [
                 {
-                    item: selectedItem,
-                    quantity,
-                    price
+                    item: selectedItem || {}, 
+                    quantity: quantity || 0,
+                    price: price || 0,
+                    unit: unit || 'Nos'
                 }
             ]
         };
-
+    
         try {
-            await addDoc(collection(fireDB, "purchaseOrders"), newPurchaseOrder);
-            console.log("Purchase Order added successfully!");
+            await setDoc(doc(fireDB, "Purchase_Orders", poId), newPurchaseOrder);
+            alert("Purchase Order added successfully!");
             onClose();
         } catch (error) {
             console.error("Error adding Purchase Order: ", error);
         }
     };
+    
+    
 
     if (!isOpen) return null;
 
@@ -107,63 +218,123 @@ const PurchaseOrderPopup = ({ isOpen, onClose, currentUserId }) => {
                     <button type="button" onClick={onClose}><IoCloseSharp /></button>
                 </div>
                 <form onSubmit={handleSubmit}>
-                    {/* User Information */}
                     <div>
                         <label>Company Name:</label>
-                        <input type="text" value={userData.companyName || ''} readOnly />
+                        <input type="text" value={companyName} readOnly />
                     </div>
                     <div>
                         <label>Contact Number:</label>
-                        <input type="text" value={userData.contactNumber || ''} readOnly />
+                        <input type="text" value={companyContact} readOnly />
                     </div>
                     <div>
-                        <label>GST Number:</label>
-                        <input type="text" value={userData.gstNumber || ''} readOnly />
+                        <label>Company Address:</label>
+                        <textarea type="text" value={companyAddress} readOnly />
                     </div>
 
-                                        {/* Vendor Searchable Dropdown */}
-                                        <div>
+                    <div>
                         <label>Select Vendor:</label>
-                        <input
-                            type="text"
-                            value={vendorSearch}
-                            onChange={(e) => setVendorSearch(e.target.value)}
-                            placeholder="Search vendor..."
+                        <select
+                            value={selectedVendor ? selectedVendor.id : ''}
+                            onChange={handleVendorSelect}
                             required
-                        />
-                        {vendorList.length > 0 && (
-                            <ul className="dropdown">
-                                {vendorList.map((vendor) => (
-                                    <li key={vendor.id} onClick={() => handleVendorSelect(vendor)}>
-                                        {vendor.name}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
+                        >
+                            <option value="">Select a vendor...</option>
+                            {vendorList.map((vendor) => (
+                                <option key={vendor.id} value={vendor.id}>
+                                    {vendor.name}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                     {selectedVendor && (
                         <div>
                             <label>Vendor ID:</label>
                             <input type="text" value={selectedVendor.id} readOnly />
-                            <label>Vendor Address:</label>
-                            <input type="text" value={selectedVendor.address} readOnly />
+                            <div>
+                                <label>Vendor Address:</label>
+                                <textarea type="text" value={billingAddress} readOnly />
+                            </div>
                         </div>
                     )}
 
-                    {/* Shipping Address */}
                     <div>
                         <label>Shipping Address:</label>
-                        <input
-                            type="text"
-                            value={shippingAddress}
-                            onChange={(e) => setShippingAddress(e.target.value)}
-                            required
-                        />
+
+                        <div>
+                            <label>Country:</label>
+                            <select
+                                value={shippingCountry}
+                                onChange={(e) => setShippingCountry(e.target.value)}
+                                required
+                            >
+                                <option value="">Select a country...</option>
+                                {countryData.map((country) => (
+                                    <option key={country.isoCode} value={country.isoCode}>
+                                        {country.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {shippingCountry && (
+                            <div>
+                                <label>State:</label>
+                                <select
+                                    value={shippingState}
+                                    onChange={(e) => setShippingState(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Select a state...</option>
+                                    {shippingStates.map((state) => (
+                                        <option key={state.isoCode} value={state.isoCode}>
+                                            {state.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
+                        {shippingState && (
+                            <div>
+                                <label>District:</label>
+                                <select
+                                    value={shippingDistrict}
+                                    onChange={(e) => setShippingDistrict(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Select a district...</option>
+                                    {shippingCities.map((city) => (
+                                        <option key={city.isoCode} value={city.isoCode}>
+                                            {city.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
+                        <div>
+                            <label>Taluka:</label>
+                            <input
+                                type="text"
+                                value={shippingTaluka}
+                                onChange={(e) => setShippingTaluka(e.target.value)}
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label>Pincode:</label>
+                            <input
+                                type="text"
+                                value={shippingPincode}
+                                onChange={(e) => setShippingPincode(e.target.value)}
+                                required
+                            />
+                        </div>
                     </div>
 
-                    {/* PO Date */}
                     <div>
-                        <label>Date:</label>
+                        <label>PO Date:</label>
                         <input
                             type="date"
                             value={poDate}
@@ -172,40 +343,27 @@ const PurchaseOrderPopup = ({ isOpen, onClose, currentUserId }) => {
                         />
                     </div>
 
-                    {/* PO ID (Auto-generated) */}
                     <div>
                         <label>PO ID:</label>
                         <input type="text" value={poId} readOnly />
                     </div>
 
-                    {/* Item Searchable Dropdown */}
                     <div>
                         <label>Select Item:</label>
-                        <input
-                            type="text"
-                            value={itemSearch}
-                            onChange={(e) => setItemSearch(e.target.value)}
-                            placeholder="Search item..."
+                        <select
+                            value={selectedItem ? selectedItem.id : ''}
+                            onChange={handleItemSelect}
                             required
-                        />
-                        {itemList.length > 0 && (
-                            <ul className="dropdown">
-                                {itemList.map((item) => (
-                                    <li key={item.id} onClick={() => handleItemSelect(item)}>
-                                        {item.name}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
+                        >
+                            <option value="">Select an item...</option>
+                            {itemList.map((item) => (
+                                <option key={item.id} value={item.id}>
+                                    {item.materialName}
+                                </option>
+                            ))}
+                        </select>
                     </div>
-                    {selectedItem && (
-                        <div>
-                            <label>Item ID:</label>
-                            <input type="text" value={selectedItem.id} readOnly />
-                        </div>
-                    )}
 
-                    {/* Quantity and Price */}
                     <div>
                         <label>Quantity:</label>
                         <input
@@ -215,6 +373,18 @@ const PurchaseOrderPopup = ({ isOpen, onClose, currentUserId }) => {
                             required
                         />
                     </div>
+                    <select value={unit} onChange={(e) => setUnit(e.target.value)} required>
+                        <option value="Nos">Nos</option>
+                        <option value="KG">KG</option>
+                        <option value="GRAM">GRAM</option>
+                        <option value="METER">METER</option>
+                        <option value="FEET">FEET</option>
+                        <option value="CENTIMETER">CENTIMETER</option>
+                        <option value="MILLIMETER">MILLIMETER</option>
+                        <option value="LITER">LITER</option>
+                        <option value="OTHER">OTHER</option>
+                    </select>
+
                     <div>
                         <label>Price:</label>
                         <input
@@ -225,7 +395,9 @@ const PurchaseOrderPopup = ({ isOpen, onClose, currentUserId }) => {
                         />
                     </div>
 
-                    <button type="submit">Submit Purchase Order</button>
+                    <div>
+                        <button type="submit">Create Purchase Order</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -233,4 +405,3 @@ const PurchaseOrderPopup = ({ isOpen, onClose, currentUserId }) => {
 };
 
 export default PurchaseOrderPopup;
-
