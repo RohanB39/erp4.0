@@ -46,6 +46,7 @@ import DispachInvoice from './components/DispachInvoice';
 
 import AllQuality from './components/Quality/AllQuality';
 import Grn from './components/Grn';
+import PurchaseOrder from './components/sales-purchase/PurchaseOrder';
 
 
 
@@ -109,6 +110,7 @@ function App() {
                              <Route path="/allproduction" element={<AllProduction />} />
                             <Route path="/FinancePage" element={<FinancePage />} />
                             <Route path='/SalesPurchase' element={<SalesPurchase />} />
+                            <Route path="/purchase-order" element={<PurchaseOrder />} />
                             <Route path='/MasterDash' element={<MasterDash />} />
 
                             <Route path="/Store" element={<Store />} />
