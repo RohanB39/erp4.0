@@ -5,7 +5,7 @@ import './grn.css';
 
 const Grn = () => {
   const [grnNumber, setGrnNumber] = useState('');
-  const [vendorId, setVendorId] = useState('');
+  const [vendorId, setVendorId] = useState(''); // For uniqueID
   const [vendorName, setVendorName] = useState('');
   const [vendors, setVendors] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,6 +19,8 @@ const Grn = () => {
   const [discrepancies, setDiscrepancies] = useState('');
   const [status, setStatus] = useState('');
   const [items, setItems] = useState([]);
+  const [purchaseOrderId, setPurchaseOrderId] = useState('');
+
 
   useEffect(() => {
     const generateGrnNumber = () => {
@@ -36,7 +38,8 @@ const Grn = () => {
         const querySnapshot = await getDocs(collection(fireDB, "Vendors"));
         const vendorList = querySnapshot.docs.map(doc => ({
           id: doc.id,
-          name: doc.data().name
+          name: doc.data().name,
+          uniqueID: doc.data().uniqueID  // Fetch the uniqueID from Firestore
         }));
         setVendors(vendorList);
       } catch (error) {
@@ -80,7 +83,7 @@ const Grn = () => {
 
   const handleVendorSelect = (vendor) => {
     setVendorName(vendor.name);
-    setVendorId(vendor.id);
+    setVendorId(vendor.uniqueID); // Set the uniqueID as vendorId
     setSearchTerm(vendor.name);
     setIsDropdownOpen(false);
   };
@@ -94,22 +97,26 @@ const Grn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const updatedMaterial = {
-      grnNumber,             
-      quantityReceived,       
-      inspectionDate,          
-      inspectionNotes,        
-      discrepancies,          
-      status: status === 'Approved' ? 'GRN Approved, QC Pending' : status 
+      grnNumber,
+      quantityReceived,
+      inspectionDate,
+      inspectionNotes,
+      discrepancies,
+      status: status === 'Approved' ? 'GRN Approved, QC Pending' : status
     };
 
     try {
       const materialDocRef = doc(fireDB, "Items", materialId);
-
       await updateDoc(materialDocRef, updatedMaterial);
 
-      alert("Material updated successfully")
+      if (purchaseOrderId) {
+        const purchaseOrderDocRef = doc(fireDB, "Purchase_Orders", purchaseOrderId);
+        await updateDoc(purchaseOrderDocRef, { status: "Assigned" });
+      }
+  
+      alert("Material and Purchase Order status updated successfully");
     } catch (error) {
-      alert("Error updating material: ", error);
+      alert("Error updating material or purchase order: ", error);
     }
   };
 
@@ -123,6 +130,35 @@ const Grn = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const fetchPurchaseOrder = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(fireDB, "Purchase_Orders"));
+        const purchaseOrders = querySnapshot.docs
+          .filter(doc =>
+            doc.data().materialId === materialId &&
+            doc.data().vendorId === vendorId &&
+            doc.data().status === "Not Assigned"
+          )
+          .map(doc => doc.id); 
+
+        if (purchaseOrders.length > 0) {
+          
+          setPurchaseOrderId(purchaseOrders[0]);
+        } else {
+          
+          setPurchaseOrderId("PO Not Created");
+        }
+      } catch (error) {
+        console.error("Error fetching purchase orders: ", error);
+      }
+    };
+
+    if (materialId && vendorId) {
+      fetchPurchaseOrder();
+    }
+  }, [materialId, vendorId]);
 
   return (
     <div className='grn-page'>
@@ -139,7 +175,7 @@ const Grn = () => {
         </div>
 
         <div className="custom-dropdown" ref={dropdownRef}>
-          <label htmlFor='vendorId'>Vendor:</label>
+          <label htmlFor='vendorId'>Search Vendor:</label>
           <input
             type='text'
             placeholder='Select Vendor'
@@ -176,21 +212,11 @@ const Grn = () => {
         </div>
 
         <div>
-          <label htmlFor='vendorName'>Purchase Order</label>
+          <label htmlFor='vendorId'>Vendor ID:</label>
           <input
             type='text'
-            id='vendorName'
-            value={vendorName}
-            readOnly
-          />
-        </div>
-
-        <div>
-          <label htmlFor='vendorName'>Invoice Number</label>
-          <input
-            type='text'
-            id='vendorName'
-            value={vendorName} // User Enter invoice number manually
+            id='vendorId'
+            value={vendorId}
             readOnly
           />
         </div>
@@ -232,6 +258,17 @@ const Grn = () => {
           />
         </div>
 
+        {purchaseOrderId && (
+          <div>
+            <label>Purchase Order ID:</label>
+            <input
+              type='text'
+              value={purchaseOrderId}
+              readOnly
+            />
+          </div>
+        )}
+
         <div>
           <label htmlFor='quantityReceived'>Quantity Received:</label>
           <input
@@ -268,7 +305,7 @@ const Grn = () => {
           </select>
         </div>
 
-        <button type='submit'>Submit GRN</button>
+        <button type='submit' disabled={purchaseOrderId === "PO Not Created" || status === "Rejected"}>Submit GRN</button>
       </form>
     </div>
   );
