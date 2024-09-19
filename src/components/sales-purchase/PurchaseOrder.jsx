@@ -33,7 +33,7 @@ const PurchaseOrder = () => {
   });
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState('');
-  const [units, setUnits] = useState(['kg', 'g', 'l', 'm']);
+  const [units, setUnits] = useState(['Nos', 'KG', 'GRAM', 'METER', 'FEET', 'CENTIMETER', 'MILLIMETER', 'LITER', 'OTHER']);
   const [selectedUnit, setSelectedUnit] = useState('');
   const [formData, setFormData] = useState({
     companyName: '',
@@ -156,7 +156,7 @@ const PurchaseOrder = () => {
     };
 
     if (selectedVendor && companyName) {
-      setPoId(generateUniquePOID(selectedVendor.name, companyName));  // Use selectedVendor here
+      setPoId(generateUniquePOID(selectedVendor.name, companyName)); 
     }
   }, [selectedVendor, companyName]);
 
@@ -265,7 +265,7 @@ const PurchaseOrder = () => {
 
   return (
     <div className='poPage'>
-     <h1>Purchase Order Form</h1>
+     <h1>Create Purchase Order</h1>
       <form onSubmit={handleSubmit}>
         <div>
           <label>Company Name:</label>
