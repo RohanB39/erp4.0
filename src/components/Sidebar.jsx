@@ -46,9 +46,16 @@ function Sidebar() {
             <Link to="/AllProduction" id="submenu" className={`nav-link ${activeTab === "production" ? "active" : ""}`} onClick={() => handleToggleSubmenu("production")}>
               <i className="bi bi-card-list"></i>
               <span>Production</span>
-
             </Link>
           </li>
+          <Link to="/Grn" className={`nav-link ${activeTab === "grn" ? "active" : ""}`} onClick={() => setActiveTab("grn")}>
+              <i className="bi bi-check-circle"></i>
+              <span>Demand Material</span>
+          </Link>
+          <Link to="/Grn" className={`nav-link ${activeTab === "grn" ? "active" : ""}`} onClick={() => setActiveTab("grn")}>
+              <i className="bi bi-check-circle"></i>
+              <span>Process</span>
+          </Link>
           <li className="nav-item">
             <Link to="/AllQuality" className={`nav-link ${activeTab === "quality" ? "active" : ""}`} onClick={() => setActiveTab("quality")}>
               <i className="bi bi-info-circle"></i>
