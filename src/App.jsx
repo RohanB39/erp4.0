@@ -47,6 +47,8 @@ import DispachInvoice from './components/DispachInvoice';
 import AllQuality from './components/Quality/AllQuality';
 import Grn from './components/Grn';
 import PurchaseOrder from './components/sales-purchase/PurchaseOrder';
+import DemandMaterial from './components/DemandMaterial';
+import ProductionProcess from './components/ProductionProcess';
 
 
 
@@ -121,6 +123,8 @@ function App() {
 
                             <Route path="/Store" element={<Store />} /> 
                             <Route path="/Grn" element={<Grn />} />
+                            <Route path="/DemandMaterial" element={<DemandMaterial />} />
+                            <Route path="/ProductionProcess" element={<ProductionProcess />} />
 
                         </Routes>
                     </div>

@@ -39,8 +39,8 @@ function Sidebar() {
             </Link>
           </li>
           <Link to="/Grn" className={`nav-link ${activeTab === "grn" ? "active" : ""}`} onClick={() => setActiveTab("grn")}>
-              <i className="bi bi-check-circle"></i>
-              <span>GRN</span>
+            <i className="bi bi-check-circle"></i>
+            <span>GRN</span>
           </Link>
           <li className="nav-item">
             <Link to="/AllProduction" id="submenu" className={`nav-link ${activeTab === "production" ? "active" : ""}`} onClick={() => handleToggleSubmenu("production")}>
@@ -48,13 +48,13 @@ function Sidebar() {
               <span>Production</span>
             </Link>
           </li>
-          <Link to="/Grn" className={`nav-link ${activeTab === "grn" ? "active" : ""}`} onClick={() => setActiveTab("grn")}>
-              <i className="bi bi-check-circle"></i>
-              <span>Demand Material</span>
+          <Link to="/DemandMaterial" className={`nav-link ${activeTab === "demand-material" ? "active" : ""}`} onClick={() => setActiveTab("demand-material")}>
+            <i className="bi bi-calendar"></i>
+            <span>Demand Material</span>
           </Link>
-          <Link to="/Grn" className={`nav-link ${activeTab === "grn" ? "active" : ""}`} onClick={() => setActiveTab("grn")}>
-              <i className="bi bi-check-circle"></i>
-              <span>Process</span>
+          <Link to="/ProductionProcess" className={`nav-link ${activeTab === "production-process" ? "active" : ""}`} onClick={() => setActiveTab("production-process")}>
+          <i className="bi bi-gear"></i>
+            <span>Process</span>
           </Link>
           <li className="nav-item">
             <Link to="/AllQuality" className={`nav-link ${activeTab === "quality" ? "active" : ""}`} onClick={() => setActiveTab("quality")}>
