@@ -10,7 +10,7 @@ const PurchaseOrder = () => {
   const [companyAddress, setCompanyAddress] = useState('');
   const [vendors, setVendors] = useState([]);
   const [selectedVendorId, setSelectedVendorId] = useState('');
-  const [selectedVendor, setSelectedVendor] = useState(null); 
+  const [selectedVendor, setSelectedVendor] = useState(null);
   const [vendorAddress, setVendorAddress] = useState('');
   const [shippingAddress, setShippingAddress] = useState("");
   const [shippingCountry, setShippingCountry] = useState("");
@@ -157,7 +157,7 @@ const PurchaseOrder = () => {
     };
 
     if (selectedVendor && companyName) {
-      setPoId(generateUniquePOID(selectedVendor.name, companyName)); 
+      setPoId(generateUniquePOID(selectedVendor.name, companyName));
     }
   }, [selectedVendor, companyName]);
 
@@ -255,7 +255,7 @@ const PurchaseOrder = () => {
         unit: selectedUnit,
         status: 'Not Assigned'
       });
-  
+
       alert('Purchase order created successfully');
     } catch (error) {
       console.error('Error saving data:', error);
@@ -266,184 +266,212 @@ const PurchaseOrder = () => {
 
 
   return (
-    <div className='poPage'>
-     <h1>Create Purchase Order</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Company Name:</label>
-          <input type="text" value={companyName} readOnly />
-        </div>
-        <div>
-          <label>Contact Number:</label>
-          <input type="text" value={companyContact} readOnly />
-        </div>
-        <div>
-          <label>Company Address:</label>
-          <textarea type="text" value={companyAddress} readOnly />
-        </div>
+    <div className='main' id='main'>
+      <div className='poPage  purchaseOrder'>
+        <h4>Create Purchase Order</h4>
+        <form onSubmit={handleSubmit}>
+          <div className="companyDetail">
 
-        <div>
-          <label>Select Vendor:</label>
-          <select onChange={handleVendorChange}>
-            <option value="">Select a vendor</option>
-            {vendors.map(vendor => (
-              <option key={vendor.id} value={vendor.name}>
-                {vendor.name}
-              </option>
-            ))}
-          </select>
-        </div>
 
-        {selectedVendorId && (
-          <div>
-            <label>Vendor ID:</label>
-            <input type="text" value={selectedVendorId} readOnly />
-          </div>
-        )}
-
-        {vendorAddress && (
-          <div>
-            <label>Vendor Address:</label>
-            <textarea type="text" value={vendorAddress} readOnly />
-          </div>
-        )}
-
-        {/* Shipping Address */}
-        <div className="form-column">
-          <h3 className="form-title">Shipping Address</h3>
-          <textarea
-            className="address-input"
-            placeholder="Shipping Address"
-            value={shippingAddress}
-            onChange={(e) => setShippingAddress(e.target.value)}
-            required
-          />
-          <select value={shippingCountry} onChange={(e) => setShippingCountry(e.target.value)} required>
-            <option value="">Select Shipping Country</option>
-            {countryData.map((country) => (
-              <option key={country.isoCode} value={country.isoCode}>
-                {country.name}
-              </option>
-            ))}
-          </select>
-          <select value={shippingState} onChange={(e) => setShippingState(e.target.value)} disabled={!shippingCountry} required>
-            <option value="">Select Shipping State</option>
-            {shippingStates.map((state) => (
-              <option key={state.isoCode} value={state.isoCode}>
-                {state.name}
-              </option>
-            ))}
-          </select>
-          <select value={shippingDistrict} onChange={(e) => setShippingDistrict(e.target.value)} disabled={!shippingState} required>
-            <option value="">Select Shipping District</option>
-            {shippingCities.map((city) => (
-              <option key={city.name} value={city.name}>
-                {city.name}
-              </option>
-            ))}
-          </select>
-          <input
-            type="text"
-            className="address-input"
-            placeholder="Shipping Taluka"
-            value={shippingTaluka}
-            onChange={(e) => setShippingTaluka(e.target.value)}
-            required
-          />
-          <input
-            type="text"
-            className="address-input"
-            placeholder="Shipping Pincode"
-            value={shippingPincode}
-            onChange={(e) => setShippingPincode(e.target.value)}
-            required
-          />
-          <input
-            type="text"
-            placeholder="Phone Number"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            required
-          />
-          <input
-            type="text"
-            placeholder="Fax"
-            value={fax}
-            onChange={(e) => setFax(e.target.value)}
-            required
-          />
-        </div>
-
-        <div>
-          <label>PO Date:</label>
-          <input
-            type="date"
-            value={poDate}
-            onChange={(e) => setPoDate(e.target.value)}
-            required
-          />
-        </div>
-
-        <div>
-          <label>PO ID:</label>
-          <input type="text" value={poId} readOnly />
-        </div>
-
-        <div>
-          <label>Select Material:</label>
-          <select value={selectedMaterial} onChange={(e) => setSelectedMaterial(e.target.value)}>
-            <option value="">Select a material</option>
-            {materials.map((material, index) => (
-              <option key={index} value={material}>
-                {material}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>Material Name:</label>
-          <input type="text" value={materialDetails.materialName} readOnly />
-        </div>
-        <div>
-          <label>Material Id:</label>
-          <input type="text" value={materialDetails.materialId} readOnly />
-        </div>
-        {selectedMaterial && (
-          <>
             <div>
-              <label>Quantity:</label>
-              <input
-                type="number"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                required
-              />
-              <select value={selectedUnit} onChange={(e) => setSelectedUnit(e.target.value)}>
-                <option value="">Select Unit</option>
-                {units.map((unit, index) => (
-                  <option key={index} value={unit}>
-                    {unit}
+              <label>Company Name:</label>
+              <input type="text" value={companyName} readOnly />
+            </div>
+            <div>
+              <label>Contact Number:</label>
+              <input type="text" value={companyContact} readOnly />
+            </div>
+            <div>
+              <label>Company Address:</label>
+              <textarea type="text" value={companyAddress} readOnly />
+            </div>
+          </div>
+          <div className="vendorPurchaseOrder">
+
+            <div className="vendorData">
+              <div className='vendorSelect'>
+                <label>Select Vendor:</label>
+                <select onChange={handleVendorChange}>
+                  <option value="">Select a vendor</option>
+                  {vendors.map(vendor => (
+                    <option key={vendor.id} value={vendor.name}>
+                      {vendor.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {selectedVendorId && (
+                <div >
+                  <label>Vendor ID:</label>
+                  <input type="text" value={selectedVendorId} readOnly />
+                </div>
+              )}
+            </div>
+
+            {vendorAddress && (
+              <div className='vendorAddress'>
+                <label>Vendor Address:</label>
+                <textarea type="text" value={vendorAddress} readOnly />
+              </div>
+            )}
+          </div>
+
+          {/* Shipping Address */}
+          <div className="form-column">
+            <h4 className="form-title">Shipping Address</h4>
+            <textarea
+              className="address-input"
+              placeholder="Shipping Address"
+              value={shippingAddress}
+              onChange={(e) => setShippingAddress(e.target.value)}
+              required
+            />
+            <div className="shippingForm">
+              <select value={shippingCountry} onChange={(e) => setShippingCountry(e.target.value)} required>
+                <option value="">Select Shipping Country</option>
+                {countryData.map((country) => (
+                  <option key={country.isoCode} value={country.isoCode}>
+                    {country.name}
+                  </option>
+                ))}
+              </select>
+              <select value={shippingState} onChange={(e) => setShippingState(e.target.value)} disabled={!shippingCountry} required>
+                <option value="">Select Shipping State</option>
+                {shippingStates.map((state) => (
+                  <option key={state.isoCode} value={state.isoCode}>
+                    {state.name}
+                  </option>
+                ))}
+              </select>
+              <select value={shippingDistrict} onChange={(e) => setShippingDistrict(e.target.value)} disabled={!shippingState} required>
+                <option value="">Select Shipping District</option>
+                {shippingCities.map((city) => (
+                  <option key={city.name} value={city.name}>
+                    {city.name}
                   </option>
                 ))}
               </select>
             </div>
-
-            <div>
-              <label>Price:</label>
+            <div className="shippingForm">
               <input
+<<<<<<< HEAD
+                type="text"
+                className="address-input"
+                placeholder="Shipping Taluka"
+                value={shippingTaluka}
+                onChange={(e) => setShippingTaluka(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                className="address-input"
+                placeholder="Shipping Pincode"
+                value={shippingPincode}
+                onChange={(e) => setShippingPincode(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Phone Number"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                required
+=======
                 type="number"
                 value={materialDetails.materialPrice}
                 readOnly
+>>>>>>> 9de95bf41e7d62cb9e8357903c66f8212f0fa3db
               />
             </div>
-          </>
-        )}
+            <div className="shippingForm">
 
-        <div>
-          <button type="submit">Create</button>
-        </div>
-      </form>
-    </div>
+              <input
+                type="text"
+                placeholder="Fax"
+                value={fax}
+                onChange={(e) => setFax(e.target.value)}
+                required
+              />
+
+
+              <div>
+                <label>PO Date:</label>
+                <input
+                  type="date"
+                  value={poDate}
+                  onChange={(e) => setPoDate(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div>
+                <label>PO ID:</label>
+                <input type="text" value={poId} readOnly />
+              </div>
+            </div>
+            <div className="shippingForm">
+
+              <div>
+                <label>Select Material:</label>
+                <select value={selectedMaterial} onChange={(e) => setSelectedMaterial(e.target.value)}>
+                  <option value="">Select a material</option>
+                  {materials.map((material, index) => (
+                    <option key={index} value={material}>
+                      {material}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label>Material Name:</label>
+                <input type="text" value={materialDetails.materialName} readOnly />
+              </div>
+              <div>
+                <label>Material Id:</label>
+                <input type="text" value={materialDetails.materialId} readOnly />
+              </div>
+            </div>
+            {selectedMaterial && (
+              <>
+                <div>
+                  <label>Quantity:</label>
+                  <input
+                    type="number"
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value)}
+                    required
+                  />
+                  <select value={selectedUnit} onChange={(e) => setSelectedUnit(e.target.value)}>
+                    <option value="">Select Unit</option>
+                    {units.map((unit, index) => (
+                      <option key={index} value={unit}>
+                        {unit}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label>Price:</label>
+                  <input
+                    type="number"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    required
+                  />
+                </div>
+              </>
+            )}
+
+            <div>
+              <button className='purchaseBtn' type="submit">Create Order</button>
+            </div>
+          </div>
+        </form>
+      </div >
+
+    </div >
   );
 };
 

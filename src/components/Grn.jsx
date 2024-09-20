@@ -282,52 +282,178 @@ const Grn = () => {
               <label>Purchase Order ID:</label>
               <input
                 type='text'
-                value={purchaseOrderId}
+                id='grnNumber'
+                value={grnNumber}
                 readOnly
               />
             </div>
-          )}
 
-          <div>
-            <label htmlFor='quantityReceived'>Quantity Received:</label>
-            <input
-              type='text'
-              id='quantityReceived'
-              value={quantityReceived}
-              onChange={(e) => setQuantityReceived(e.target.value)}
-              required
-            />
+            <div className="custom-dropdown serchVendor" ref={dropdownRef}>
+              <label htmlFor='vendorId'>Search Vendor:</label>
+              <input
+                type='text'
+                placeholder='Select Vendor'
+                value={searchTerm}
+                onChange={handleInputChange}
+                onClick={() => setIsDropdownOpen(searchTerm.length > 0)}
+              />
+              {isDropdownOpen && filteredVendors.length > 0 && (
+                <div className="dropdown-options">
+                  {filteredVendors.map(vendor => (
+                    <div
+                      key={vendor.id}
+                      className="dropdown-option"
+                      onClick={() => handleVendorSelect(vendor)}
+                    >
+                      {vendor.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {isDropdownOpen && filteredVendors.length === 0 && (
+                <div className="dropdown-option">No vendors found</div>
+              )}
+            </div>
+          </div>
+          <hr />
+          <div className="vendorInfo">
+
+
+            <div>
+              <label htmlFor='vendorName'>Vendor Name:</label>
+              <input
+                type='text'
+                id='vendorName'
+                value={vendorName}
+                readOnly
+              />
+            </div>
+
+            <div>
+              <label htmlFor='vendorId'>Vendor ID:</label>
+              <input
+                type='text'
+                id='vendorId'
+                value={vendorId}
+                readOnly
+              />
+            </div>
+
+            <div>
+              <label htmlFor='vendorInvoice'>Vendor Invoice:</label>
+              <input
+                type='text'
+                id='vendorInvoice'
+                value={vendorInvoice}
+                onChange={handleVendorInvoice}
+              />
+            </div>
+
+            <div>
+              <label htmlFor='materialId'>Material:</label>
+              <select
+                id='materialId'
+                value={materialId}
+                onChange={(e) => handleItemSelect(
+                  items.find(item => item.id === e.target.value)
+                )}
+                required
+              >
+                <option value=''>Select Material</option>
+                {items.map(item => (
+                  <option key={item.id} value={item.id}>{item.id}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor='materialDescription'>Material Description:</label>
+              <input
+                type='text'
+                id='materialDescription'
+                value={materialDescription}
+                readOnly
+              />
+            </div>
+
+            <div>
+              <label htmlFor='batchNumber'>Batch Number:</label>
+              <input
+                type='text'
+                id='batchNumber'
+                value={batchNumber}
+                readOnly
+              />
+            </div>
+          </div>
+          <div className="vendorInfo">
+
+            <div>
+              <label htmlFor='batchNumber'>Vendor Invoice:</label>
+              <input
+                type='text'
+                id='batchNumber'
+                value={vendorInvoice}
+
+              />
+            </div>
+
+
+            {purchaseOrderId && (
+              <div>
+                <label>Purchase Order ID:</label>
+                <input
+                  type='text'
+                  value={purchaseOrderId}
+                  readOnly
+                />
+              </div>
+            )}
+
+
+            <div>
+              <label htmlFor='quantityReceived'>Quantity Received:</label>
+              <input
+                type='text'
+                id='quantityReceived'
+                value={quantityReceived}
+                onChange={(e) => setQuantityReceived(e.target.value)}
+                required
+              />
+            </div>
           </div>
 
-          <div>
-            <label htmlFor='inspectionDate'>GRN Date:</label>
-            <input
-              type='date'
-              id='inspectionDate'
-              value={inspectionDate}
-              onChange={(e) => setInspectionDate(e.target.value)}
-              required
-            />
-          </div>
+          <div className="vendorInfo">
+            <div>
+              <label htmlFor='inspectionDate'>GRN Date:</label>
+              <input
+                type='date'
+                id='inspectionDate'
+                value={inspectionDate}
+                onChange={(e) => setInspectionDate(e.target.value)}
+                required
+              />
+            </div>
 
-          <div>
-            <label htmlFor='status'>Status:</label>
-            <select
-              id='status'
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              required
-            >
-              <option value=''>Select Status</option>
-              <option value='Approved'>INWARD</option>
-              <option value='GRN Hold'>HOLD</option>
-            </select>
+            <div>
+              <label htmlFor='status'>Status:</label>
+              <select
+                id='status'
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                required
+              >
+                <option value=''>Select Status</option>
+                <option value='Approved'>INWARD</option>
+                <option value='Rejected'>HOLD</option>
+              </select>
+            </div>
           </div>
-
-          <button type='submit' disabled={purchaseOrderId === "PO Not Created"}>Submit GRN</button>
+            <></>
+          <button type='submit' className='grnBtn' disabled={purchaseOrderId === "PO Not Created" || status === "Rejected"}>Submit GRN</button>
         </form>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 
