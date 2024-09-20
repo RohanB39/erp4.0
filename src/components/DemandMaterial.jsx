@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './demandmaterial.css';
-import { getFirestore, collection, getDocs, doc, setDoc  } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, setDoc } from 'firebase/firestore';
 import { app } from './FirebaseConfig';
 
 const generateUniqueId = () => {
@@ -20,6 +20,7 @@ const DemandMaterial = () => {
   const [selectedUnit, setSelectedUnit] = useState('');
   const [purposeOfDemand, setPurposeOfDemand] = useState('');
   const [deliveryLocation, setDeliveryLocation] = useState('');
+  const [expectedDeliveryDate, setExpectedDeliveryDate] = useState('');
 
 
 
@@ -99,6 +100,10 @@ const DemandMaterial = () => {
     setDeliveryLocation(event.target.value);
   }
 
+  const handleExpectedDeliveryDate = (e) => {
+    setExpectedDeliveryDate(e.target.value);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const db = getFirestore(app);
@@ -114,9 +119,9 @@ const DemandMaterial = () => {
       selectedUnit,
       purposeOfDemand,
       deliveryLocation,
-      status : "Not Approved"
+      status: "Not Approved"
     };
-  
+
     try {
       await setDoc(doc(db, 'Demand_Material', uniqueId), formData);
       alert("Form data successfully saved to Firebase!");
@@ -124,7 +129,7 @@ const DemandMaterial = () => {
       console.error("Error saving form data to Firebase: ", error);
     }
   };
-  
+
 
 
 
@@ -255,6 +260,16 @@ const DemandMaterial = () => {
       <div>
         <label htmlFor='deliveryLocation'>Delivery Location: </label>
         <input type='text' value={deliveryLocation} onChange={handleDeliveryLocation} placeholder='Delivery Location' />
+      </div>
+
+      <div>
+        <label htmlFor="expectedDeliveryDate">Expected Delivery Date: </label>
+        <input
+          type="date"
+          value={expectedDeliveryDate}
+          onChange={handleExpectedDeliveryDate}
+          placeholder="Expected Delivery Date"
+        />
       </div>
 
       <div>
