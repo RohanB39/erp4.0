@@ -3,9 +3,11 @@ import { useTable, usePagination } from 'react-table';
 import { getFirestore, collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 import './Store.css';
 import EditStoreProduct from './EditStoreProduct';
+import { Margin } from '@mui/icons-material';
 
 const Store = () => {
     const [incomingStock, setIncomingStock] = useState([]);
+    const [demandMaterials, setdemandMaterials] = useState([]);
     const [warehouseStock, setWarehouseStock] = useState([]);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
@@ -13,8 +15,19 @@ const Store = () => {
     const fetchData = async () => {
         const db = getFirestore();
         const materialsRef = collection(db, 'Items');
+        const demandRef = collection(db, 'Demand_Material')
         
         try {
+
+            const demandMaterialQuery = query(
+                demandRef, 
+                where('status', '==', 'Not Approved'),
+            );
+            const demandSnapshot = await getDocs(demandMaterialQuery);
+            const demandMaterial = demandSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setdemandMaterials(demandMaterial);
+
+
             const incomingQuery = query(
                 materialsRef, 
                 where('status', '==', 'QC Approved'),
@@ -52,9 +65,7 @@ const Store = () => {
         const itemRef = doc(db, 'Items', item.id);
 
         try {
-            // Update the item's location
             await updateDoc(itemRef, { materialLocation: location });
-            // Move item from incomingStock to warehouseStock
             setIncomingStock(prev => prev.filter(i => i.id !== item.id));
             setWarehouseStock(prev => [...prev, { ...item, materialLocation: location }]);
         } catch (error) {
@@ -89,6 +100,67 @@ const Store = () => {
         []
     );
 
+    const demandMaterialColumns = useMemo(
+        () => [
+            {
+                Header: 'ID',
+                accessor: 'id',
+            },
+            {
+                Header: 'Product Name',
+                accessor: 'selectedItem',
+            },
+            {
+                Header: 'Requested Quantity',
+                accessor: 'quantityRequested',
+            },
+            {
+                Header: 'Delivery Location',
+                accessor: 'deliveryLocation', 
+            },
+            {
+                Header: 'Actions',
+                Cell: ({ row }) => (
+                    <div>
+                        <button onClick={() => handleEdit(row.original)}>Edit</button>
+                        <button onClick={() => handleApprove(row.original)}>Approve</button>
+                        <button onClick={() => handleReject(row.original)}>Reject</button>
+                    </div>
+                ),
+            },
+        ],
+        []
+    );
+
+    const {
+        getTableProps: getDemandTableProps,
+        getTableBodyProps: getDemandTableBodyProps,
+        headerGroups: demandHeaderGroups,
+        page: demandPage,
+        prepareRow: prepareDemandRow,
+        canPreviousPage: canPreviousDemandPage,
+        canNextPage: canNextDemandPage,
+        pageOptions: demandPageOptions,
+        pageCount: demandPageCount,
+        nextPage: nextDemandPage,
+        previousPage: previousDemandPage,
+        setPageSize: setDemandPageSize,
+        state: { pageIndex: demandPageIndex, pageSize: demandPageSize },
+    } = useTable(
+        {
+            columns: demandMaterialColumns,
+            data: demandMaterials,
+            initialState: { pageIndex: 0 },
+        },
+        usePagination
+    );
+
+    const handleEditt = (rowData) => {
+        // Implement the edit functionality
+        console.log('Edit row data:', rowData);
+    };
+
+
     const warehouseColumns = useMemo(
         () => [
             {
@@ -101,7 +173,7 @@ const Store = () => {
             },
             {
                 Header: 'Product Location',
-                accessor: 'materialLocation', // Adjusted to 'materialLocation'
+                accessor: 'materialLocation',
             },
             {
                 Header: 'Reorder Level',
@@ -113,7 +185,7 @@ const Store = () => {
             },
             {
                 Header: 'Total Stock',
-                accessor: 'quantityReceived', // Adjusted to show total quantity
+                accessor: 'quantityReceived', 
             },
         ],
         []
@@ -183,6 +255,64 @@ const Store = () => {
                 </div>
             </div>
             <div className="total-stock" id="main">
+                <div className="total-stock-content">
+                    <div className='stock-header'>
+                        <h3>Demand Material</h3>
+                        <input type="text" placeholder='Search stock' />
+                    </div>
+                    <div className="stock-list">
+                        <table {...getDemandTableProps()}>
+                            <thead>
+                                {demandHeaderGroups.map(headerGroup => (
+                                    <tr {...headerGroup.getHeaderGroupProps()}>
+                                        {headerGroup.headers.map(column => (
+                                            <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </thead>
+                            <tbody {...getDemandTableBodyProps()}>
+                                {demandPage.map(row => {
+                                    prepareDemandRow(row);
+                                    return (
+                                        <tr {...row.getRowProps()}>
+                                            {row.cells.map(cell => (
+                                                <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                                            ))}
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="pagination d-flex">
+                        <div className='d-flex'>
+                            <button onClick={() => previousIncomingPage()} disabled={!canPreviousDemandPage}>
+                                {'<'}
+                            </button>
+                            <span>
+                                {demandPageIndex + 1} of {demandPageOptions.length}
+                            </span>
+                            <button onClick={() => nextIncomingPage()} disabled={!canNextDemandPage}>
+                                {'>'}
+                            </button>
+                        </div>
+                        <div>
+                            <select
+                                value={demandPageSize}
+                                onChange={e => {
+                                    setDemandPageSize(Number(e.target.value));
+                                }}
+                            >
+                                {[10, 20, 30, 40, 50].map(pageSize => (
+                                    <option key={pageSize} value={pageSize}>
+                                        Show {pageSize}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <div className="total-stock-content">
                     <div className='stock-header'>
                         <h3>Incoming Stock</h3>
