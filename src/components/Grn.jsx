@@ -266,6 +266,15 @@ const Grn = () => {
               readOnly
             />
           </div>
+          <div>
+            <label htmlFor='batchNumber'>Vendor Invoice:</label>
+            <input
+              type='text'
+              id='batchNumber'
+              value={vendorInvoice}
+
+            />
+          </div>
 
           {purchaseOrderId && (
             <div>
