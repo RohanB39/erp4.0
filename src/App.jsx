@@ -104,7 +104,7 @@ function App() {
                             <Route path='/update-employee' element={<UpdateEmployee onUpdateEmployee={handleUpdateEmployee} employees={employees} />} />
                             <Route path='/process-payroll' element={<Payroll />} />
                             <Route path='/payroll-table' element={<PayrollTable />} />
-                            <Route path='/Payroll' element={< Payroll />} />
+                            <Route path='/Payroll' element={<Payroll />} />
                             <Route path='/LeaveOverview' element={<LeaveOverview />} />
                             <Route path='/LeaveCalendar' element={<LeaveCalendar />} />
                             <Route path="/ShiftOverrideForm" element={<ShiftOverrideForm />} />
