@@ -29,7 +29,8 @@ const PurchaseOrder = () => {
   const [error, setError] = useState(null);
   const [materialDetails, setMaterialDetails] = useState({
     materialName: '',
-    materialId: ''
+    materialId: '',
+    materialPrice: ''
   });
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState('');
@@ -55,7 +56,7 @@ const PurchaseOrder = () => {
     materialName: '',
     materialId: '',
     quantity: '',
-    price: '',
+    materialPrice: '',
     selectedUnit: ''
   });
 
@@ -210,7 +211,8 @@ const PurchaseOrder = () => {
             const materialData = itemsSnapshot.docs[0].data();
             setMaterialDetails({
               materialName: materialData.materialName || '',
-              materialId: materialData.materialId || ''
+              materialId: materialData.materialId || '',
+              materialPrice:materialData.price
             });
           }
         } catch (error) {
@@ -249,7 +251,7 @@ const PurchaseOrder = () => {
         materialName: materialDetails.materialName,
         materialId: materialDetails.materialId,
         quantity,
-        price,
+        price:materialDetails.materialPrice,
         unit: selectedUnit,
         status: 'Not Assigned'
       });
@@ -430,9 +432,8 @@ const PurchaseOrder = () => {
               <label>Price:</label>
               <input
                 type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                required
+                value={materialDetails.materialPrice}
+                readOnly
               />
             </div>
           </>

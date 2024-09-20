@@ -21,6 +21,8 @@ const ItemsPopup = ({ onClose }) => {
     const [qty, setQty] = useState("");
     const [status] = useState("QC Pending");
     const [unit, setUnit] = useState("Nos");
+    const [price, setPrice] = useState("");
+    const [totalPrice, setTotalPrice] = useState("");
 
     const generateUniqueID = (name) => {
         const initials = name.split(' ').map(word => word.charAt(0).toLowerCase()).join('');
@@ -84,6 +86,7 @@ const ItemsPopup = ({ onClose }) => {
                 batchDate: batchDate.toISOString(),
                 qty: fullQty,
                 status,
+                price: totalPrice,
                 materialId: uniqueID
             });
             alert("Item added successfully!");
@@ -103,6 +106,15 @@ const ItemsPopup = ({ onClose }) => {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    useEffect(() => {
+        if (qty && price) {
+            setTotalPrice((parseFloat(qty) * parseFloat(price)).toFixed(2));
+        } else {
+            setTotalPrice("");
+        }
+    }, [qty, price]);
+    
 
 
     return (
@@ -208,6 +220,20 @@ const ItemsPopup = ({ onClose }) => {
                         type="hidden"
                         value={status}
                     />
+                    <input
+                        type="text"
+                        placeholder="Price"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                        required
+                    />
+                    <input
+                        type="text"
+                        placeholder="Total Price"
+                        value={totalPrice}
+                        readOnly
+                    />
+
                     <DatePicker
                         selected={batchDate}
                         onChange={date => setBatchDate(date)}
