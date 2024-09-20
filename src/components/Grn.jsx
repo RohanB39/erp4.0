@@ -21,7 +21,7 @@ const Grn = () => {
   const [items, setItems] = useState([]);
   const [purchaseOrderId, setPurchaseOrderId] = useState('');
   const [vendorInvoice, setVendorInvoice] = useState('');
-  
+
 
 
 
@@ -274,6 +274,15 @@ const Grn = () => {
               id='batchNumber'
               value={batchNumber}
               readOnly
+            />
+          </div>
+          <div>
+            <label htmlFor='batchNumber'>Vendor Invoice:</label>
+            <input
+              type='text'
+              id='batchNumber'
+              value={vendorInvoice}
+
             />
           </div>
 
