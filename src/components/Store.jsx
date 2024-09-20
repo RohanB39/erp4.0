@@ -3,6 +3,7 @@ import { useTable, usePagination } from 'react-table';
 import { getFirestore, collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 import './Store.css';
 import EditStoreProduct from './EditStoreProduct';
+import { Margin } from '@mui/icons-material';
 
 const Store = () => {
     const [incomingStock, setIncomingStock] = useState([]);
@@ -64,9 +65,7 @@ const Store = () => {
         const itemRef = doc(db, 'Items', item.id);
 
         try {
-            // Update the item's location
             await updateDoc(itemRef, { materialLocation: location });
-            // Move item from incomingStock to warehouseStock
             setIncomingStock(prev => prev.filter(i => i.id !== item.id));
             setWarehouseStock(prev => [...prev, { ...item, materialLocation: location }]);
         } catch (error) {
@@ -113,17 +112,19 @@ const Store = () => {
             },
             {
                 Header: 'Requested Quantity',
-                accessor: 'quantityRequested', // Changed to actual field
+                accessor: 'quantityRequested',
             },
             {
                 Header: 'Delivery Location',
-                accessor: 'deliveryLocation', // Changed to actual field
+                accessor: 'deliveryLocation', 
             },
             {
                 Header: 'Actions',
                 Cell: ({ row }) => (
                     <div>
                         <button onClick={() => handleEdit(row.original)}>Edit</button>
+                        <button onClick={() => handleApprove(row.original)}>Approve</button>
+                        <button onClick={() => handleReject(row.original)}>Reject</button>
                     </div>
                 ),
             },

@@ -223,6 +223,7 @@ const DemandMaterial = () => {
           onChange={handleQuantityChange}
           placeholder="Enter quantity"
           style={{ marginRight: '10px' }}
+          required
         />
 
         <select
