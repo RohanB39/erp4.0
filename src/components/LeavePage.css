@@ -17,8 +17,8 @@
   --tertiory: #cbe2c8;
   --optional: #f3f7f5;
   --dark-bg: #0f1122;
-  --btn-bg:#D49D1F;
-  --btn-bg2:#FFBC25;
+  --btn-bg: #d49d1f;
+  --btn-bg2: #ffbc25;
 }
 
 .leave-page {
@@ -75,6 +75,7 @@
 }
 .leave-list table {
   background-color: white;
+  overflow: auto;
 }
 .leave-list table thead {
   background-color: var(--optional);

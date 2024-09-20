@@ -104,12 +104,13 @@ function App() {
                             <Route path='/update-employee' element={<UpdateEmployee onUpdateEmployee={handleUpdateEmployee} employees={employees} />} />
                             <Route path='/process-payroll' element={<Payroll />} />
                             <Route path='/payroll-table' element={<PayrollTable />} />
+                            <Route path='/Payroll' element={< Payroll />} />
                             <Route path='/LeaveOverview' element={<LeaveOverview />} />
                             <Route path='/LeaveCalendar' element={<LeaveCalendar />} />
                             <Route path="/ShiftOverrideForm" element={<ShiftOverrideForm />} />
                             <Route path='/LeavePage' element={<LeavePage />} />
                             <Route path='/ShiftRosterPage' element={<ShiftRosterPage />} />
-                             <Route path="/allproduction" element={<AllProduction />} />
+                            <Route path="/allproduction" element={<AllProduction />} />
                             <Route path="/FinancePage" element={<FinancePage />} />
                             <Route path='/SalesPurchase' element={<SalesPurchase />} />
                             <Route path="/purchase-order" element={<PurchaseOrder />} />
@@ -121,7 +122,7 @@ function App() {
 
                             <Route path="/AllQuality" element={<AllQuality />} />
 
-                            <Route path="/Store" element={<Store />} /> 
+                            <Route path="/Store" element={<Store />} />
                             <Route path="/Grn" element={<Grn />} />
                             <Route path="/DemandMaterial" element={<DemandMaterial />} />
                             <Route path="/ProductionProcess" element={<ProductionProcess />} />

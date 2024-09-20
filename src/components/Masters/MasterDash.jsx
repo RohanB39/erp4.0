@@ -17,7 +17,7 @@ function MasterDash() {
     const [formData, setFormData] = useState({ name: '', email: '', description: '' });
     const [data, setData] = useState({
         customer: [],
-        vendor: [], 
+        vendor: [],
         items: [],
         rawMaterial: [],
         semiFinished: [],

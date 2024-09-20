@@ -127,10 +127,6 @@
   padding: 20px;
 }
 
-.allproduction-table {
-  margin-top: 20px;
-}
-
 .productionsearch {
   display: inline-block;
 }
@@ -154,6 +150,7 @@
 table {
   width: 100%;
   min-width: 1000px;
+  overflow: auto;
 }
 
 th {
@@ -194,6 +191,7 @@ tr:hover {
   padding: 1rem;
   border-radius: 4px;
   margin-top: 2rem;
+  overflow: auto;
 }
 .productionPhases .phases {
   display: grid;

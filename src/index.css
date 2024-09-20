@@ -55,30 +55,16 @@ th {
   font-family: "Poppins", sans-serif;
 }
 
-/* For webkit browsers (Chrome, Safari, Edge) */
-.custom-scrollbar {
-  overflow-x: auto;
+::-webkit-scrollbar {
+  width: 1px;
+  height: 2px;
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  height: 10px;
+::-webkit-scrollbar-thumb {
+  background-color: #282727;
+  border-radius: 10px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 1px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-
-/* For Firefox */
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: #888 #f1f1f1;
+::-webkit-scrollbar-track {
+  background-color: transparent;
 }
