@@ -4,6 +4,7 @@ import { getFirestore, collection, query, where, getDocs, updateDoc, doc } from 
 import './Store.css';
 import EditStoreProduct from './EditStoreProduct';
 import { Margin } from '@mui/icons-material';
+import { IoAdd } from 'react-icons/io5';
 
 const Store = () => {
     const [incomingStock, setIncomingStock] = useState([]);
@@ -247,9 +248,7 @@ const Store = () => {
                             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum voluptates nostrum hic?</p>
                         </div>
                         <div className='store-tabs'>
-                            <h2>Re-Order Level <span>20</span></h2>
-                            <h2>Maximum Level <span>100</span></h2>
-                            <h2>Total Stock <span className='active'>250</span></h2>
+                        <button> <IoAdd className='icon' />Create Purchase Order</button>
                         </div>
                     </div>
                 </div>

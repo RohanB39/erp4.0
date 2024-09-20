@@ -5,48 +5,37 @@ import { IoAdd } from "react-icons/io5";
 import './salesPurchase.css';
 import InvoicePopup from './InvoicePopup';
 import 'jspdf-autotable'; // Table Sathi
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { fireDB } from '../FirebaseConfig';
 import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import logo from '../../assets/Tectigon_logo.png';
-import PurchaseOrderPopup from './PurchaseOrder';
 
 function SalesPurchase() {
     const [isPopupOpen, setPopupOpen] = useState(false);
     const [searchInput, setSearchInput] = useState('');
     const [filterStatus, setFilterStatus] = useState('All');
     const [data, setData] = useState([]);
-    const [isPurchaseOrderPopupOpen, setPurchaseOrderPopupOpen] = useState(false);
-    const navigate = useNavigate(); 
+    const [purchaseStock, setPurchaseStock] = useState([]);
+    const navigate = useNavigate();
 
     const handleCreatePurchaseOrder = () => {
-        navigate('/purchase-order'); 
+        navigate('/purchase-order');
     };
 
     // Fetch data from Items and Purchase_Orders collection and match materialId
     useEffect(() => {
         const fetchData = async () => {
+            const materialsRef = collection(fireDB, 'Items');
             try {
-                // Fetch data from "Items" collection
-                const itemsSnapshot = await getDocs(collection(fireDB, "Items"));
-                const items = itemsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-                // Fetch data from "Purchase_Orders" collection
-                const purchaseOrdersSnapshot = await getDocs(collection(fireDB, "Purchase_Orders"));
-                const purchaseOrders = purchaseOrdersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-                // Map through items and find matching materialId in purchaseOrders to get the price
-                const enrichedItems = items.map(item => {
-                    const purchaseOrder = purchaseOrders.find(po => po.materialId === item.materialId);
-                    return {
-                        ...item,
-                        price: purchaseOrder ? purchaseOrder.price : 'N/A' // Add price if materialId matches
-                    };
-                });
-
-                // Set the enriched items with price in state
-                setData(enrichedItems);
+                const purchaseQuery = query(
+                    materialsRef, 
+                    // where('status', '==', 'QC Approved'),
+                    where('materialLocation', '!=', null) 
+                );
+                const purchaseSnapshot = await getDocs(purchaseQuery);
+                const purchaseMaterial = purchaseSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                setPurchaseStock(purchaseMaterial);
             } catch (error) {
                 console.error("Error fetching data: ", error);
             }
@@ -61,14 +50,15 @@ function SalesPurchase() {
         );
     }, [searchInput, data]);
 
-    const columns = useMemo(
+    const purchasecolumns = useMemo(
         () => [
-            { Header: 'Sr/No', Cell: ({ row }) => row.index + 1 }, 
+            { Header: 'Sr/No', Cell: ({ row }) => row.index + 1 },
             { Header: 'MID', accessor: 'materialId' },
+            { Header: 'Name', accessor: 'materialName'},
             { Header: 'Invoice Details', accessor: 'vendorInvoice' },
             { Header: 'Status', accessor: 'status' },
             { Header: 'Vendor & Details', accessor: 'vendorName' },
-            { Header: 'Amount', accessor: 'price' }, 
+            { Header: 'Amount', accessor: 'price' },
         ],
         []
     );
@@ -84,10 +74,10 @@ function SalesPurchase() {
         const itemHeaders = ['#', 'Invoice Details', 'Status', 'Vendor', 'Amount'];
         const itemRows = filteredData.map((item, index) => [
             `${index + 1}`,
-            `${item.invoiceDetails}`,
+            `${item.vendorInvoice}`,
             `${item.status}`,
-            `${item.vendorDetails}`,
-            `${item.amount}`
+            `${item.vendorName}`,
+            `${item.price}`
         ]);
         doc.autoTable({
             startY: 50,
@@ -125,25 +115,24 @@ function SalesPurchase() {
     };
 
     const {
-        getTableProps,
-        getTableBodyProps,
-        headerGroups,
-        prepareRow,
-        page,
-        canPreviousPage,
-        canNextPage,
-        pageOptions,
-        pageCount,
-        gotoPage,
-        nextPage,
-        previousPage,
-        setPageSize,
-        state: { pageIndex, pageSize },
+        getTableProps: getPurchaseTableProps,
+        getTableBodyProps: getPurchaseTableBodyProps,
+        headerGroups: purchaseHeaderGroups,
+        page: purchasePage,
+        prepareRow: preparePurchaseRow,
+        canPreviousPage: canPreviousWarehousePage,
+        canNextPage: canNextPurchasePage,
+        pageOptions: purchasePageOptions,
+        pageCount: purchasePageCount,
+        nextPage: nextpurchasePage,
+        previousPage: previouspurchasePage,
+        setPageSize: setPurchasePageSize,
+        state: { pageIndex: purchasePageIndex, pageSize: purchasePageSize },
     } = useTable(
         {
-            columns,
-            data: filteredData,
-            initialState: { pageIndex: 0, pageSize: 10 },
+            columns: purchasecolumns,
+            data: purchaseStock,
+            initialState: { pageIndex: 0 },
         },
         usePagination
     );
@@ -159,7 +148,7 @@ function SalesPurchase() {
                         <div className="purchase-process">
                             <button onClick={exportToPDF}> <MdOutlineFileDownload className='icon' />Export</button>
                             <button className='invoice' onClick={() => setPopupOpen(true)}> <IoAdd className='icon' />Add Invoice</button>
-                            <button onClick={handleCreatePurchaseOrder}> <IoAdd className='icon' />Create Purchase Order</button> 
+                            <button onClick={handleCreatePurchaseOrder}> <IoAdd className='icon' />Create Purchase Order</button>
                         </div>
                     </div>
                     <hr />
@@ -170,7 +159,7 @@ function SalesPurchase() {
                                 onClick={() => setFilterStatus('All')}
                             >
                                 <h3>All Purchase</h3>
-                                <p className={filterStatus === 'All' ? 'active' : ''}>{data.length}</p>
+                                <p className={filterStatus === 'Stores Rack1' ? 'active' : ''}>{data.length}</p>
                             </div>
 
                             <div
@@ -198,21 +187,19 @@ function SalesPurchase() {
                         </div>
                     </div>
                     <div className="process-item-list">
-                        <table {...getTableProps()}>
+                        <table {...getPurchaseTableProps()}>
                             <thead>
-                                {headerGroups.map(headerGroup => (
+                                {purchaseHeaderGroups.map(headerGroup => (
                                     <tr {...headerGroup.getHeaderGroupProps()}>
-                                        {headerGroup.headers.map((column, index) => (
-                                            <th {...column.getHeaderProps()}>
-                                                {index === 0 ? 'Sr/No' : column.render('Header')} 
-                                            </th>
+                                        {headerGroup.headers.map(column => (
+                                            <th {...column.getHeaderProps()}>{column.render('Header')}</th>
                                         ))}
                                     </tr>
                                 ))}
                             </thead>
-                            <tbody {...getTableBodyProps()}>
-                                {page.map((row, rowIndex) => {
-                                    prepareRow(row);
+                            <tbody {...getPurchaseTableBodyProps()}>
+                                {purchasePage.map(row => {
+                                    preparePurchaseRow(row);
                                     return (
                                         <tr {...row.getRowProps()}>
                                             {row.cells.map(cell => (
@@ -226,17 +213,30 @@ function SalesPurchase() {
                             </tbody>
                         </table>
                         <div className="pagination">
-                            <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+                            <button onClick={() => previousPage()} disabled={!canPreviousWarehousePage}>
                                 {'<'}
                             </button>
                             <span>
                                 Showing{' '}
-                                {pageIndex + 1} of {pageOptions.length}
+                                {purchasePageIndex + 1} of {purchasePageOptions.length}
                             </span>
-                            <button onClick={() => nextPage()} disabled={!canNextPage}>
+                            <button onClick={() => nextpurchasePage()} disabled={!canNextPurchasePage}>
                                 {'>'}
                             </button>
-                            <div className="puchase-pagination"></div>
+                        </div>
+                        <div>
+                            <select
+                                value={purchasePageSize}
+                                onChange={e => {
+                                    setPurchasePageSize(Number(e.target.value));
+                                }}
+                            >
+                                {[10, 20, 30, 40, 50].map(pageSize => (
+                                    <option key={pageSize} value={pageSize}>
+                                        Show {pageSize}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
                 </div>

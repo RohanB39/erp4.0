@@ -29,7 +29,8 @@ const PurchaseOrder = () => {
   const [error, setError] = useState(null);
   const [materialDetails, setMaterialDetails] = useState({
     materialName: '',
-    materialId: ''
+    materialId: '',
+    materialPrice: ''
   });
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState('');
@@ -55,7 +56,7 @@ const PurchaseOrder = () => {
     materialName: '',
     materialId: '',
     quantity: '',
-    price: '',
+    materialPrice: '',
     selectedUnit: ''
   });
 
@@ -210,7 +211,8 @@ const PurchaseOrder = () => {
             const materialData = itemsSnapshot.docs[0].data();
             setMaterialDetails({
               materialName: materialData.materialName || '',
-              materialId: materialData.materialId || ''
+              materialId: materialData.materialId || '',
+              materialPrice:materialData.price
             });
           }
         } catch (error) {
@@ -249,7 +251,7 @@ const PurchaseOrder = () => {
         materialName: materialDetails.materialName,
         materialId: materialDetails.materialId,
         quantity,
-        price,
+        price:materialDetails.materialPrice,
         unit: selectedUnit,
         status: 'Not Assigned'
       });
@@ -353,6 +355,7 @@ const PurchaseOrder = () => {
             </div>
             <div className="shippingForm">
               <input
+<<<<<<< HEAD
                 type="text"
                 className="address-input"
                 placeholder="Shipping Taluka"
@@ -374,6 +377,11 @@ const PurchaseOrder = () => {
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 required
+=======
+                type="number"
+                value={materialDetails.materialPrice}
+                readOnly
+>>>>>>> 9de95bf41e7d62cb9e8357903c66f8212f0fa3db
               />
             </div>
             <div className="shippingForm">
