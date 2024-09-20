@@ -20,6 +20,9 @@ const Grn = () => {
   const [status, setStatus] = useState('');
   const [items, setItems] = useState([]);
   const [purchaseOrderId, setPurchaseOrderId] = useState('');
+  const [vendorInvoice, setVendorInvoice] = useState('');
+  
+
 
 
   useEffect(() => {
@@ -102,6 +105,7 @@ const Grn = () => {
       inspectionDate,
       inspectionNotes,
       discrepancies,
+      vendorInvoice,
       status: status === 'Approved' ? 'GRN Approved, QC Pending' : status
     };
 
@@ -113,7 +117,7 @@ const Grn = () => {
         const purchaseOrderDocRef = doc(fireDB, "Purchase_Orders", purchaseOrderId);
         await updateDoc(purchaseOrderDocRef, { status: "Assigned" });
       }
-  
+
       alert("Material and Purchase Order status updated successfully");
     } catch (error) {
       alert("Error updating material or purchase order: ", error);
@@ -141,13 +145,13 @@ const Grn = () => {
             doc.data().vendorId === vendorId &&
             doc.data().status === "Not Assigned"
           )
-          .map(doc => doc.id); 
+          .map(doc => doc.id);
 
         if (purchaseOrders.length > 0) {
-          
+
           setPurchaseOrderId(purchaseOrders[0]);
         } else {
-          
+
           setPurchaseOrderId("PO Not Created");
         }
       } catch (error) {
@@ -159,6 +163,10 @@ const Grn = () => {
       fetchPurchaseOrder();
     }
   }, [materialId, vendorId]);
+
+  const handleVendorInvoice = (e) => {
+    setVendorInvoice(e.target.value);
+  };
 
   return (
     <div className='grn-page'>
@@ -218,6 +226,16 @@ const Grn = () => {
             id='vendorId'
             value={vendorId}
             readOnly
+          />
+        </div>
+
+        <div>
+          <label htmlFor="vendorInvoice">Vendor Invoice: </label>
+          <input
+            type="text"
+            value={vendorInvoice}
+            onChange={handleVendorInvoice}
+            placeholder="Vendor Invoice"
           />
         </div>
 

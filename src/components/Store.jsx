@@ -173,7 +173,7 @@ const Store = () => {
             },
             {
                 Header: 'Product Location',
-                accessor: 'materialLocation', // Adjusted to 'materialLocation'
+                accessor: 'materialLocation',
             },
             {
                 Header: 'Reorder Level',
@@ -185,7 +185,7 @@ const Store = () => {
             },
             {
                 Header: 'Total Stock',
-                accessor: 'quantityReceived', // Adjusted to show total quantity
+                accessor: 'quantityReceived', 
             },
         ],
         []

@@ -28,7 +28,7 @@ function SalesPurchase() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const querySnapshot = await getDocs(collection(fireDB, "invoices"));
+                const querySnapshot = await getDocs(collection(fireDB, "Items"));
                 const invoices = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 setData(invoices);
             } catch (error) {
