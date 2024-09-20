@@ -119,6 +119,7 @@ const DemandMaterial = () => {
       selectedUnit,
       purposeOfDemand,
       deliveryLocation,
+      expectedDeliveryDate,
       status: "Not Approved"
     };
 
@@ -129,12 +130,6 @@ const DemandMaterial = () => {
       console.error("Error saving form data to Firebase: ", error);
     }
   };
-
-
-
-
-
-
 
   return (
     <div className='dm'>
