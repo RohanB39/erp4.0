@@ -248,7 +248,13 @@ const Store = () => {
                             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum voluptates nostrum hic?</p>
                         </div>
                         <div className='store-tabs'>
-                        <button> <IoAdd className='icon' />Create Purchase Order</button>
+                        <button> <IoAdd className='icon' />View All Demands</button>
+                        </div>
+                        <div className='store-tabs'>
+                        <button> <IoAdd className='icon' />View Incoming Stock</button>
+                        </div>
+                        <div className='store-tabs'>
+                        <button> <IoAdd className='icon' />View Wearhouse Stock</button>
                         </div>
                     </div>
                 </div>
