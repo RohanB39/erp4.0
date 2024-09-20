@@ -4,14 +4,13 @@ import { MdOutlineFileDownload } from "react-icons/md";
 import { IoAdd } from "react-icons/io5";
 import './salesPurchase.css';
 import InvoicePopup from './InvoicePopup';
-import jsPDF from 'jspdf';
 import 'jspdf-autotable'; // Table Sathi
 import { collection, getDocs } from 'firebase/firestore';
 import { fireDB } from '../FirebaseConfig';
+import { useNavigate } from 'react-router-dom';
+import jsPDF from 'jspdf';
 import logo from '../../assets/Tectigon_logo.png';
 import PurchaseOrderPopup from './PurchaseOrder';
-import { useNavigate } from 'react-router-dom';
-
 
 function SalesPurchase() {
     const [isPopupOpen, setPopupOpen] = useState(false);
@@ -25,12 +24,29 @@ function SalesPurchase() {
         navigate('/purchase-order'); 
     };
 
+    // Fetch data from Items and Purchase_Orders collection and match materialId
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const querySnapshot = await getDocs(collection(fireDB, "Items"));
-                const invoices = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                setData(invoices);
+                // Fetch data from "Items" collection
+                const itemsSnapshot = await getDocs(collection(fireDB, "Items"));
+                const items = itemsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Fetch data from "Purchase_Orders" collection
+                const purchaseOrdersSnapshot = await getDocs(collection(fireDB, "Purchase_Orders"));
+                const purchaseOrders = purchaseOrdersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Map through items and find matching materialId in purchaseOrders to get the price
+                const enrichedItems = items.map(item => {
+                    const purchaseOrder = purchaseOrders.find(po => po.materialId === item.materialId);
+                    return {
+                        ...item,
+                        price: purchaseOrder ? purchaseOrder.price : 'N/A' // Add price if materialId matches
+                    };
+                });
+
+                // Set the enriched items with price in state
+                setData(enrichedItems);
             } catch (error) {
                 console.error("Error fetching data: ", error);
             }
@@ -41,17 +57,18 @@ function SalesPurchase() {
 
     const filteredData = useMemo(() => {
         return data.filter(item =>
-            item.invoiceDetails && item.invoiceDetails.toLowerCase().includes(searchInput.toLowerCase())
+            item.vendorInvoice && item.vendorInvoice.toLowerCase().includes(searchInput.toLowerCase())
         );
     }, [searchInput, data]);
 
     const columns = useMemo(
         () => [
-            { Header: 'Sr/no', accessor: 'id' },
-            { Header: 'Invoice Details', accessor: 'invoiceDetails' },
+            { Header: 'Sr/No', Cell: ({ row }) => row.index + 1 }, 
+            { Header: 'MID', accessor: 'materialId' },
+            { Header: 'Invoice Details', accessor: 'vendorInvoice' },
             { Header: 'Status', accessor: 'status' },
-            { Header: 'Vendor & Details', accessor: 'vendorDetails' },
-            { Header: 'Amount', accessor: 'amount' },
+            { Header: 'Vendor & Details', accessor: 'vendorName' },
+            { Header: 'Amount', accessor: 'price' }, 
         ],
         []
     );
@@ -86,7 +103,7 @@ function SalesPurchase() {
                 4: { cellWidth: 30 }
             }
         });
-
+    
         const finalY = doc.lastAutoTable.finalY;
         doc.setFontSize(12);
         doc.text('Bank Details:', 10, finalY + 40);
@@ -97,7 +114,7 @@ function SalesPurchase() {
         doc.text('Notes:', 10, finalY + 70);
         doc.setFontSize(10);
         doc.text('Thanks for your business.', 10, finalY + 75);
-
+    
         doc.text('Terms & Conditions:', 10, finalY + 85);
         doc.text('Please do the payment within 14 days. After 14 days, 14% will be charged.', 10, finalY + 90);
         doc.setFontSize(12);
@@ -198,7 +215,6 @@ function SalesPurchase() {
                                     prepareRow(row);
                                     return (
                                         <tr {...row.getRowProps()}>
-                                        {/* <td>{rowIndex + 1 + pageIndex * pageSize}</td> */}
                                             {row.cells.map(cell => (
                                                 <td {...cell.getCellProps()}>
                                                     {cell.render('Cell')}
@@ -226,7 +242,6 @@ function SalesPurchase() {
                 </div>
             </div>
             <InvoicePopup isOpen={isPopupOpen} onClose={() => setPopupOpen(false)} />
-            
         </>
     );
 }
