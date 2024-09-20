@@ -231,6 +231,16 @@ const Grn = () => {
           </div>
 
           <div>
+            <label htmlFor='vendorInvoice'>Vendor Invoice:</label>
+            <input
+              type='text'
+              id='vendorInvoice'
+              value={vendorInvoice}
+              onChange={handleVendorInvoice}
+            />
+          </div>
+
+          <div>
             <label htmlFor='materialId'>Material:</label>
             <select
               id='materialId'
@@ -310,11 +320,11 @@ const Grn = () => {
             >
               <option value=''>Select Status</option>
               <option value='Approved'>INWARD</option>
-              <option value='Rejected'>HOLD</option>
+              <option value='GRN Hold'>HOLD</option>
             </select>
           </div>
 
-          <button type='submit' disabled={purchaseOrderId === "PO Not Created" || status === "Rejected"}>Submit GRN</button>
+          <button type='submit' disabled={purchaseOrderId === "PO Not Created"}>Submit GRN</button>
         </form>
       </div>
     </div>
