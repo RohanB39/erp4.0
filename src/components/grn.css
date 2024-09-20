@@ -27,8 +27,110 @@
 }
 
 .grn-page {
-  background-color: var(--optional);
+  background-color: white;
   padding: 1rem;
+}
+.grn-page h4 {
+  background-color: var(--optional);
+  padding-top: 6px;
+  padding-bottom: 1px;
+  text-indent: 10px;
+  border-radius: 4px;
+  margin-bottom: 2rem;
+}
+.grnForm {
+  width: 95%;
+  margin: auto;
+  border: 1px dashed var(--btn-bg2);
+  padding: 1rem;
+}
+.grnSerch {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.grnSerch .grnNum {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
+}
+.grnSerch .grnNum label {
+  background-color: var(--btn-bg);
+  padding: 1px 12px;
+}
+.grnSerch .grnNum input {
+  border: none;
+  font-size: 14px;
+  margin-top: 10px;
+  background-color: var(--btn-bg2);
+  padding: 2.5px 10px;
+  text-indent: 8px;
+}
+.grnSerch .serchVendor label {
+  font-size: 15px;
+  color: gray;
+}
+.grnSerch .serchVendor input {
+  border: none;
+  outline: none;
+  background-color: var(--optional);
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+.vendorInfo {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.vendorInfo div,
+.vendorMoreInfo div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.vendorInfo div label,
+.vendorMoreInfo div label {
+  font-size: 14px;
+  color: gray;
+}
+.vendorInfo div input,
+.vendorMoreInfo div input,
+.vendorMoreInfo div select {
+  border: none;
+  border-bottom: 1px solid var(--dark-bg);
+  outline: none;
+}
+.vendorMoreInfo {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  place-content: center;
+  place-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+.vendorMoreInfo div select,
+.vendorInfo div select {
+  width: 100%;
+  font-size: 15px;
+  border: none;
+  border-bottom: 1px solid var(--dark-bg);
+  outline: none;
+}
+
+.grnBtn {
+  background-color: var(--btn-bg2);
+  padding: 3px 12px;
+  border: none;
+  margin-top: 1rem;
+  font-size: 15px;
+  border-radius: 4px;
+  transition: 0.3s ease-in-out;
+}
+.grnBtn:hover {
+  background-color: var(--btn-bg);
 }
 .custom-dropdown {
   position: relative;
@@ -49,12 +151,10 @@
 }
 
 .custom-dropdown .dropdown-option {
-  padding: 10px;
+  padding: 4px;
   cursor: pointer;
-}
-
-.custom-dropdown .dropdown-option:hover {
-  background-color: #f0f0f0;
+  font-size: 12px;
+  color: red;
 }
 
 .custom-dropdown input {
