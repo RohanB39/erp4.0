@@ -20,6 +20,7 @@ function SalesPurchase() {
     const [filterStatus, setFilterStatus] = useState('All');
     const [data, setData] = useState([]);
     const [purchaseStock, setPurchaseStock] = useState([]);
+    const [vendorSearch, setVendorSearch] = useState([]);
     const navigate = useNavigate();
     const [totalItemsCount, setTotalItemsCount] = useState(0);
     const [hold, setHold] = useState(0);
@@ -148,10 +149,13 @@ function SalesPurchase() {
     };
 
     const filteredData = useMemo(() => {
-        return purchaseStock.filter(item =>
-            item.materialName && item.materialName.toLowerCase().includes(searchInput.toLowerCase())
-        );
-    }, [searchInput, purchaseStock]); 
+        return purchaseStock.filter(item => {
+            const materialNameMatch = item.materialName && item.materialName.toLowerCase().includes(searchInput.toLowerCase());
+            const vendorNameMatch = item.vendorName && item.vendorName.toLowerCase().includes(searchInput.toLowerCase());
+            return materialNameMatch || vendorNameMatch;
+        });
+    }, [searchInput, purchaseStock]);
+    
 
     const {
         getTableProps: getPurchaseTableProps,
@@ -179,7 +183,7 @@ function SalesPurchase() {
 
     return (
         <>
-            <div className={`sales-purchase-container ${isPopupOpen ? 'blur' : ''}`}>
+            <div className={`sales-purchase-container`}>
                 <div className='main purchase-box' id='main'>
                     <div className="purchase-header">
                         <div className="purchase-title">
