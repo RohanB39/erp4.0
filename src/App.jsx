@@ -55,7 +55,7 @@ import ProductionProcess from './components/ProductionProcess';
 
 
 function App() {
-    const [isLoggedIn, setIsLoggedIn] = useState(true); // Set initial state to false
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // Set initial state to false
     const [employees, setEmployees] = useState([]);
 
     const handleLogin = () => {
