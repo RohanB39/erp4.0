@@ -14,7 +14,7 @@ import * as XLSX from 'xlsx';
 import ExportModal from './ExportModal';
 
 function SalesPurchase() {
-    const [isPopupOpen, setPopupOpen] = useState(false);
+    // const [isPopupOpen, setPopupOpen] = useState(false);
     const [searchInput, setSearchInput] = useState('');
     const [isExportModalOpen, setExportModalOpen] = useState(false);
     const [filterStatus, setFilterStatus] = useState('All');
@@ -151,7 +151,7 @@ function SalesPurchase() {
         return purchaseStock.filter(item =>
             item.materialName && item.materialName.toLowerCase().includes(searchInput.toLowerCase())
         );
-    }, [searchInput, purchaseStock]);  // Now correctly using purchaseStock in both filter and dependency array
+    }, [searchInput, purchaseStock]); 
 
     const {
         getTableProps: getPurchaseTableProps,
@@ -170,7 +170,7 @@ function SalesPurchase() {
     } = useTable(
         {
             columns: purchasecolumns,
-            data: filteredData,  // Ensure filteredData is being used here
+            data: filteredData, 
             initialState: { pageIndex: 0 },
         },
         usePagination
@@ -187,7 +187,7 @@ function SalesPurchase() {
                         </div>
                         <div className="purchase-process">
                             <button onClick={() => setExportModalOpen(true)}><MdOutlineFileDownload className='icon' /> Export</button>
-                            <button className='invoice' onClick={() => setPopupOpen(true)}> <IoAdd className='icon' />Add Invoice</button>
+                            {/* <button className='invoice' onClick={() => setPopupOpen(true)}> <IoAdd className='icon' />Add Invoice</button> */}
                             <button onClick={handleCreatePurchaseOrder}> <IoAdd className='icon' />Create Purchase Order</button>
                         </div>
                     </div>
@@ -283,7 +283,7 @@ function SalesPurchase() {
                     </div>
                 </div>
             </div>
-            <InvoicePopup isOpen={isPopupOpen} onClose={() => setPopupOpen(false)} />
+            {/* <InvoicePopup isOpen={isPopupOpen} onClose={() => setPopupOpen(false)} /> */}
             {isExportModalOpen && (
                 <ExportModal
                     onClose={() => setExportModalOpen(false)}
