@@ -10,14 +10,20 @@ import { fireDB } from '../FirebaseConfig';
 import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import logo from '../../assets/Tectigon_logo.png';
+import * as XLSX from 'xlsx';
+import ExportModal from './ExportModal';
 
 function SalesPurchase() {
     const [isPopupOpen, setPopupOpen] = useState(false);
     const [searchInput, setSearchInput] = useState('');
+    const [isExportModalOpen, setExportModalOpen] = useState(false);
     const [filterStatus, setFilterStatus] = useState('All');
     const [data, setData] = useState([]);
     const [purchaseStock, setPurchaseStock] = useState([]);
     const navigate = useNavigate();
+    const [totalItemsCount, setTotalItemsCount] = useState(0);
+    const [hold, setHold] = useState(0);
+
 
     const handleCreatePurchaseOrder = () => {
         navigate('/purchase-order');
@@ -28,10 +34,21 @@ function SalesPurchase() {
         const fetchData = async () => {
             const materialsRef = collection(fireDB, 'Items');
             try {
+                const allItemsSnapshot = await getDocs(materialsRef);
+                setTotalItemsCount(allItemsSnapshot.size); // Store total count
+
+                const q = query(
+                    materialsRef,
+                    where('status', 'in', ['Hold', 'Rejected'])
+                );
+
+                const holdItems = await getDocs(q);
+                setHold(holdItems.size);
+
                 const purchaseQuery = query(
-                    materialsRef, 
+                    materialsRef,
                     // where('status', '==', 'QC Approved'),
-                    where('materialLocation', '!=', null) 
+                    where('materialLocation', '!=', null)
                 );
                 const purchaseSnapshot = await getDocs(purchaseQuery);
                 const purchaseMaterial = purchaseSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -44,17 +61,11 @@ function SalesPurchase() {
         fetchData();
     }, []);
 
-    const filteredData = useMemo(() => {
-        return data.filter(item =>
-            item.vendorInvoice && item.vendorInvoice.toLowerCase().includes(searchInput.toLowerCase())
-        );
-    }, [searchInput, data]);
-
     const purchasecolumns = useMemo(
         () => [
             { Header: 'Sr/No', Cell: ({ row }) => row.index + 1 },
             { Header: 'MID', accessor: 'materialId' },
-            { Header: 'Name', accessor: 'materialName'},
+            { Header: 'Name', accessor: 'materialName' },
             { Header: 'Invoice Details', accessor: 'vendorInvoice' },
             { Header: 'Status', accessor: 'status' },
             { Header: 'Vendor & Details', accessor: 'vendorName' },
@@ -93,7 +104,7 @@ function SalesPurchase() {
                 4: { cellWidth: 30 }
             }
         });
-    
+
         const finalY = doc.lastAutoTable.finalY;
         doc.setFontSize(12);
         doc.text('Bank Details:', 10, finalY + 40);
@@ -104,7 +115,7 @@ function SalesPurchase() {
         doc.text('Notes:', 10, finalY + 70);
         doc.setFontSize(10);
         doc.text('Thanks for your business.', 10, finalY + 75);
-    
+
         doc.text('Terms & Conditions:', 10, finalY + 85);
         doc.text('Please do the payment within 14 days. After 14 days, 14% will be charged.', 10, finalY + 90);
         doc.setFontSize(12);
@@ -113,6 +124,34 @@ function SalesPurchase() {
         doc.text('Authorized Signature', 140, finalY + 85);
         doc.save('all_data.pdf');
     };
+
+    const exportToExcel = () => {
+        const worksheet = XLSX.utils.json_to_sheet(filteredData.map((item, index) => ({
+            '#': index + 1,
+            'Invoice Details': item.vendorInvoice,
+            'Status': item.status,
+            'Vendor': item.vendorName,
+            'Amount': item.price,
+        })));
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Purchases');
+        XLSX.writeFile(workbook, 'all_data.xlsx');
+    };
+
+    const handleExport = (type) => {
+        if (type === 'pdf') {
+            exportToPDF();
+        } else {
+            exportToExcel();
+        }
+    };
+
+    const filteredData = useMemo(() => {
+        return purchaseStock.filter(item =>
+            item.materialName && item.materialName.toLowerCase().includes(searchInput.toLowerCase())
+        );
+    }, [searchInput, purchaseStock]);  // Now correctly using purchaseStock in both filter and dependency array
 
     const {
         getTableProps: getPurchaseTableProps,
@@ -131,11 +170,12 @@ function SalesPurchase() {
     } = useTable(
         {
             columns: purchasecolumns,
-            data: purchaseStock,
+            data: filteredData,  // Ensure filteredData is being used here
             initialState: { pageIndex: 0 },
         },
         usePagination
     );
+
 
     return (
         <>
@@ -146,7 +186,7 @@ function SalesPurchase() {
                             <h3>Purchase Invoice</h3>
                         </div>
                         <div className="purchase-process">
-                            <button onClick={exportToPDF}> <MdOutlineFileDownload className='icon' />Export</button>
+                            <button onClick={() => setExportModalOpen(true)}><MdOutlineFileDownload className='icon' /> Export</button>
                             <button className='invoice' onClick={() => setPopupOpen(true)}> <IoAdd className='icon' />Add Invoice</button>
                             <button onClick={handleCreatePurchaseOrder}> <IoAdd className='icon' />Create Purchase Order</button>
                         </div>
@@ -159,22 +199,24 @@ function SalesPurchase() {
                                 onClick={() => setFilterStatus('All')}
                             >
                                 <h3>All Purchase</h3>
-                                <p className={filterStatus === 'Stores Rack1' ? 'active' : ''}>{data.length}</p>
+                                {/* Show the last serial number */}
+                                <p className={filterStatus === '' ? 'active' : ''}>
+                                    {totalItemsCount}
+                                </p>
                             </div>
 
                             <div
-                                className={filterStatus === 'Approved' ? 'active' : ''}
-                                onClick={() => setFilterStatus('Approved')}
+                                className={filterStatus === 'All' ? 'active' : ''}
+                                onClick={() => setFilterStatus('All')}
                             >
                                 <h3>Approved</h3>
-                                <p>{data.filter(item => item.status === 'Approved').length}</p>
+                                <p className={filterStatus === '' ? 'active' : ''}>
+                                    {purchaseStock.length > 0 ? purchaseStock.length : 0}
+                                </p>
                             </div>
-                            <div
-                                className={filterStatus === 'Rejected' ? 'active' : ''}
-                                onClick={() => setFilterStatus('Rejected')}
-                            >
+                            <div>
                                 <h3>Rejected</h3>
-                                <p>{data.filter(item => item.status === 'Rejected').length}</p>
+                                <p>{hold}</p>
                             </div>
                         </div>
                         <div className='serch'>
@@ -242,6 +284,12 @@ function SalesPurchase() {
                 </div>
             </div>
             <InvoicePopup isOpen={isPopupOpen} onClose={() => setPopupOpen(false)} />
+            {isExportModalOpen && (
+                <ExportModal
+                    onClose={() => setExportModalOpen(false)}
+                    onExport={handleExport}
+                />
+            )}
         </>
     );
 }
