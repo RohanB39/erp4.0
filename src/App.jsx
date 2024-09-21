@@ -126,7 +126,6 @@ function App() {
                             <Route path="/Grn" element={<Grn />} />
                             <Route path="/DemandMaterial" element={<DemandMaterial />} />
                             <Route path="/ProductionProcess" element={<ProductionProcess />} />
-
                         </Routes>
                     </div>
                 </>

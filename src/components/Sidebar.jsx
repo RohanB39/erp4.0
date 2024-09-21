@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from 'react-router-dom';
 import "./sidebar.css";
+import { auth } from './FirebaseConfig.js';
 
 function Sidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -10,6 +11,18 @@ function Sidebar() {
     setActiveSubmenu((prevActiveSubmenu) =>
       prevActiveSubmenu === tabName ? null : tabName
     );
+  };
+
+  const handleSignOut = async () => {
+    try {
+
+      await auth.signOut();
+
+      sessionStorage.clear();
+      window.location.href = '/';
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
   };
 
   return (
@@ -54,7 +67,7 @@ function Sidebar() {
               <span>Quality</span>
             </Link>
           </li>
-          
+
 
           <li className="nav-item">
             <Link
@@ -87,7 +100,7 @@ function Sidebar() {
 
           <li className="nav-item">
             <Link to="/FinancePage" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-            <i className="bi bi-cash"></i>
+              <i className="bi bi-cash"></i>
               <span>Finance</span>
             </Link>
           </li>
@@ -129,9 +142,15 @@ function Sidebar() {
               <span>Masters</span>
             </Link>
           </li>
+          <li className="nav-item">
+            <Link to="/Master" className="nav-link" onClick={() => setActiveSubmenu(null)}>
+              <i className="bi bi-bar-chart"></i>
+              <span>Analysis</span>
+            </Link>
+          </li>
           <hr />
           <li className="nav-item signout">
-            <Link to="/Master" className="nav-link" onClick={() => setActiveSubmenu(null)}>
+            <Link to="#" className="nav-link" onClick={handleSignOut}>
               <i className="bi bi-box-arrow-left"></i> 
               <span>Sign Out</span>
             </Link>
