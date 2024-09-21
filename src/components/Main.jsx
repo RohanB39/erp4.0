@@ -22,49 +22,17 @@ const dataMoneyFlow = [
 
 const getGreeting = () => {
     const date = new Date();
-    let hours = date.getHours();
-    switch (hours) {
-        case 1:
-            return "Good Afternoon";
-            break;
-        case 2:
-            return "Good Afternoon";
-            break;
-        case 3:
-            return "Good Afternoon";
-            break;
-        case 4:
-            return "Good Afternoon";
-            break;
-        case 5:
-            return "Good Afternoon";
-            break;
-        case 6:
-            return "Good Evening";
-            break;
-        case 7:
-            return "Good Morning";
-            break;
-        case 8:
-            return "Good Morning";
-            break;
-        case 9:
-            return "Good Morning";
-            break;
-        case 10:
-            return "Good Morning";
-            break;
-        case 11:
-            return "Good Morning";
-            break;
-        case 12:
-            return "Good Afternoon";
-            break;
-
+    const hours = date.getHours();
+    if (hours >= 5 && hours < 12) {
+        return "Good Morning";
+    } else if (hours >= 12 && hours < 17) {
+        return "Good Afternoon";
+    } else if (hours >= 17 && hours < 21) {
+        return "Good Evening";
+    } else {
+        return "Good Night";
     }
 };
-console.log(getGreeting());
-
 
 function Main() {
     const [companyName, setUserName] = useState('');
