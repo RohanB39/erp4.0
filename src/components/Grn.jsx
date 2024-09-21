@@ -14,9 +14,7 @@ const Grn = () => {
   const [materialDescription, setMaterialDescription] = useState('');
   const [batchNumber, setBatchNumber] = useState('');
   const [quantityReceived, setQuantityReceived] = useState('');
-  const [inspectionDate, setInspectionDate] = useState('');
-  const [inspectionNotes, setInspectionNotes] = useState('');
-  const [discrepancies, setDiscrepancies] = useState('');
+  const [GRNDate, setGRNDate] = useState('');
   const [status, setStatus] = useState('');
   const [items, setItems] = useState([]);
   const [purchaseOrderId, setPurchaseOrderId] = useState('');
@@ -103,9 +101,7 @@ const Grn = () => {
     const updatedMaterial = {
       grnNumber,
       quantityReceived,
-      inspectionDate,
-      inspectionNotes,
-      discrepancies,
+      GRNDate,
       vendorInvoice,
       status: status === 'Approved' ? 'GRN Approved, QC Pending' : status,
     };
@@ -294,34 +290,13 @@ const Grn = () => {
             </div>
 
             <div>
-              <label htmlFor='inspectionDate'>Inspection Date:</label>
+              <label htmlFor='GRNDate'>GRN Date:</label>
               <input
                 type='date'
-                id='inspectionDate'
-                value={inspectionDate}
-                onChange={(e) => setInspectionDate(e.target.value)}
+                id='GRNDate'
+                value={GRNDate}
+                onChange={(e) => setGRNDate(e.target.value)}
                 required
-              />
-            </div>
-
-            <div>
-              <label htmlFor='inspectionNotes'>Inspection Notes:</label>
-              <input
-                type='text'
-                id='inspectionNotes'
-                value={inspectionNotes}
-                onChange={(e) => setInspectionNotes(e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor='discrepancies'>Discrepancies:</label>
-              <input
-                type='text'
-                id='discrepancies'
-                value={discrepancies}
-                onChange={(e) => setDiscrepancies(e.target.value)}
               />
             </div>
 
@@ -334,7 +309,7 @@ const Grn = () => {
                 required
               >
                 <option value=''>Select Status</option>
-                <option value='Approved'>Approved</option>
+                <option value='Approved'>Inward</option>
                 <option value='Hold'>Hold</option>
               </select>
             </div>
