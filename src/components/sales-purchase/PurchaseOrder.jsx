@@ -355,7 +355,6 @@ const PurchaseOrder = () => {
             </div>
             <div className="shippingForm">
               <input
-<<<<<<< HEAD
                 type="text"
                 className="address-input"
                 placeholder="Shipping Taluka"
@@ -377,11 +376,6 @@ const PurchaseOrder = () => {
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 required
-=======
-                type="number"
-                value={materialDetails.materialPrice}
-                readOnly
->>>>>>> 9de95bf41e7d62cb9e8357903c66f8212f0fa3db
               />
             </div>
             <div className="shippingForm">
@@ -470,7 +464,6 @@ const PurchaseOrder = () => {
           </div>
         </form>
       </div >
-
     </div >
   );
 };
