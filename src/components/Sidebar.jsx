@@ -84,6 +84,14 @@ function Sidebar() {
               </div>
             )}
           </li>
+
+          <li className="nav-item">
+            <Link to="/FinancePage" className="nav-link" onClick={() => setActiveSubmenu(null)}>
+            <i className="bi bi-cash"></i>
+              <span>Finance</span>
+            </Link>
+          </li>
+
           <li className="nav-item">
             <Link
               to="/HrDashboard"
@@ -124,7 +132,7 @@ function Sidebar() {
           <hr />
           <li className="nav-item signout">
             <Link to="/Master" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-              <i className="bi bi-box-arrow-left"></i>
+              <i className="bi bi-box-arrow-left"></i> 
               <span>Sign Out</span>
             </Link>
           </li>
