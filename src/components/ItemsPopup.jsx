@@ -86,6 +86,7 @@ const ItemsPopup = ({ onClose }) => {
                 batchDate: batchDate.toISOString(),
                 qty: fullQty,
                 status,
+                perItemPrice: price,
                 price: totalPrice,
                 materialId: uniqueID
             });
