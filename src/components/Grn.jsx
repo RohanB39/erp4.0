@@ -22,19 +22,18 @@ const Grn = () => {
   const [purchaseOrderId, setPurchaseOrderId] = useState('');
   const [vendorInvoice, setVendorInvoice] = useState('');
 
-
-
-
+  // Generate GRN number when the component mounts
   useEffect(() => {
     const generateGrnNumber = () => {
       const date = new Date();
-      const formattedDate = ${date.getFullYear()}${date.getMonth() + 1}${date.getDate()};
+      const formattedDate = `${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}`;
       const randomDigits = Math.floor(1000 + Math.random() * 9000);
-      setGrnNumber(${formattedDate}-${randomDigits});
+      setGrnNumber(`${formattedDate}-${randomDigits}`);
     };
     generateGrnNumber();
   }, []);
 
+  // Fetch vendors from Firestore
   useEffect(() => {
     const fetchVendors = async () => {
       try {
@@ -42,7 +41,7 @@ const Grn = () => {
         const vendorList = querySnapshot.docs.map(doc => ({
           id: doc.id,
           name: doc.data().name,
-          uniqueID: doc.data().uniqueID  // Fetch the uniqueID from Firestore
+          uniqueID: doc.data().uniqueID,  // Fetch the uniqueID from Firestore
         }));
         setVendors(vendorList);
       } catch (error) {
@@ -52,6 +51,7 @@ const Grn = () => {
     fetchVendors();
   }, []);
 
+  // Fetch items based on vendorId
   useEffect(() => {
     if (vendorId) {
       const fetchItems = async () => {
@@ -63,7 +63,7 @@ const Grn = () => {
               id: doc.id,
               specifications: doc.data().specifications,
               batchNumber: doc.data().batchNumber,
-              materialLocation: doc.data().materialLocation
+              materialLocation: doc.data().materialLocation,
             }));
           setItems(itemList);
         } catch (error) {
@@ -74,6 +74,7 @@ const Grn = () => {
     }
   }, [vendorId]);
 
+  // Filter vendors based on search term
   const filteredVendors = vendors.filter(vendor =>
     vendor.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -106,7 +107,7 @@ const Grn = () => {
       inspectionNotes,
       discrepancies,
       vendorInvoice,
-      status: status === 'Approved' ? 'GRN Approved, QC Pending' : status
+      status: status === 'Approved' ? 'GRN Approved, QC Pending' : status,
     };
 
     try {
@@ -135,6 +136,7 @@ const Grn = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Fetch purchase order based on vendorId and materialId
   useEffect(() => {
     const fetchPurchaseOrder = async () => {
       try {
@@ -148,10 +150,8 @@ const Grn = () => {
           .map(doc => doc.id);
 
         if (purchaseOrders.length > 0) {
-
           setPurchaseOrderId(purchaseOrders[0]);
         } else {
-
           setPurchaseOrderId("PO Not Created");
         }
       } catch (error) {
@@ -175,7 +175,7 @@ const Grn = () => {
         <form onSubmit={handleSubmit} className='grnForm'>
           <div className='grnSerch'>
             <div className='grnNum'>
-              <label htmlFor='grnNumber'>GRN Number :</label>
+              <label htmlFor='grnNumber'>GRN Number:</label>
               <input
                 type='text'
                 id='grnNumber'
@@ -213,8 +213,6 @@ const Grn = () => {
           </div>
           <hr />
           <div className="vendorInfo">
-
-
             <div>
               <label htmlFor='vendorName'>Vendor Name:</label>
               <input
@@ -282,31 +280,8 @@ const Grn = () => {
               />
             </div>
           </div>
-          <div className="vendorInfo">
-
-            <div>
-              <label htmlFor='batchNumber'>Vendor Invoice:</label>
-              <input
-                type='text'
-                id='batchNumber'
-                value={vendorInvoice}
-
-              />
-            </div>
-
-
-            {purchaseOrderId && (
-              <div>
-                <label>Purchase Order ID:</label>
-                <input
-                  type='text'
-                  value={purchaseOrderId}
-                  readOnly
-                />
-              </div>
-            )}
-
-
+          <hr />
+          <div className="grnDetails">
             <div>
               <label htmlFor='quantityReceived'>Quantity Received:</label>
               <input
@@ -317,17 +292,36 @@ const Grn = () => {
                 required
               />
             </div>
-          </div>
 
-          <div className="vendorInfo">
             <div>
-              <label htmlFor='inspectionDate'>GRN Date:</label>
+              <label htmlFor='inspectionDate'>Inspection Date:</label>
               <input
                 type='date'
                 id='inspectionDate'
                 value={inspectionDate}
                 onChange={(e) => setInspectionDate(e.target.value)}
                 required
+              />
+            </div>
+
+            <div>
+              <label htmlFor='inspectionNotes'>Inspection Notes:</label>
+              <input
+                type='text'
+                id='inspectionNotes'
+                value={inspectionNotes}
+                onChange={(e) => setInspectionNotes(e.target.value)}
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor='discrepancies'>Discrepancies:</label>
+              <input
+                type='text'
+                id='discrepancies'
+                value={discrepancies}
+                onChange={(e) => setDiscrepancies(e.target.value)}
               />
             </div>
 
@@ -340,15 +334,18 @@ const Grn = () => {
                 required
               >
                 <option value=''>Select Status</option>
-                <option value='Approved'>INWARD</option>
-                <option value='Rejected'>HOLD</option>
+                <option value='Approved'>Approved</option>
+                <option value='Hold'>Hold</option>
               </select>
             </div>
+          </div>
 
-            <button type='submit' disabled={purchaseOrderId === "PO Not Created" || status === "Rejected"}>Submit GRN</button>
+          <button type='submit' className='btn-grnSubmit'>
+            Submit GRN
+          </button>
         </form>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 };
 
