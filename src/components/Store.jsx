@@ -5,6 +5,7 @@ import './Store.css';
 import EditStoreProduct from './EditStoreProduct';
 import { Margin } from '@mui/icons-material';
 import { IoAdd } from 'react-icons/io5';
+import DemandMaterialEdit from './DemandMaterialEdit';
 
 const Store = () => {
     const [incomingStock, setIncomingStock] = useState([]);
@@ -12,16 +13,18 @@ const Store = () => {
     const [warehouseStock, setWarehouseStock] = useState([]);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
-    
+    const [isDMEditPopup, seisDMEditPopup] = useState(false);
+    const [DMSelectedItem, setDMSelectedItem] = useState(null);
+
     const fetchData = async () => {
         const db = getFirestore();
         const materialsRef = collection(db, 'Items');
-        const demandRef = collection(db, 'Demand_Material')
-        
+        const demandRef = collection(db, 'Demand_Material');
+        const racksRef = collection(db, 'Store_Racks');
+    
         try {
-
             const demandMaterialQuery = query(
-                demandRef, 
+                demandRef,
                 where('status', '==', 'Not Approved'),
             );
             const demandSnapshot = await getDocs(demandMaterialQuery);
@@ -30,27 +33,38 @@ const Store = () => {
 
 
             const incomingQuery = query(
-                materialsRef, 
+                materialsRef,
                 where('status', '==', 'QC Approved'),
                 // where('materialLocation', '==', null)
             );
             const incomingSnapshot = await getDocs(incomingQuery);
             const incomingMaterials = incomingSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setIncomingStock(incomingMaterials);
+
     
-            const warehouseQuery = query(
-                materialsRef, 
-                // where('status', '==', 'QC Approved'),
-                where('materialLocation', '!=', null) 
-            );
-            const warehouseSnapshot = await getDocs(warehouseQuery);
-            const warehouseMaterials = warehouseSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setWarehouseStock(warehouseMaterials);
+            // Fetching warehouse stock from Store_Racks collection
+            const racksSnapshot = await getDocs(racksRef);
+            const racksData = racksSnapshot.docs.map(doc => {
+                const data = doc.data();
+                // Check if products exists and is an array
+                if (Array.isArray(data.products)) {
+                    return data.products.map(product => ({
+                        id: product.id,
+                        materialName: product.materialName,
+                        quantity: product.quantity,
+                        rackLocation: product.pLocation, 
+                    }));
+                }
+                return []; // Return an empty array if products is undefined or not an array
+            }).flat(); // Flatten the array to get a single-level array
+    
+            setWarehouseStock(racksData);
         } catch (error) {
             console.error("Error fetching materials: ", error);
         }
     };
     
+
 
     useEffect(() => {
         fetchData();
@@ -59,6 +73,15 @@ const Store = () => {
     const handleEdit = (item) => {
         setSelectedItem(item);
         setIsPopupOpen(true);
+    };
+
+    const handleDemandMaterialEdit = (item) => {
+        setDMSelectedItem(item);
+        seisDMEditPopup(true);
+    };
+
+    const handleClosePopup = () => {
+        setIsPopupOpen(false);
     };
 
     const handleSaveLocation = async (item, location) => {
@@ -108,6 +131,10 @@ const Store = () => {
                 accessor: 'id',
             },
             {
+                Header: 'MID',
+                accessor: 'selectedMaterialId'
+            },
+            {
                 Header: 'Product Name',
                 accessor: 'selectedItem',
             },
@@ -117,13 +144,13 @@ const Store = () => {
             },
             {
                 Header: 'Delivery Location',
-                accessor: 'deliveryLocation', 
+                accessor: 'deliveryLocation',
             },
             {
                 Header: 'Actions',
                 Cell: ({ row }) => (
                     <div>
-                        <button onClick={() => handleEdit(row.original)}>Edit</button>
+                        <button onClick={() => handleDemandMaterialEdit(row.original)}>Edit</button>
                         <button onClick={() => handleApprove(row.original)}>Approve</button>
                         <button onClick={() => handleReject(row.original)}>Reject</button>
                     </div>
@@ -174,7 +201,7 @@ const Store = () => {
             },
             {
                 Header: 'Product Location',
-                accessor: 'materialLocation',
+                accessor: 'rackLocation',
             },
             {
                 Header: 'Reorder Level',
@@ -186,7 +213,7 @@ const Store = () => {
             },
             {
                 Header: 'Total Stock',
-                accessor: 'quantityReceived', 
+                accessor: 'quantity',
             },
         ],
         []
@@ -248,13 +275,13 @@ const Store = () => {
                             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum voluptates nostrum hic?</p>
                         </div>
                         <div className='store-tabs'>
-                        <button> <IoAdd className='icon' />View All Demands</button>
+                            <button> <IoAdd className='icon' />View All Demands</button>
                         </div>
                         <div className='store-tabs'>
-                        <button> <IoAdd className='icon' />View Incoming Stock</button>
+                            <button> <IoAdd className='icon' />View Incoming Stock</button>
                         </div>
                         <div className='store-tabs'>
-                        <button> <IoAdd className='icon' />View Wearhouse Stock</button>
+                            <button> <IoAdd className='icon' />View Wearhouse Stock</button>
                         </div>
                     </div>
                 </div>
@@ -440,6 +467,13 @@ const Store = () => {
                     item={selectedItem}
                     onClose={closePopup}
                     onSave={(location) => handleSaveLocation(selectedItem, location)}
+                />
+            )}
+            {isDMEditPopup && (
+                <DemandMaterialEdit
+                    item={DMSelectedItem}
+                    onClose={() => seisDMEditPopup(false)}
+                    // Implement further actions as needed.
                 />
             )}
         </>
