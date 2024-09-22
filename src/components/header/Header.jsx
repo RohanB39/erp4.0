@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './header.css';
-import { auth, fireDB } from '../FirebaseConfig'; 
+import { auth, fireDB } from '../firebase/FirebaseConfig'; 
 import { doc, getDoc } from 'firebase/firestore';
 import profileImg from '../../assets/profile.jpg';
 

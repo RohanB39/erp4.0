@@ -1,0 +1,121 @@
+/* Default styles */
+:root {
+    font-family: "normal";
+    line-height: 1.5;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  
+    --primary: #cbe2c8;
+    --secondary: #e8fd9d;
+    --pure: #d6dfea;
+    --tertiory: #cbe2c8;
+    --optional: #f3f7f5;
+    --dark-bg: #0f1122;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+  }
+  
+  section {
+    margin: 2rem auto;
+  }
+  
+  section h4 {
+    background-color: var(--optional);
+    font-weight: 500;
+  }
+  
+  section .info-cards {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr); 
+    gap: 1rem;
+  }
+  
+  .info-cards .single-card {
+    padding: 1rem;
+    border-radius: 8px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: white;
+    cursor: pointer;
+    text-align: center;
+    margin-top: 1rem;
+    transition: 0.3s ease-in-out;
+    box-shadow: rgba(0, 0, 0, 0.45) 0px 25px 20px -20px;
+  }
+  
+  .single-card .card-icon {
+    font-size: 2rem;
+    color: black;
+    padding: 12px;
+    background-color: var(--tertiory);
+    border-radius: 6px;
+    margin-bottom: 12px;
+  }
+  
+  .single-card .card-title h3 {
+    color: black;
+    font-size: 20px;
+    text-align: start;
+    padding-top: 1rem;
+  }
+  
+  .single-card .card-info p {
+    color: rgb(70, 67, 67);
+    font-size: 16px;
+    text-align: start;
+    font-weight: 400;
+  }
+  
+  .single-card .listlink {
+    color: rgb(95, 95, 237) !important;
+    text-decoration: underline;
+    padding: 4px;
+    text-indent: 5px;
+  }
+  
+  .card-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .card-detail .numbers {
+    color: var(--100); 
+    border: 1px solid var(--secondary);
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    justify-content: center;
+    border-radius: 4px;
+    background-color: var(--secondary);
+    transition: 0.3s ease-in-out;
+  }
+  
+  .card-detail .numbers h2 {
+    margin-top: 4px;
+  }
+  
+  /* Media Queries for responsiveness */
+  @media (min-width: 768px) { 
+    section .info-cards {
+      grid-template-columns: repeat(2, 1fr); /
+    }
+  }
+  
+  @media (min-width: 1024px) { 
+    section .info-cards {
+      grid-template-columns: repeat(3, 1fr); 
+    }
+  }
+  

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './demandmaterial.css';
 import { getFirestore, collection, getDocs, doc, setDoc } from 'firebase/firestore';
-import { app } from '../../FirebaseConfig';
+import { app } from '../../firebase/FirebaseConfig';
 
 const generateUniqueId = () => {
   return 'DM-' + Math.random().toString(36).substr(2, 9).toUpperCase();

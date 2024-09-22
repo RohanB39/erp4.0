@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { fireDB } from "../../FirebaseConfig";
+import { fireDB } from "../../firebase/FirebaseConfig";
 import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import './grn.css';
 

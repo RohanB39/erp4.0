@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from 'react-router-dom';
 import "./sidebar.css";
-import { auth } from '../FirebaseConfig.js';
+import { auth } from '../firebase/FirebaseConfig.js';
 
 function Sidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(true);

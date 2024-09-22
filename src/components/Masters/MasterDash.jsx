@@ -3,13 +3,13 @@ import './masters.css';
 import DataTable from '../Masters/Subpages/DataTable';
 import { AiOutlineClose } from "react-icons/ai";
 import { MdEdit, MdDelete } from "react-icons/md";
-import CustomerPopup from '../CustomerPopup';
-import { fireDB, doc, updateDoc, collection, getDocs, addDoc, deleteDoc, query, where, auth } from '../FirebaseConfig';
-import VendorPopup from '../VendorPopup';
-import ItemsPopup from '../ItemsPopup';
-import RawMaterialsPopup from '../RawMaterialsPopup';
-import SemiFinishedPopup from '../SemiFinishedPopup.jsx';
-import FinishedPopup from '../FinishedPopup.jsx';
+import CustomerPopup from './customer/customerPopup/CustomerPopup.jsx';
+import { fireDB, doc, updateDoc, collection, getDocs, addDoc, deleteDoc, query, where, auth } from '../firebase/FirebaseConfig.js';
+import VendorPopup from './vendor/vendorPopup/VendorPopup.jsx';
+import ItemsPopup from './items/itemsPopup/ItemsPopup.jsx';
+import RawMaterialsPopup from './rawMaterial/rawMaterialPopup/RawMaterialsPopup.jsx';
+import SemiFinishedPopup from './semiFinished/semiFinishedPopup/SemiFinishedPopup.jsx';
+import FinishedPopup from './finished/finishedPopup/FinishedPopup.jsx';
 
 function MasterDash() {
     const [isFormVisible, setIsFormVisible] = useState(false);

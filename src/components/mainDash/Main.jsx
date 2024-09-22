@@ -5,7 +5,7 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { FaMoneyBillAlt } from "react-icons/fa";
 import { AiOutlineCalendar } from 'react-icons/ai';
-import { auth, fireDB } from '../FirebaseConfig';
+import { auth, fireDB } from '../firebase/FirebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';

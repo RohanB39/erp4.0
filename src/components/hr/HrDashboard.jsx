@@ -4,7 +4,7 @@ import { FiUsers } from 'react-icons/fi';
 import { IoIosPersonAdd } from "react-icons/io";
 import { MdModeEditOutline } from "react-icons/md";
 import { MdOutlineDelete } from "react-icons/md";
-import AddEmployee from '../AddEmployee';
+import AddEmployee from './employee/addEmployee/AddEmployee';
 import './hrDash.css';
 
 

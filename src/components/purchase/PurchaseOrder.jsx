@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs, query, where, doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, fireDB } from '../FirebaseConfig';
+import { auth, fireDB } from '../firebase/FirebaseConfig';
 import './purchaseOrder.css';
 import { Country, State, City } from "country-state-city";
 

@@ -6,7 +6,7 @@ import './salesPurchase.css';
 import InvoicePopup from './InvoicePopup';
 import 'jspdf-autotable'; // Table Sathi
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { fireDB } from '../FirebaseConfig';
+import { fireDB } from '../firebase/FirebaseConfig';
 import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import logo from '../../assets/Tectigon_logo.png';

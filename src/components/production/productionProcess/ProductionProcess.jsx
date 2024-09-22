@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import '../productionProcess/productionprocess.css';
-import AllproductionMain from '../AllproductionMain';
-import WorkOrders from '../../WorkOrders';
-import SubContract from '../../SubContract';
+import AllproductionMain from '../productionPhases/AllproductionMain';
+import WorkOrders from '../workOrders/WorkOrders';
+import SubContract from '../subContract/SubContract';
 import BillOfMaterials from '../Bom/BillOfMaterials';
 const ProductionProcess = () => {const [activeTab, setActiveTab] = useState('AllproductionMain');
 

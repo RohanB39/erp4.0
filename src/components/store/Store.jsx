@@ -2,7 +2,7 @@ import React, { useMemo, useEffect, useState } from 'react';
 import { useTable, usePagination } from 'react-table';
 import { getFirestore, collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 import './Store.css';
-import EditStoreProduct from '../EditStoreProduct';
+import EditStoreProduct from './editStoreProduct/EditStoreProduct';
 import { Margin } from '@mui/icons-material';
 import { IoAdd } from 'react-icons/io5';
 import DemandMaterialEdit from '../production/demandMaterial/DemandMaterialEdit';

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { collection, addDoc } from "firebase/firestore";
-import { fireDB } from '../FirebaseConfig'; 
+import { fireDB } from '../firebase/FirebaseConfig'; 
 import './invoicepopup.css';
 import { IoCloseSharp } from "react-icons/io5";
 

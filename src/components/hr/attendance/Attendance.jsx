@@ -7,7 +7,7 @@ import { LuArrowDownRightSquare, LuArrowUpRightSquare } from "react-icons/lu";
 import { CiExport, CiSearch } from "react-icons/ci";
 import { useTable, usePagination } from 'react-table';
 
-import CalendarButton from '../../CalenderButton';
+import CalendarButton from '../../calenderButton/CalenderButton';
 
 const Attendance = () => {
     const data = useMemo(() => [
