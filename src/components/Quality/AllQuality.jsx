@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-
-
 import InProcessQuality from './InProcessQuality';
 import FinalQuality from './FinalQuality';
 import InwardQuality from './InwardQuality';

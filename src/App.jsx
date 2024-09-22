@@ -11,10 +11,10 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'remixicon/fonts/remixicon.css';
 
 // Components
-import LoginPage from './components/LoginPage';
-import Header from './components/Header';
-import Sidebar from './components/Sidebar';
-import Main from './components/Main';
+import LoginPage from './components/loginPage/LoginPage';
+import Header from './components/header/Header';
+import Sidebar from './components/sidebar/Sidebar';
+import Main from './components/mainDash/Main';
 import CustomerList from './components/CustomerList';
 import ItemList from './components/ItemList';
 import VendorList from './components/VendorList';
@@ -22,33 +22,33 @@ import RawMaterial from './components/RawMaterial';
 import SemiFinished from './components/SemiFinished';
 import Finished from './components/Finished';
 import Master from './components/Master';
-import HrDashboard from './components/HrDashboard';
+import HrDashboard from './components/hr/HrDashboard';
 import AddEmployee from './components/AddEmployee';
 import ViewEmployees from './components/ViewEmployees';
 import UpdateEmployee from './components/UpdateEmployee';
-import AddLeave from './components/AddLeave';
-import Attendance from './components/Attendance';
-import Payroll from './components/Payroll';
-import PayrollTable from './components/PayrollTable';
-import LeaveOverview from './components/LeaveOverview';
-import LeaveCalendar from './components/LeaveCalendar';
+import AddLeave from './components/hr/leave/AddLeave';
+import Attendance from './components/hr/attendance/Attendance';
+import Payroll from './components/hr/payrollOverview/Payroll';
+import PayrollTable from './components/hr/payrollOverview/PayrollTable';
+import LeaveOverview from './components/hr/leave/LeaveOverview';
+import LeaveCalendar from './components/hr/leave/LeaveCalendar';
 import ShiftOverrideForm from './components/ShiftOverrideForm';
-import LeavePage from './components/LeavePage';
+import LeavePage from './components/hr/leave/LeavePage';
 import ShiftRosterPage from './components/ShiftRosterPage';
 
-import AllProduction from './components/sales-purchase/AllProduction';
-import Store from './components/Store';
-import FinancePage from './components/FinancePage';
-import SalesPurchase from './components/sales-purchase/SalesPurchase';
+import AllProduction from './components/production/AllProduction';
+import Store from './components/store/Store';
+import FinancePage from './components/finance/FinancePage';
+import SalesPurchase from './components/purchase/SalesPurchase';
 import MasterDash from './components/Masters/MasterDash';
-import Dispach from './components/Dispach';
-import DispachInvoice from './components/DispachInvoice';
+import Dispach from './components/dispatch/Dispach';
+import DispachInvoice from './components/dispatch/dispatchInvoice/DispachInvoice';
 
 import AllQuality from './components/Quality/AllQuality';
-import Grn from './components/Grn';
-import PurchaseOrder from './components/sales-purchase/PurchaseOrder';
-import DemandMaterial from './components/DemandMaterial';
-import ProductionProcess from './components/ProductionProcess';
+import Grn from './components/store/grn/Grn';
+import PurchaseOrder from './components/purchase/PurchaseOrder';
+import DemandMaterial from './components/production/demandMaterial/DemandMaterial';
+import ProductionProcess from './components/production/productionProcess/ProductionProcess';
 
 
 

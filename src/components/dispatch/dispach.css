@@ -1,0 +1,93 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+:root {
+  font-family: "normal";
+  line-height: 1.5;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  scroll-behavior: smooth;
+
+  font-family: "Poppins", sans-serif;
+
+  --primary: #cbe2c8;
+  --secondary: #e8fd9d;
+  --pure: #d6dfea;
+  --tertiory: #cbe2c8;
+  --optional: #f3f7f5;
+  --dark-bg: #0f1122;
+  --btn-bg: #d49d1f;
+  --btn-bg2: #ffbc25;
+}
+.dispach-container {
+  background-color: var(--dark-bg);
+  min-height: 40vh;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  padding-bottom: 2rem;
+  display: flex;
+  align-items: center;
+}
+.dispach-container .dispach-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+}
+
+.dispach-container .dispach-title h3 {
+  font-size: 18px;
+  color: white;
+  letter-spacing: 1px;
+}
+.dispach-container .dispach-title p {
+  color: var(--primary);
+  font-size: 14px;
+}
+.dispach-container .dispach-title button {
+  background-color: var(--btn-bg2);
+  border: none;
+  padding: 6px 8px;
+  font-size: 14px;
+  letter-spacing: 0.7px;
+  transition: 0.3s ease-in-out;
+}
+.dispach-container .dispach-title button:hover {
+  background-color: transparent;
+  border: 1px solid var(--btn-bg2);
+  color: white;
+}
+.dispach-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.dispach-table-container {
+  position: absolute;
+  top: 8rem;
+  left: 2rem;
+  right: 2rem;
+  border-radius: 4px;
+  display: flex;
+  gap: 1rem;
+  min-width: 800x;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  background-color: white;
+  overflow: auto;
+  flex-direction: column;
+}
+.dispach-table-container h4 {
+  font-weight: 500;
+  background-color: var(--optional);
+  padding: 4px;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
