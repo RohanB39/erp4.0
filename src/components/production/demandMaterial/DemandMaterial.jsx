@@ -22,10 +22,6 @@ const DemandMaterial = () => {
   const [deliveryLocation, setDeliveryLocation] = useState('');
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState('');
 
-
-
-
-
   const departments = [
     'Production', 'Maintenance'
   ];
@@ -78,9 +74,9 @@ const DemandMaterial = () => {
     const selectedMaterialName = event.target.value;
     const selectedItem = items.find(item => item.materialName === selectedMaterialName);
     if (selectedItem) {
-      setSelectedItem(selectedMaterialName);  // Update material name
-      setSelectedMaterialId(selectedItem.materialId);  // Set material ID
-      setSpecifications(selectedItem.specifications);  // Set specifications
+      setSelectedItem(selectedMaterialName); 
+      setSelectedMaterialId(selectedItem.materialId);  
+      setSpecifications(selectedItem.specifications); 
     }
   };
 
@@ -132,143 +128,160 @@ const DemandMaterial = () => {
   };
 
   return (
-    <div className='dm'>
-      <h1>Demand Material</h1>
-      <div>
-        <label htmlFor="uniqueId">DM ID:</label>
-        <input
-          type="text"
-          id="uniqueId"
-          value={uniqueId}
-          readOnly
-        />
-      </div>
+    <div className='main' id='main'>
+      <div className="demandConteiner">
+        <h4>Demand Material</h4>
+        <div className="demandHeader">
 
-      <div>
-        <label htmlFor="requestDate">Date:</label>
-        <input
-          type="date"
-          id="requestDate"
-          value={requestDate}
-          onChange={handleDateChange}
-        />
-      </div>
 
-      <div>
-        <label htmlFor="department">Department:</label>
-        <select
-          id="department"
-          value={selectedDepartment}
-          onChange={handleDepartmentChange}
-        >
-          <option value="" disabled>Select Department</option>
-          {departments.map(department => (
-            <option key={department} value={department}>
-              {department}
-            </option>
-          ))}
-        </select>
-      </div>
+          <div>
+            <label htmlFor="uniqueId">DM ID : </label>
+            <input
+              type="text"
+              id="uniqueId"
+              value={uniqueId}
+              readOnly
+            />
+          </div>
 
-      <div>
-        <label htmlFor="priority">Priority Level:</label>
-        <select
-          id="priority"
-          value={selectedPriority}
-          onChange={handlePriorityChange}
-        >
-          <option value="" disabled>Select Priority</option>
-          {priorities.map(priority => (
-            <option key={priority} value={priority}>
-              {priority}
-            </option>
-          ))}
-        </select>
-      </div>
+          <div>
+            <label htmlFor="requestDate">Date : </label>
+            <input
+              type="date"
+              id="requestDate"
+              value={requestDate}
+              onChange={handleDateChange}
+            />
+          </div>
+          <hr />
+        </div>        <div className="prioritySelections">
 
-      <div>
-        <label htmlFor="item">Select Item:</label>
-        <select
-          id="item"
-          value={selectedItem}
-          onChange={handleItemChange}
-        >
-          <option value="" disabled>Select Item</option>
-          {items.map(item => (
-            <option key={item.materialName} value={item.materialName}>
-              {item.materialName}
-            </option>
-          ))}
-        </select>
-      </div>
 
-      {selectedMaterialId && (
-        <div>
-          <p><strong>Material ID:</strong> {selectedMaterialId}</p>
+          <div>
+            <label htmlFor="department">Department:</label>
+            <select
+              id="department"
+              value={selectedDepartment}
+              onChange={handleDepartmentChange}
+            >
+              <option value="" disabled>Select Department</option>
+              {departments.map(department => (
+                <option key={department} value={department}>
+                  {department}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="priority">Priority Level:</label>
+            <select
+              id="priority"
+              value={selectedPriority}
+              onChange={handlePriorityChange}
+            >
+              <option value="" disabled>Select Priority</option>
+              {priorities.map(priority => (
+                <option key={priority} value={priority}>
+                  {priority}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="item">Select Item:</label>
+            <select
+              id="item"
+              value={selectedItem}
+              onChange={handleItemChange}
+            >
+              <option value="" disabled>Select Item</option>
+              {items.map(item => (
+                <option key={item.materialName} value={item.materialName}>
+                  {item.materialName}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      )}
+        <hr />
 
-      {specifications && (
-        <div>
-          <p><strong>Description:</strong> {specifications}</p>
+        {selectedMaterialId && (
+          <div className='selectedMaterialid'>
+            <p><span>Material ID : </span> {selectedMaterialId}</p>
+          </div>
+        )}
+
+        {specifications && (
+          <div className='selectedMaterialdesc'>
+            <p><span>Description:</span>  <br />{specifications}</p>
+          </div>
+        )}
+
+        <div className='quantitySelection'>
+          <div>
+
+            <label htmlFor="quantityRequested">Quantity Requested:</label>
+            <input
+              type="number"
+              id="quantityRequested"
+              value={quantityRequested}
+              onChange={handleQuantityChange}
+              placeholder="Enter quantity"
+              style={{ marginRight: '10px' }}
+              required
+            />
+          </div>
+
+          <select
+            id="unit"
+            value={selectedUnit}
+            onChange={handleUnitChange}
+          >
+            <option value="" disabled>Select Unit</option>
+            {units.map(unit => (
+              <option key={unit} value={unit}>
+                {unit}
+              </option>
+            ))}
+          </select>
         </div>
-      )}
 
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <label htmlFor="quantityRequested">Quantity Requested:</label>
-        <input
-          type="number"
-          id="quantityRequested"
-          value={quantityRequested}
-          onChange={handleQuantityChange}
-          placeholder="Enter quantity"
-          style={{ marginRight: '10px' }}
-          required
-        />
+        <div className='purposeDemand'>
+          <label htmlFor="purposeOfDemand">Purpose of Demand:</label>
+          <textarea
+            id="purposeOfDemand"
+            value={purposeOfDemand}
+            onChange={handlePurposeChange}
+            placeholder="Enter the purpose of the demand"
+            rows="2"
+            cols="40"
+          />
+        </div>
+        <div className="delivery">
+          <div className='deliveryLocationSubmtion'>
+            <div>
+              <label htmlFor='deliveryLocation'>Delivery Location: </label>
+              <input type='text' value={deliveryLocation} onChange={handleDeliveryLocation} placeholder='Delivery Location' />
+            </div>
 
-        <select
-          id="unit"
-          value={selectedUnit}
-          onChange={handleUnitChange}
-        >
-          <option value="" disabled>Select Unit</option>
-          {units.map(unit => (
-            <option key={unit} value={unit}>
-              {unit}
-            </option>
-          ))}
-        </select>
-      </div>
+            <div>
+              <label htmlFor="expectedDeliveryDate">Expected Delivery Date: </label>
+              <input
+                type="date"
+                value={expectedDeliveryDate}
+                onChange={handleExpectedDeliveryDate}
+                placeholder="Expected Delivery Date"
+              />
+            </div>
+          </div>
+          <div>
+            <button onClick={handleSubmit} className='submit-button'>Submit</button>
+          </div>
+        </div>
 
-      <div>
-        <label htmlFor="purposeOfDemand">Purpose of Demand:</label>
-        <textarea
-          id="purposeOfDemand"
-          value={purposeOfDemand}
-          onChange={handlePurposeChange}
-          placeholder="Enter the purpose of the demand"
-          rows="2"
-          cols="40"
-        />
-      </div>
 
-      <div>
-        <label htmlFor='deliveryLocation'>Delivery Location: </label>
-        <input type='text' value={deliveryLocation} onChange={handleDeliveryLocation} placeholder='Delivery Location' />
-      </div>
-
-      <div>
-        <label htmlFor="expectedDeliveryDate">Expected Delivery Date: </label>
-        <input
-          type="date"
-          value={expectedDeliveryDate}
-          onChange={handleExpectedDeliveryDate}
-          placeholder="Expected Delivery Date"
-        />
-      </div>
-
-      <div>
-        <button onClick={handleSubmit}>Submit</button>
       </div>
     </div>
   );
