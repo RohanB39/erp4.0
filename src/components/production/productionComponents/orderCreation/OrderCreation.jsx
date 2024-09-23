@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import './orderCreation.css';
-import { useTable, usePagination } from 'react-table';
-import { getFirestore, collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 
 function OrderCreation() {
     const [materials, setMaterials] = useState([]);
-    const [vendors, setVendors] = useState([]);
-    const [storeRacks, setStoreRacks] = useState([]);
-    const [warehouseStock, setWarehouseStock] = useState([]);
-
-    const [productionOrderId, setProductionOrderId] = useState(''); 
+    const [productionOrderId, setProductionOrderId] = useState('');
     const [productionOrderDate, setProductionOrderDate] = useState('');
     const [selectedMaterialId, setSelectedMaterialId] = useState('');
     const [quantity, setQuantity] = useState('');
@@ -20,20 +15,78 @@ function OrderCreation() {
     const [assembelyCell, setAssembelyCell] = useState('');
     const [completionWarehouse, setCompletionWarehouse] = useState('');
     const [createdBy, setCreatedBy] = useState('');
+    const [materialLocation, setMaterialLocation] = useState('');
 
+    // Generate production order ID on component mount
     useEffect(() => {
-        const genrateProductionId = () => {
+        const generateProductionId = () => {
             const date = new Date();
             const formattedDate = `${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}`;
             const randomDigits = Math.floor(1000 + Math.random() * 9000);
             setProductionOrderId(`${formattedDate}-${randomDigits}`);
         };
-        genrateProductionId();
+        generateProductionId();
     }, []);
 
-    const fetchMaterials = async () => {
-
+    // Fetch approved materials from Firestore
+    const fetchApprovedMaterials = async () => {
+        const db = getFirestore();
+        const materialsRef = collection(db, 'Demand_Material');
+        const q = query(materialsRef, where('status', '==', 'Approved'));
+        const querySnapshot = await getDocs(q);
+        const materials = [];
+        querySnapshot.forEach((doc) => {
+            const materialData = doc.data();
+            materials.push({ id: doc.id, ...materialData });
+        });
+        return materials;
     };
+
+    useEffect(() => {
+        const loadMaterials = async () => {
+            const approvedMaterials = await fetchApprovedMaterials();
+            setMaterials(approvedMaterials);
+        };
+        loadMaterials();
+    }, []);
+
+    // Fetch material location from Store_Racks collection based on selectedMaterialId
+    useEffect(() => {
+        const fetchMaterialLocation = async () => {
+            const selectedMaterial = materials.find(material => material.id === selectedMaterialId);
+            if (!selectedMaterial) return;
+    
+            const db = getFirestore();
+            const storeRacksRef = collection(db, 'Store_Racks');
+            const querySnapshot = await getDocs(storeRacksRef);
+    
+            let foundLocation = 'Location not found'; // Default value
+            let found = false; // Flag to indicate if a match was found
+    
+            querySnapshot.forEach((doc) => {
+                const { products } = doc.data(); // Get products array from the document
+    
+                // Check if the selectedMaterialId matches any product's id
+                products.forEach((product) => {
+                    if (product.id === selectedMaterial.selectedMaterialId) {
+                        foundLocation = product.pLocation; // Get pLocation from the matched product
+                        found = true; // Set flag to true
+                    }
+                });
+            });
+    
+            if (!found) {
+                console.log(`No matching product found for Material ID: ${selectedMaterial.selectedMaterialId}`); // Log if no match is found
+            }
+    
+            setMaterialLocation(foundLocation); // Set the found location or default message
+        };
+    
+        fetchMaterialLocation();
+    }, [selectedMaterialId, materials]);
+    
+    
+    
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -49,6 +102,7 @@ function OrderCreation() {
             assembelyCell,
             completionWarehouse,
             createdBy,
+            materialLocation,
         });
     };
 
@@ -86,13 +140,22 @@ function OrderCreation() {
                             required
                         >
                             <option value="">Select Material</option>
-                            {materials.map(material => (
+                            {materials.map((material) => (
                                 <option key={material.id} value={material.id}>
-                                    {material.name} ({material.type})
+                                    {material.selectedItem || 'Unknown'}
                                 </option>
                             ))}
                         </select>
                     </div>
+                    <br />
+
+                    <label>Quantity Requested:</label>
+                    <input
+                        type='text'
+                        value={materials.find(material => material.id === selectedMaterialId)?.quantityRequested || 'Unknown'}
+                        readOnly
+                    />
+
                     <div className="vendorInfo">
                         <label>Planned Quantity:</label>
                         <input
@@ -109,48 +172,47 @@ function OrderCreation() {
                             required
                         />
 
-                        <label>Assembley Cell:</label>
-                        <input
-                            type="number"
+                        <label>Assembly Cell:</label>
+                        <select
                             value={assembelyCell}
                             onChange={(e) => setAssembelyCell(e.target.value)}
                             required
-                        />
+                        >
+                            <option value="">Select Production Plant</option>
+                            <option value="Plant 1">Plant 1</option>
+                            <option value="Plant 2">Plant 2</option>
+                            <option value="Plant 3">Plant 3</option>
+                            <option value="Plant 4">Plant 4</option>
+                            <option value="Plant 5">Plant 5</option>
+                        </select>
 
                         <label>Completion Warehouse:</label>
-                        <input
-                            type="number"
+                        <select
                             value={completionWarehouse}
                             onChange={(e) => setCompletionWarehouse(e.target.value)}
                             required
-                        />
+                        >
+                            <option value="">Select Completion Warehouse</option>
+                            <option value="Warehouse 1">Warehouse 1</option>
+                            <option value="Warehouse 2">Warehouse 2</option>
+                            <option value="Warehouse 3">Warehouse 3</option>
+                            <option value="Warehouse 4">Warehouse 4</option>
+                            <option value="Warehouse 5">Warehouse 5</option>
+                        </select>
+
                         <label>Created By:</label>
                         <input
-                            type="number"
+                            type="text"
                             value={createdBy}
                             onChange={(e) => setCreatedBy(e.target.value)}
                             required
                         />
+
                         <label>Material Location:</label>
                         <input
-                            type="number"
-                            value={createdBy}
-                            onChange={(e) => setCreatedBy(e.target.value)}
-                            readOnly // this is fetching from Stored Racks
-                        />
-                        <label>Production Status:</label>
-                        <input
-                            type="number"
-                            value={createdBy}
-                            onChange={(e) => setCreatedBy(e.target.value)}
-                            readOnly // this is fetching from Stored Racks
-                        />
-                        <label>Progression Status:</label>
-                        <input
-                            type="number"
-                            value={createdBy}
-                            onChange={(e) => setCreatedBy(e.target.value)}
-                            readOnly // this is fetching from Stored Racks
+                            type="text"
+                            value={materialLocation}
+                            readOnly
                         />
 
                         <label>Product Name:</label>
@@ -160,6 +222,7 @@ function OrderCreation() {
                             onChange={(e) => setProductName(e.target.value)}
                             required
                         />
+
                         <label>Start Date:</label>
                         <input
                             type="date"
