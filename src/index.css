@@ -18,7 +18,9 @@
   --pure: #d6dfea;
   --tertiory: #cbe2c8;
   --optional: #f3f7f5;
-  --bg: #e8eeea;
+  --dark-bg: #0f1122;
+  --btn-bg: #d49d1f;
+  --btn-bg2: #ffbc25;
 }
 
 * {
@@ -67,4 +69,194 @@ th {
 
 ::-webkit-scrollbar-track {
   background-color: transparent;
+}
+
+/* /popup form (create customer , total vendot,total item forms)  */
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.667);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1111;
+}
+
+.popup-content {
+  background-color: var(--optional);
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.47);
+  width: 60%;
+  margin: auto;
+  height: auto;
+  overflow: auto !important;
+}
+/* .form-head {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+}
+.form-head h2 {
+  color: var(--100);
+  font-size: 20px;
+  font-family: "semibold";
+}
+.form-head button {
+  border: none;
+  color: var(--500);
+  font-weight: bold;
+  background-color: var(--300);
+  padding: 2px 8px;
+  border-radius: 50%;
+}
+.popup-content form {
+  display: flex;
+  flex-direction: column;
+}
+.popup-content form input {
+  border: none;
+  margin-bottom: 12px;
+  padding: 6px;
+  border-bottom: 1px solid var(--200);
+  background-color: transparent;
+  outline: none;
+  color: var(--100);
+  letter-spacing: 1px;
+}
+.popup-content form button {
+  background-color: var(--300);
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  width: fit-content;
+  font-size: 16px;
+  transition: 0.3s ease-in-out;
+  cursor: pointer;
+}
+.popup-content form button:hover {
+  color: var(--100);
+  background-color: var(--500);
+  border: 1px solid var(--300);
+} */
+
+.form-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.form-head h3 {
+  font-size: 24px;
+  color: var(--dark-bg);
+}
+.form-head button {
+  background-color: var(--btn-bg2);
+  color: var(--dark-bg);
+  border: none;
+  padding: 2px 12px;
+  font-size: 1.4rem;
+  border-radius: 2px;
+}
+.customer-id span {
+  padding: 4px 12px;
+  letter-spacing: 1px;
+}
+.customer-id {
+  background-color: var(--btn-bg);
+  padding: 4px 16px;
+  letter-spacing: 1.4px;
+  float: right;
+  margin-top: 1rem;
+  font-size: 14px;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+}
+.form-row input {
+  width: fit-content;
+  margin-top: 1rem;
+  border: none;
+  border-bottom: 1px solid var(--dark-bg);
+  background-color: transparent;
+  text-indent: 8px;
+  font-size: 16px;
+  outline: none;
+  padding-bottom: 2px;
+}
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+.checkbox input {
+  margin-top: 14px;
+}
+.subContainerForm {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  border: 1px dashed var(--btn-bg);
+  padding: 12px;
+  border-radius: 4px;
+  width: 100%;
+}
+.form-title {
+  font-size: 16px;
+  background-color: var(--tertiory);
+  padding: 4px 12px;
+}
+.form-column textarea {
+  background-color: transparent;
+  min-height: 30px;
+  font-size: 15px;
+  letter-spacing: 0.6px;
+  max-height: 40px;
+}
+.selectForminput,
+.formInputGroup {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding-bottom: 12px;
+}
+.selectForminput select,
+.formInputGroup input {
+  font-size: 14px;
+  width: 100%;
+  outline: none;
+  background-color: transparent;
+  text-indent: 4px;
+}
+.selectForminput input {
+  text-indent: 4px;
+  font-size: 14px;
+  background-color: transparent;
+  outline: none;
+  padding: 4px;
+}
+.faxInput {
+  width: 100%;
+  background-color: transparent;
+  font-size: 14px;
+  text-indent: 5px;
+}
+.submit-button {
+  margin-top: 2rem;
+  padding: 4px 12px;
+  border: none;
+  background-color: var(--btn-bg);
+  transition: 0.3s ease-in-out;
+}
+.submit-button:hover {
+  background-color: var(--btn-bg2);
 }
