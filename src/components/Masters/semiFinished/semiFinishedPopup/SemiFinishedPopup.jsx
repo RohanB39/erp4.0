@@ -3,7 +3,7 @@ import { fireDB } from "../../../firebase/FirebaseConfig";
 import { collection, getDocs, setDoc, doc } from "firebase/firestore";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import "./semiFinishedPopup.css";
+// import "./semiFinishedPopup.css";
 
 const SemiFinishedPopup = ({ onClose }) => {
     const [uniqueID, setUniqueID] = useState("");
@@ -110,112 +110,120 @@ const SemiFinishedPopup = ({ onClose }) => {
         <div className="popup-overlay">
             <div className="popup-content" ref={dropdownRef}>
                 <div className="form-head">
-                    <h2>Add Item</h2>
+                    <h3>Add Item</h3>
                     <button onClick={onClose}>
                         <i className="bi bi-x-lg"></i>
                     </button>
                 </div>
                 <form onSubmit={handleSubmit}>
-                    <input
-                        type="text"
-                        placeholder="Vendor Id"
-                        value={vendorId}
-                        readOnly
-                    />
-                    <div className="custom-dropdown">
+                    <div className="selectForminput">
                         <input
                             type="text"
-                            placeholder="Select Vendor"
-                            value={searchTerm}
-                            onChange={handleInputChange}
-                            onClick={() => setIsDropdownOpen(searchTerm.length > 0)}
+                            placeholder="Vendor Id"
+                            value={vendorId}
+                            readOnly
                         />
-                        {isDropdownOpen && filteredVendors.length > 0 && (
-                            <div className="dropdown-options">
-                                {filteredVendors.map(vendor => (
-                                    <div
-                                        key={vendor.id}
-                                        className="dropdown-option"
-                                        onClick={() => handleOptionSelect(vendor)}
-                                    >
-                                        {vendor.name}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                        {isDropdownOpen && filteredVendors.length === 0 && (
-                            <div className="dropdown-option">
-                                No vendors found
-                            </div>
-                        )}
+                        <div className="custom-dropdown">
+                            <input
+                                type="text"
+                                placeholder="Select Vendor"
+                                value={searchTerm}
+                                onChange={handleInputChange}
+                                onClick={() => setIsDropdownOpen(searchTerm.length > 0)}
+                            />
+                            {isDropdownOpen && filteredVendors.length > 0 && (
+                                <div className="dropdown-options">
+                                    {filteredVendors.map(vendor => (
+                                        <div
+                                            key={vendor.id}
+                                            className="dropdown-option"
+                                            onClick={() => handleOptionSelect(vendor)}
+                                        >
+                                            {vendor.name}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            {isDropdownOpen && filteredVendors.length === 0 && (
+                                <div className="dropdown-option">
+                                    No vendors found
+                                </div>
+                            )}
+                        </div>
+                        <input
+                            type="text"
+                            value="Semi Finished Material"
+                            readOnly
+                            required
+                        />
                     </div>
-                    <input
-                        type="text"
-                        value="Semi Finished Material"
-                        readOnly
-                        required
-                    />
-                    <input
-                        type="text"
-                        placeholder="Material Name"
-                        value={materialName}
-                        onChange={(e) => setMaterialName(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="text"
-                        placeholder="Specifications"
-                        value={specifications}
-                        onChange={(e) => setSpecifications(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="text"
-                        placeholder="HSN Code"
-                        value={hsnCode}
-                        onChange={(e) => setHsnCode(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="text"
-                        placeholder="Batch Number"
-                        value={batchNumber}
-                        onChange={(e) => setBatchNumber(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="text"
-                        placeholder="Quantity"
-                        value={qty}
-                        onChange={(e) => setQty(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="hidden"
-                        value={status}
-                    />
-                    <DatePicker
-                        selected={batchDate}
-                        onChange={date => setBatchDate(date)}
-                        dateFormat="dd/MM/yyyy"
-                        className="date-picker"
-                        placeholderText="Batch Date"
-                        required
-                    />
-                    <input
-                        type="text"
-                        placeholder="Material Location"
-                        value={materialLocation}
-                        onChange={(e) => setMaterialLocation(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="text"
-                        placeholder="Material Id"
-                        value={uniqueID}
-                        readOnly
-                    />
-                    <button type="submit">Add</button>
+                    <div className="selectForminput">
+                        <input
+                            type="text"
+                            placeholder="Material Name"
+                            value={materialName}
+                            onChange={(e) => setMaterialName(e.target.value)}
+                            required
+                        />
+                        <input
+                            type="text"
+                            placeholder="Specifications"
+                            value={specifications}
+                            onChange={(e) => setSpecifications(e.target.value)}
+                            required
+                        />
+                        <input
+                            type="text"
+                            placeholder="HSN Code"
+                            value={hsnCode}
+                            onChange={(e) => setHsnCode(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="selectForminput">
+                        <input
+                            type="text"
+                            placeholder="Batch Number"
+                            value={batchNumber}
+                            onChange={(e) => setBatchNumber(e.target.value)}
+                            required
+                        />
+                        <input
+                            type="text"
+                            placeholder="Quantity"
+                            value={qty}
+                            onChange={(e) => setQty(e.target.value)}
+                            required
+                        />
+                        <input
+                            type="hidden"
+                            value={status}
+                        />
+                        <DatePicker
+                            selected={batchDate}
+                            onChange={date => setBatchDate(date)}
+                            dateFormat="dd/MM/yyyy"
+                            className="date-picker"
+                            placeholderText="Batch Date"
+                            required
+                        />
+                    </div>
+                    <div className="selectForminput">
+                        <input
+                            type="text"
+                            placeholder="Material Location"
+                            value={materialLocation}
+                            onChange={(e) => setMaterialLocation(e.target.value)}
+                            required
+                        />
+                        <input
+                            type="text"
+                            placeholder="Material Id"
+                            value={uniqueID}
+                            readOnly
+                        />
+                    </div>
+                    <button className="submit-button" type="submit">Add</button>
                 </form>
             </div>
 
