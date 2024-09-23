@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { fireDB, storage } from '../../firebase/FirebaseConfig';
+import { collection, getDocs, addDoc, doc, setDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import './dispachInvoice.css';
+// Dispatch_Invoices
 
 function DispachInvoice() {
     const [customer, setCustomer] = useState('');
+    const [customers, setCustomers] = useState([]);
     const [invoiceNo, setInvoiceNo] = useState('');
     const [orderNo, setOrderNo] = useState('');
     const [invoiceDate, setInvoiceDate] = useState('');
@@ -20,22 +25,33 @@ function DispachInvoice() {
     const [total, setTotal] = useState('0');
     const [termsAndConditions, setTermsAndConditions] = useState('');
     const [file, setFile] = useState(null);
+    const [invoiceNumber, setInvoiceNumber] = useState('');
+
 
     useEffect(() => {
-        // Calculate Subtotal
+        const fetchCustomers = async () => {
+            const customersCollection = collection(fireDB, 'customers');
+            const customerDocs = await getDocs(customersCollection);
+            const customerNames = customerDocs.docs.map(doc => doc.data().name);
+            setCustomers(customerNames);
+        };
+
+        fetchCustomers();
+    }, []);
+
+    useEffect(() => {
         const calculatedSubTotal = items.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
         setSubTotal(calculatedSubTotal.toFixed(2));
     }, [items]);
 
     useEffect(() => {
-        // Calculate Total
         const discountValue = parseFloat(discount) || 0;
         const advanceValue = parseFloat(advance) || 0;
         const discountAmount = (subTotal * (discountValue / 100)).toFixed(2);
-        const advanceAmount = (subTotal * (advanceValue / 100)).toFixed(2);
-        const calculatedTotal = subTotal - discountAmount - advanceAmount;
+        const calculatedTotal = subTotal - discountAmount - advanceValue;
         setTotal(calculatedTotal.toFixed(2));
     }, [subTotal, discount, advance]);
+
 
     const handleAddItem = () => {
         setItems([...items, { srNo: (items.length + 1).toString().padStart(3, '0'), details: '', quantity: '', rate: '', amount: '' }]);
@@ -45,8 +61,6 @@ function DispachInvoice() {
         const { name, value } = event.target;
         const newItems = items.slice();
         newItems[index][name] = value;
-
-        // Update amount based on quantity and rate
         if (name === 'quantity' || name === 'rate') {
             const quantity = parseFloat(newItems[index].quantity) || 0;
             const rate = parseFloat(newItems[index].rate) || 0;
@@ -56,29 +70,94 @@ function DispachInvoice() {
         setItems(newItems);
     };
 
-    const handleSave = () => {
-        // Implement save functionality here
-        console.log({
-            customer,
-            invoiceNo,
-            orderNo,
-            invoiceDate,
-            terms,
-            dueDate,
-            salesperson,
-            subject,
-            items,
-            discount,
-            advance,
-            total,
-            subTotal,
-            termsAndConditions,
-            file
-        });
+    const handleSave = async () => {
+        try {
+            const invoiceData = {
+                customer,
+                invoiceNo,
+                orderNo,
+                invoiceDate,
+                terms,
+                dueDate,
+                salesperson,
+                subject,
+                items,
+                discount,
+                advance: advance || '0',
+                total,
+                subTotal,
+                termsAndConditions,
+                file: null,
+            };
+
+            if (file) {
+                const storageRef = ref(storage, `invoices/${file.name}`);
+                await uploadBytes(storageRef, file);
+                const fileURL = await getDownloadURL(storageRef);
+                invoiceData.file = fileURL;
+            }
+
+            const dispatchInvoicesDocRef = doc(fireDB, 'Dispatch_Invoices', invoiceNo);
+            await setDoc(dispatchInvoicesDocRef, invoiceData);
+            console.log('Invoice saved successfully:', invoiceData);
+        } catch (error) {
+            console.error('Error saving invoice:', error);
+        }
     };
 
+    const handleSalespersonChange = (e) => {
+        console.log("Selected salesperson:", e.target.value);
+        setSalesperson(e.target.value);
+    };
+
+
+
+
+
+
     const handleFileChange = (event) => {
-        setFile(event.target.files[0]);
+        const selectedFile = event.target.files[0];
+        setFile(selectedFile);
+    };
+
+
+    const generateInvoiceNumber = () => {
+        const randomChars = Math.random().toString(36).substring(2, 6).toUpperCase();
+        const formattedNumber = String(Date.now()).slice(-4); // Unique number
+        return `INV-${randomChars}-${formattedNumber}`;
+    };
+
+    useEffect(() => {
+        const newInvoiceNumber = generateInvoiceNumber();
+        setInvoiceNo(newInvoiceNumber); // Set the generated invoice number
+    }, []);
+
+
+    const termsData = [
+        { value: 'term1', label: 'Term 1', rules: 'Term 1 rules' },
+        { value: 'term2', label: 'Term 2', rules: 'Term 2 rules' },
+    ];
+
+    useEffect(() => {
+        if (invoiceDate) {
+            const invoiceDateObj = new Date(invoiceDate);
+            const dueDateObj = new Date(invoiceDateObj);
+            dueDateObj.setDate(invoiceDateObj.getDate() + 15);
+            setDueDate(dueDateObj.toISOString().split('T')[0]);
+        } else {
+            setDueDate('');
+        }
+    }, [invoiceDate]);
+
+    const termsMap = {
+        term1: 'Term 1 rules go here.',
+        term2: 'Term 2 rules go here.',
+    };
+
+    const handleTermChange = (e) => {
+        const selectedTerm = e.target.value;
+        setTerms(selectedTerm);
+        setTermsAndConditions(termsMap[selectedTerm] || '');
     };
 
     return (
@@ -91,17 +170,23 @@ function DispachInvoice() {
                     <label htmlFor="">Create Customer</label>
                     <div>
                         <select value={customer} onChange={(e) => setCustomer(e.target.value)}>
-                            <option value="pk">pk</option>
-                            <option value="kd">kd</option>
+                            <option value="">Select Customer</option>
+                            {customers.map((name, index) => (
+                                <option key={index} value={name}>{name}</option>
+                            ))}
                         </select>
-                        <button onClick={() => {/* Implement search functionality */ }}>search</button>
                     </div>
                 </div>
                 <div className="middle-section">
                     <div className="bottom-div">
                         <div className='innerDiv'>
                             <label htmlFor="">Invoice No.</label>
-                            <input type="text" placeholder='INV-00012' value={invoiceNo} onChange={(e) => setInvoiceNo(e.target.value)} />
+                            <input
+                                type="text"
+                                placeholder='INV-00012'
+                                value={invoiceNo}
+                                readOnly
+                            />
                         </div>
                         <div className='innerDiv'>
                             <label htmlFor="">Order No.</label>
@@ -115,9 +200,10 @@ function DispachInvoice() {
                         </div>
                         <div className='innerDiv'>
                             <label htmlFor="">Terms</label>
-                            <select value={terms} onChange={(e) => setTerms(e.target.value)}>
-                                <option value="term1">term1</option>
-                                <option value="term2">term2</option>
+                            <select value={terms} onChange={handleTermChange}>
+                                <option value="">Select Terms</option>
+                                <option value="term1">Term 1</option>
+                                <option value="term2">Term 2</option>
                             </select>
                         </div>
                     </div>
@@ -130,9 +216,9 @@ function DispachInvoice() {
                         <div className='innerDiv'>
                             <label htmlFor="">Salesperson</label>
                             <div>
-                                <select value={salesperson} onChange={(e) => setSalesperson(e.target.value)}>
-                                    <option value="first1">first1</option>
-                                    <option value="second1">second1</option>
+                                <select value={salesperson} onChange={handleSalespersonChange}>
+                                    <option value="EMP1">EMP1</option>
+                                    <option value="EMP2">EMP2</option>
                                 </select>
                             </div>
                         </div>
@@ -245,14 +331,14 @@ function DispachInvoice() {
                                         </select>
                                     </div>
                                 </div>
-                                <p>0</p>
+
                             </div>
                             <div className='tally-outer-body'>
                                 <div className='tally-inner-body advance'>
-                                    <input type="text" placeholder='Advance Given' value={advance} onChange={(e) => setAdvance(e.target.value)} />
-                                    <input type="text" placeholder='50%' value={advance} onChange={(e) => setAdvance(e.target.value)} />
+                                    <input type="text" placeholder='Advance Given' readOnly />
+                                    <input type="text" placeholder='5000Rs' value={advance} onChange={(e) => setAdvance(e.target.value)} />
                                 </div>
-                                <p>{(subTotal * (advance / 100)).toFixed(2)}</p>
+                                <p>{(total - advance)}</p>
                             </div>
                             <hr />
                             <div className="tally-footer">
