@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './orderCreation.css';
-import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, query, where, getDocs, setDoc, doc } from 'firebase/firestore';
 
 function OrderCreation() {
     const [materials, setMaterials] = useState([]);
@@ -16,6 +16,8 @@ function OrderCreation() {
     const [completionWarehouse, setCompletionWarehouse] = useState('');
     const [createdBy, setCreatedBy] = useState('');
     const [materialLocation, setMaterialLocation] = useState('');
+    const [productionStatus, setProductionStatus] = useState('Pending');
+    const [progressStatus, setProgressStatus] = useState('Completed Product Order');
 
     // Generate production order ID on component mount
     useEffect(() => {
@@ -55,42 +57,37 @@ function OrderCreation() {
         const fetchMaterialLocation = async () => {
             const selectedMaterial = materials.find(material => material.id === selectedMaterialId);
             if (!selectedMaterial) return;
-    
+
             const db = getFirestore();
             const storeRacksRef = collection(db, 'Store_Racks');
             const querySnapshot = await getDocs(storeRacksRef);
-    
-            let foundLocation = 'Location not found'; // Default value
-            let found = false; // Flag to indicate if a match was found
-    
+
+            let foundLocation = 'Location not found';
+            let found = false;
+
             querySnapshot.forEach((doc) => {
-                const { products } = doc.data(); // Get products array from the document
-    
-                // Check if the selectedMaterialId matches any product's id
+                const { products } = doc.data();
                 products.forEach((product) => {
                     if (product.id === selectedMaterial.selectedMaterialId) {
-                        foundLocation = product.pLocation; // Get pLocation from the matched product
-                        found = true; // Set flag to true
+                        foundLocation = product.pLocation;
+                        found = true;
                     }
                 });
             });
-    
-            if (!found) {
-                console.log(`No matching product found for Material ID: ${selectedMaterial.selectedMaterialId}`); // Log if no match is found
-            }
-    
-            setMaterialLocation(foundLocation); // Set the found location or default message
+            setMaterialLocation(foundLocation);
         };
-    
+
         fetchMaterialLocation();
     }, [selectedMaterialId, materials]);
-    
-    
-    
 
-    const handleSubmit = (e) => {
+
+
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log({
+    
+        const db = getFirestore();
+        const orderData = {
             productionOrderId,
             productionOrderDate,
             selectedMaterialId,
@@ -103,8 +100,18 @@ function OrderCreation() {
             completionWarehouse,
             createdBy,
             materialLocation,
-        });
+            productionStatus, 
+            progressStatus, 
+        };
+    
+        try {
+            await setDoc(doc(db, 'Production_Orders', productionOrderId), orderData);
+            console.log('Order created successfully:', orderData);
+        } catch (error) {
+            console.error('Error creating order:', error);
+        }
     };
+    
 
     return (
         <div className='main subProductionOrder' id='main'>
@@ -237,6 +244,20 @@ function OrderCreation() {
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
                             required
+                        />
+
+                        <label>Production Status:</label>
+                        <input
+                            type="text"
+                            value={productionStatus}
+                            readOnly
+                        />
+
+                        <label>Progress Status:</label>
+                        <input
+                            type="text"
+                            value={progressStatus}
+                            readOnly
                         />
                     </div>
 
