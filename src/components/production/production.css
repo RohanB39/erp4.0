@@ -220,3 +220,22 @@ tr:hover {
   font-size: 20px;
   letter-spacing: 0.8px;
 }
+
+.wd-100 {
+  width: 100%;
+}
+
+.flex {
+  width: 205%;
+  display: flex;
+}
+
+.padd {
+  margin: 0 10px;
+}
+
+.padd button {
+  background: none;
+  border: none;
+  outline: none;
+}

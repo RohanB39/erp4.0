@@ -3,8 +3,6 @@ import { useTable, usePagination } from 'react-table';
 import { getFirestore, collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 import './Store.css';
 import EditStoreProduct from './editStoreProduct/EditStoreProduct';
-import { Margin } from '@mui/icons-material';
-import { IoAdd } from 'react-icons/io5';
 import DemandMaterialEdit from '../production/demandMaterial/DemandMaterialEdit';
 
 const Store = () => {
@@ -274,14 +272,8 @@ const Store = () => {
                             <h3>Store Analysis</h3>
                             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum voluptates nostrum hic?</p>
                         </div>
-                        <div className='store-tabs'>
-                            <button> <IoAdd className='icon' />View All Demands</button>
-                        </div>
-                        <div className='store-tabs'>
-                            <button> <IoAdd className='icon' />View Incoming Stock</button>
-                        </div>
-                        <div className='store-tabs'>
-                            <button> <IoAdd className='icon' />View Wearhouse Stock</button>
+                        <div className='uniSearch'>
+                            <input type='search' placeholder='Search Demand,Incoming & Warehouse stock' />
                         </div>
                     </div>
                 </div>

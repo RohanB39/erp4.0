@@ -40,7 +40,7 @@
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.47);
-  width: 50%;
+  width: 100%;
   margin: auto;
 }
 .form-head {
@@ -64,6 +64,7 @@
 .popup-content form {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 .popup-content form input {
   border: none;

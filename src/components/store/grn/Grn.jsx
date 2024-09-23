@@ -277,7 +277,7 @@ const Grn = () => {
             </div>
           </div>
           <hr />
-          <div className="grnDetails">
+          <div className="vendorInfo">
             <div>
               <label htmlFor='quantityReceived'>Quantity Received:</label>
               <input
@@ -315,7 +315,7 @@ const Grn = () => {
             </div>
           </div>
 
-          <button type='submit' className='btn-grnSubmit'>
+          <button type='submit' className='grnBtn'>
             Submit GRN
           </button>
         </form>

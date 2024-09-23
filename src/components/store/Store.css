@@ -111,3 +111,11 @@
   text-indent: 5px;
   font-size: 14px;
 }
+
+.uniSearch input{
+  margin-left: -120%;
+  width: 200%;
+  padding: 10px;
+  outline: none;
+  border-radius: 5px;
+}
