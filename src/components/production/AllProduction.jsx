@@ -26,7 +26,7 @@ function AllProduction() {
                             <h3><button onClick={() => setCurrentStep('materialAllocation')}>Material Allocation</button></h3>
                         </div>
                         <div className="single-production-card padd">
-                            <h3><button onClick={() => setCurrentStep('workCenter')}>Work Center Assignment</button></h3>
+                            <h3><button onClick={() => setCurrentStep('workCenter')}>Machine Assignment</button></h3>
                         </div>
                         <div className="single-production-card padd">
                             <h3><button onClick={() => setCurrentStep('execution')}>Production Execution</button></h3>
