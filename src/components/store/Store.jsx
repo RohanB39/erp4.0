@@ -465,7 +465,6 @@ const Store = () => {
                 <DemandMaterialEdit
                     item={DMSelectedItem}
                     onClose={() => seisDMEditPopup(false)}
-                    // Implement further actions as needed.
                 />
             )}
         </>
