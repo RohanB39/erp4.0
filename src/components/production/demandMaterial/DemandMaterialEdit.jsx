@@ -86,7 +86,7 @@ const DemandMaterialEdit = ({ item, onClose, onSave }) => {
 
                 updateDoc(rackRef, { products: updatedProducts });
                 const demandMaterialRef = doc(db, 'Demand_Material', item?.id);
-                await updateDoc(demandMaterialRef, { status: 'Approved' });
+                await updateDoc(demandMaterialRef, { status: 'Approved', approvedQty: requestedQuantity  });
                 setMessage('Product quantity updated and status set to "Approved"!');
                 alert("Ok");
             } else {
@@ -130,11 +130,11 @@ const DemandMaterialEdit = ({ item, onClose, onSave }) => {
                     <input
                         type="text"
                         value={requestedQuantity}
-                        onChange={(e) => setRequestedQuantity(e.target.value)} // Track user input
+                        onChange={(e) => setRequestedQuantity(e.target.value)} 
                     />
                 </div>
 
-                {message && <div className="message">{message}</div>} {/* Display message */}
+                {message && <div className="message">{message}</div>} 
 
                 <div>
                     <button onClick={handleSave}>Save</button>
