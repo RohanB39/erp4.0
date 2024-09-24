@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './production.css';
 import OrderCreation from './productionComponents/orderCreation/OrderCreation';
-import MaterialAllocation from './productionComponents/MaterialAllocation';
+import MaterialAllocation from './productionComponents/materialAllocation/MaterialAllocation';
 
 function AllProduction() {
     const [productionData, setProductionData] = useState([]);
