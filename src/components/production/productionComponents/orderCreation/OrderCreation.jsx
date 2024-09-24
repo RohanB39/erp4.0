@@ -18,6 +18,8 @@ function OrderCreation() {
     const [materialLocation, setMaterialLocation] = useState('');
     const [productionStatus, setProductionStatus] = useState('Pending');
     const [progressStatus, setProgressStatus] = useState('Completed Product Order');
+    const [materialId, setMaterialId] = useState('');
+    const [quantityRequested, setQuantityRequested] = useState('');
 
     // Generate production order ID on component mount
     useEffect(() => {
@@ -85,7 +87,7 @@ function OrderCreation() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         const db = getFirestore();
         const orderData = {
             productionOrderId,
@@ -100,18 +102,29 @@ function OrderCreation() {
             completionWarehouse,
             createdBy,
             materialLocation,
-            productionStatus, 
-            progressStatus, 
+            productionStatus,
+            progressStatus,
+            materialId,
+            quantityRequested,
         };
-    
+
         try {
             await setDoc(doc(db, 'Production_Orders', productionOrderId), orderData);
-            console.log('Order created successfully:', orderData);
+            alert('Order created successfully:');
         } catch (error) {
             console.error('Error creating order:', error);
         }
     };
-    
+
+    const handleMaterialChange = (e) => {
+        const selectedId = e.target.value;
+        setSelectedMaterialId(selectedId);
+        const selectedMaterial = materials.find((material) => material.id === selectedId);
+        if (selectedMaterial) {
+            setMaterialId(selectedMaterial.selectedMaterialId || ''); // Set materialId
+            setQuantityRequested(selectedMaterial.quantityRequested || 'Unknown'); // Set quantityRequested
+        }
+    };
 
     return (
         <div className='main subProductionOrder' id='main'>
@@ -141,11 +154,7 @@ function OrderCreation() {
 
                     <div className="custom-dropdown serchVendor">
                         <label>Material:</label>
-                        <select
-                            value={selectedMaterialId}
-                            onChange={(e) => setSelectedMaterialId(e.target.value)}
-                            required
-                        >
+                        <select value={selectedMaterialId} onChange={handleMaterialChange} required>
                             <option value="">Select Material</option>
                             {materials.map((material) => (
                                 <option key={material.id} value={material.id}>
@@ -154,15 +163,22 @@ function OrderCreation() {
                             ))}
                         </select>
                     </div>
+                    <div className="custom-dropdown serchVendor">
+                        <label>Material ID:</label>
+                        <input
+                            type="text"
+                            value={materialId}
+                            readOnly
+                        />
+                    </div>
                     <br />
 
                     <label>Quantity Requested:</label>
                     <input
-                        type='text'
-                        value={materials.find(material => material.id === selectedMaterialId)?.quantityRequested || 'Unknown'}
+                        type="text"
+                        value={quantityRequested}
                         readOnly
                     />
-
                     <div className="vendorInfo">
                         <label>Planned Quantity:</label>
                         <input
