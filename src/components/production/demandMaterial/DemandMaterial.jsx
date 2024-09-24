@@ -74,9 +74,9 @@ const DemandMaterial = () => {
     const selectedMaterialName = event.target.value;
     const selectedItem = items.find(item => item.materialName === selectedMaterialName);
     if (selectedItem) {
-      setSelectedItem(selectedMaterialName); 
-      setSelectedMaterialId(selectedItem.materialId);  
-      setSpecifications(selectedItem.specifications); 
+      setSelectedItem(selectedMaterialName);
+      setSelectedMaterialId(selectedItem.materialId);
+      setSpecifications(selectedItem.specifications);
     }
   };
 
@@ -132,8 +132,6 @@ const DemandMaterial = () => {
       <div className="demandConteiner">
         <h4>Demand Material</h4>
         <div className="demandHeader">
-
-
           <div>
             <label htmlFor="uniqueId">DM ID : </label>
             <input
@@ -154,9 +152,8 @@ const DemandMaterial = () => {
             />
           </div>
           <hr />
-        </div>        <div className="prioritySelections">
-
-
+        </div>
+        <div className="prioritySelections">
           <div>
             <label htmlFor="department">Department:</label>
             <select
