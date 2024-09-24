@@ -93,6 +93,12 @@ function Sidebar() {
                       <span>Process</span>
                     </Link>
                   </li>
+                  <li>
+                    <Link to="/addMachines" className="nav-link" onClick={() => setActiveSubmenu(null)}>
+                    <i class="bi bi-tools"></i>
+                      <span>Add Machines</span>
+                    </Link>
+                  </li>
                 </ul>
               </div>
             )}
