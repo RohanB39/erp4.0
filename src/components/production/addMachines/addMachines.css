@@ -1,0 +1,169 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+:root {
+  font-family: "normal";
+  line-height: 1.5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+  font-family: "Poppins", sans-serif;
+
+  --primary: #cbe2c8;
+  --secondary: #e8fd9d;
+  --pure: #d6dfea;
+  --tertiory: #cbe2c8;
+  --optional: #f3f7f5;
+  --dark-bg: #0f1122;
+  --btn-bg: #d49d1f;
+  --btn-bg2: #ffbc25;
+}
+
+* {
+  font-family: "Poppins", sans-serif;
+}
+.demandConteiner {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 4px;
+}
+.demandConteiner h4 {
+  margin-bottom: 2rem;
+  font-weight: 500;
+  color: black;
+  margin-top: 1rem;
+  background-color: var(--optional);
+  border-radius: 4px;
+}
+.demandHeader {
+  float: right;
+  border: 1px dashed var(--dark-bg);
+  padding: 12px;
+}
+.demandHeader div {
+  display: flex;
+}
+
+.demandHeader div label {
+  /* background-color: var(--btn-bg2); */
+  text-indent: 6px;
+  width: fit-content;
+  white-space: nowrap;
+}
+.demandHeader div input {
+  background-color: var(--optional);
+  border: none;
+  width: 100%;
+  text-indent: 6px;
+  font-size: 14px;
+  margin-left: 12px;
+}
+.prioritySelections {
+  margin-top: 9rem;
+  display: flex;
+  gap: 16px;
+}
+.prioritySelections div label {
+  font-size: 14px;
+  padding-bottom: 4px;
+  display: none;
+}
+.prioritySelections div select {
+  width: 100%;
+  background-color: transparent;
+  font-size: 14px;
+  outline: none;
+}
+.selectedMaterialid {
+  background-color: var(--optional);
+  width: 100%;
+  text-indent: 5px;
+  color: var(--dark-bg);
+}
+.selectedMaterialid p span {
+  color: var(--dark-bg);
+  font-size: 15px;
+  letter-spacing: 0.9px;
+}
+.selectedMaterialid p {
+  color: var(--dark-bg);
+}
+.selectedMaterialdesc p {
+  font-size: 15px;
+  padding-top: 14px;
+  padding-bottom: 1rem;
+}
+.quantitySelection {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border: none;
+}
+.quantitySelection select {
+  border: none;
+  border-bottom: 1px solid var(--dark-bg);
+  outline: none;
+  margin-top: 2.4rem;
+  font-size: 14px;
+}
+.quantitySelection div {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+}
+.quantitySelection div label {
+  font-size: 14px;
+  background-color: var(--btn-bg2);
+  text-indent: 4px;
+  padding: 2px;
+  margin-bottom: 1.6rem;
+}
+.quantitySelection div input {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  padding-top: 5px;
+  border-bottom: 1px solid var(--dark-bg);
+  font-size: 14px;
+}
+
+.purposeDemand {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+}
+.purposeDemand label {
+  font-size: 15px;
+  padding-bottom: 5px;
+}
+.purposeDemand textarea {
+  border: 1px solid var(--dark-bg);
+  min-height: 60px;
+  border-bottom: 1px solid var(--dark-bg);
+  max-height: 80px;
+  margin-bottom: 12px;
+  outline: none;
+  text-indent: 6px;
+  padding-top: 4px;
+}
+.delivery {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.delivery div label {
+  padding-bottom: 4px;
+}
+.delivery div input {
+  width: 100%;
+  text-indent: 5px;
+  font-size: 15px;
+}
+.deliveryLocationSubmtion {
+  display: flex;
+  gap: 12px;
+  flex-direction: row;
+}
