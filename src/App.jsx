@@ -49,6 +49,7 @@ import Grn from './components/store/grn/Grn';
 import PurchaseOrder from './components/purchase/PurchaseOrder';
 import DemandMaterial from './components/production/demandMaterial/DemandMaterial';
 import ProductionProcess from './components/production/productionProcess/ProductionProcess';
+import AddMachines from './components/production/addMachines/AddMachines';
 
 
 
@@ -126,6 +127,7 @@ function App() {
                             <Route path="/Grn" element={<Grn />} />
                             <Route path="/DemandMaterial" element={<DemandMaterial />} />
                             <Route path="/ProductionProcess" element={<ProductionProcess />} />
+                            <Route path="/addMachines" element={<AddMachines />} />
                         </Routes>
                     </div>
                 </>
