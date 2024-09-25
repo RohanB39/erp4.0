@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTable } from 'react-table';
+import { fireDB } from '../../firebase/FirebaseConfig';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import './productionPhases.css';
 
-// Define columns and data for each phase
+
 const productionColumns = [
     { Header: 'Sr No', accessor: 'srNo' },
     { Header: 'Machine Name', accessor: 'machineName' },
@@ -65,12 +67,31 @@ const packingDataMachineTwo = [
 
 function AllproductionMain() {
     const [activePhase, setActivePhase] = useState('production');
+    const [machineNames, setMachineNames] = useState([]);
+
+    useEffect(() => {
+        const fetchMachineNames = async () => {
+            try {
+                const q = query(collection(fireDB, 'Assign_Machines'), where('status', '==', 'Machine Assigned'));
+                const querySnapshot = await getDocs(q);
+
+                const machines = [];
+                querySnapshot.forEach((doc) => {
+                    machines.push(doc.data().machineName); 
+                });
+
+                setMachineNames(machines);
+            } catch (error) {
+                console.error('Error fetching machine names:', error);
+            }
+        };
+
+        fetchMachineNames();
+    }, []);
 
     const handlePhaseClick = (phase) => {
         setActivePhase(phase);
     };
-
-    // Create table instances using React Table
     const productionTableInstance = useTable({ columns: productionColumns, data: productionData });
     const assemblyTableInstanceMachineOne = useTable({ columns: assemblyColumns, data: assemblyDataMachineOne });
     const assemblyTableInstanceMachineTwo = useTable({ columns: assemblyColumns, data: assemblyDataMachineTwo });
@@ -106,36 +127,38 @@ function AllproductionMain() {
                 <div className="phaseMachines">
                     {activePhase === 'production' && (
                         <>
-                            <div className="machineOne">
-                                <div className="machineHead">
-                                    <h4>Machine One</h4>
-                                </div>
-                                <div className="machineBody">
-                                    <table {...productionTableInstance.getTableProps()}>
-                                        <thead>
-                                            {productionTableInstance.headerGroups.map(headerGroup => (
-                                                <tr {...headerGroup.getHeaderGroupProps()}>
-                                                    {headerGroup.headers.map(column => (
-                                                        <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                                                    ))}
-                                                </tr>
-                                            ))}
-                                        </thead>
-                                        <tbody {...productionTableInstance.getTableBodyProps()}>
-                                            {productionTableInstance.rows.map(row => {
-                                                productionTableInstance.prepareRow(row);
-                                                return (
-                                                    <tr {...row.getRowProps()}>
-                                                        {row.cells.map(cell => (
-                                                            <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                            {machineNames.map((machineName, index) => (
+                                <div className="machineOne" key={index}>
+                                    <div className="machineHead">
+                                        <h4>{machineName}</h4>
+                                    </div>
+                                    <div className="machineBody">
+                                        <table {...productionTableInstance.getTableProps()}>
+                                            <thead>
+                                                {productionTableInstance.headerGroups.map(headerGroup => (
+                                                    <tr {...headerGroup.getHeaderGroupProps()}>
+                                                        {headerGroup.headers.map(column => (
+                                                            <th {...column.getHeaderProps()}>{column.render('Header')}</th>
                                                         ))}
                                                     </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </table>
+                                                ))}
+                                            </thead>
+                                            <tbody {...productionTableInstance.getTableBodyProps()}>
+                                                {productionTableInstance.rows.map(row => {
+                                                    productionTableInstance.prepareRow(row);
+                                                    return (
+                                                        <tr {...row.getRowProps()}>
+                                                            {row.cells.map(cell => (
+                                                                <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                                                            ))}
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                            </div>
+                            ))}
                             <div className="machineTwo">
                                 <div className="machineHead">
                                     <h4>Machine Two</h4>
@@ -299,7 +322,7 @@ function AllproductionMain() {
                 </div>
             </div>
         </div>
-    );7
+    ); 7
 }
 
 export default AllproductionMain;

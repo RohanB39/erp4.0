@@ -2,17 +2,11 @@ import React, { useState, useEffect } from 'react';
 import './production.css';
 import OrderCreation from './productionComponents/orderCreation/OrderCreation';
 import MaterialAllocation from './productionComponents/materialAllocation/MaterialAllocation';
+import MachineAssignment from './productionComponents/machineAssignment/MachineAssignment';
 
 function AllProduction() {
     const [productionData, setProductionData] = useState([]);
     const [currentStep, setCurrentStep] = useState('orderCreation'); // Current step in the workflow
-
-    useEffect(() => {
-        // You can fetch data related to production orders or workflows here
-        // Example:
-        // fetchProductionData();
-    }, []);
-
     return (
         <div className='main' id='main'>
             <div className="production-container">
@@ -47,8 +41,8 @@ function AllProduction() {
                 <div className="step-content">
                     {currentStep === 'orderCreation' && <OrderCreation />}
                     {currentStep === 'materialAllocation' && <MaterialAllocation />}
-                    {/* {currentStep === 'workCenter' && <WorkCenterAssignment />}
-                    {currentStep === 'execution' && <ProductionExecution />}
+                    {currentStep === 'workCenter' && <MachineAssignment />}
+                    {/* {currentStep === 'execution' && <ProductionExecution />}
                     {currentStep === 'qualityControl' && <QualityControl />}
                     {currentStep === 'inventory' && <FinishedGoodsInventory />}
                     {currentStep === 'reporting' && <ProductionReporting />} */}

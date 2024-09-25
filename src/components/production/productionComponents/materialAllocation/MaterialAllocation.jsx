@@ -68,7 +68,7 @@ const MaterialAllocation = () => {
                 console.error('Error fetching order details: ', error);
             }
         } else {
-            setOrderDetails(null); // Reset if no product is selected
+            setOrderDetails(null);
         }
     };
 
