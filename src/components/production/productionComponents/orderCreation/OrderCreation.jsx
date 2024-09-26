@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import './orderCreation.css';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, where, doc, setDoc } from 'firebase/firestore';
 
 function OrderCreation() {
     const [productionOrderId, setProductionOrderId] = useState('');
     const [productionOrderDate, setProductionOrderDate] = useState('');
-    const [quantity, setQuantity] = useState(''); // Planned quantity
+    const [quantity, setQuantity] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [actualAmount, setActualAmount] = useState('');
     const [assembelyCell, setAssembelyCell] = useState('');
     const [completionWarehouse, setCompletionWarehouse] = useState('');
     const [createdBy, setCreatedBy] = useState('');
     const [productionStatus, setProductionStatus] = useState('Pending');
     const [progressStatus, setProgressStatus] = useState('Completed Product Order');
 
-    const [finishedGoods, setFinishedGoods] = useState([]); // State for finished goods
-    const [selectedProductId, setSelectedProductId] = useState(''); // Selected product ID
-    const [requiredMaterials, setRequiredMaterials] = useState([]); // Store materials as an array of objects
+    const [finishedGoods, setFinishedGoods] = useState([]);
+    const [selectedProductId, setSelectedProductId] = useState('');
+    const [requiredMaterials, setRequiredMaterials] = useState([]);
+    const [excessBuffer, setExcessBuffer] = useState('');
+    const [machines, setMachines] = useState([]);
+    const [selectedMachine, setSelectedMachine] = useState('');
+
 
     // For generating unique Order ID
     useEffect(() => {
@@ -53,13 +56,13 @@ function OrderCreation() {
 
         const selectedProduct = finishedGoods.find(good => good.id === selectedId);
         if (selectedProduct) {
-            const { rawMaterials } = selectedProduct; // Assuming rawMaterials is an array of objects
+            const { rawMaterials } = selectedProduct;
             // Map to create an array of objects with id, quantity, unit, and requiredQuantity
             const materialsWithQuantities = rawMaterials.map(material => ({
-                id: material.id, // Extracting material ID
-                quantity: material.quantity, // Extracting material quantity
-                unit: material.unit, // Extracting unit field
-                requiredQuantity: 0 // Initialize requiredQuantity to 0
+                id: material.id,
+                quantity: material.quantity,
+                unit: material.unit,
+                requiredQuantity: 0
             }));
 
             // Set the required materials as an array of objects
@@ -78,14 +81,103 @@ function OrderCreation() {
         // Update required quantities
         const updatedMaterials = requiredMaterials.map(material => ({
             ...material,
-            requiredQuantity: material.quantity * plannedQuantity, // Multiply quantity by planned quantity
+            requiredQuantity: material.quantity * plannedQuantity,
         }));
         setRequiredMaterials(updatedMaterials);
     };
 
+    const handleBufferChange = (e) => {
+        const bufferValue = e.target.value;
+        const bufferPercentage = parseFloat(bufferValue) || 0;
+        setExcessBuffer(bufferValue); // Store the raw input value for display
+
+        // Apply the buffer to each material's requiredQuantity
+        const updatedMaterials = requiredMaterials.map(material => {
+            const baseRequiredQuantity = material.quantity * quantity; // Base required quantity based on planned quantity
+            const newRequiredQuantity = baseRequiredQuantity * (1 + bufferPercentage / 100); // Apply the buffer or 0%
+            return {
+                ...material,
+                requiredQuantity: newRequiredQuantity // Set the new required quantity with buffer
+            };
+        });
+
+        setRequiredMaterials(updatedMaterials); // Update the state with the new values
+    };
+
+    useEffect(() => {
+        const fetchMachines = async () => {
+            const db = getFirestore();
+            const machinesCollection = collection(db, 'Machines');
+            const activeMachinesQuery = query(machinesCollection, where('machineStatus', '==', 'Active'));
+            const machinesSnapshot = await getDocs(activeMachinesQuery);
+            const activeMachinesList = machinesSnapshot.docs.map(doc => ({
+                id: doc.id,
+                machineName: doc.data().machineName,
+            }));
+            setMachines(activeMachinesList);
+        };
+
+        fetchMachines();
+    }, []);
+
+    const handleMachineChange = (e) => {
+        setSelectedMachine(e.target.value);
+    };
+
+
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Your submit logic goes here
+    
+        try {
+            const db = getFirestore();
+    
+            // Prepare the data to be saved in Firestore
+            const productionOrderData = {
+                productionOrderId,
+                productionOrderDate,
+                quantity: parseFloat(quantity),
+                startDate,
+                endDate,
+                assembelyCell,
+                completionWarehouse,
+                createdBy,
+                productionStatus,
+                progressStatus,
+                selectedProductId, // Assuming this is the product ID for finished goods
+                selectedMachine,
+                excessBuffer: parseFloat(excessBuffer) || 0,
+                requiredMaterials: requiredMaterials.map(material => ({
+                    id: material.id,
+                    requiredQuantity: material.requiredQuantity,  // Save required quantity
+                    unit: material.unit // Save unit
+                })),
+            };
+    
+            // Set the document in the "Production_Orders" collection with the document ID as "productionOrderId"
+            await setDoc(doc(db, 'Production_Orders', productionOrderId), productionOrderData);
+    
+            // Reset form (optional)
+            alert('Production Order created successfully');
+            setProductionOrderId('');
+            setProductionOrderDate('');
+            setQuantity('');
+            setStartDate('');
+            setEndDate('');
+            setAssembelyCell('');
+            setCompletionWarehouse('');
+            setCreatedBy('');
+            setProductionStatus('Pending');
+            setProgressStatus('Completed Product Order');
+            setSelectedProductId('');
+            setRequiredMaterials([]);
+            setSelectedMachine('');
+            setExcessBuffer('');
+        } catch (error) {
+            console.error('Error creating production order: ', error);
+            alert('Failed to create production order');
+        }
     };
 
     return (
@@ -137,10 +229,11 @@ function OrderCreation() {
                                     <tr key={index}>
                                         <td>{material.id}</td>
                                         <td>{material.quantity} {material.unit}</td>
-                                        <td>{material.quantity * quantity} {material.unit} </td>
+                                        <td>{material.requiredQuantity.toFixed(2)} {material.unit} {/* Updated to use requiredQuantity */}</td>
                                     </tr>
                                 ))}
                             </tbody>
+
                         </table>
                     </div>
                     <br />
@@ -152,13 +245,23 @@ function OrderCreation() {
                             onChange={handleQuantityChange}
                             required
                         />
-                        <label>Actual Amount:</label>
+                        <label>Excess Material Buffer:</label>
                         <input
                             type="number"
-                            value={actualAmount}
-                            onChange={(e) => setActualAmount(e.target.value)}
+                            value={excessBuffer}
+                            onChange={handleBufferChange}
+                            placeholder='eg 20%'
                             required
                         />
+                        <label>Machine Assignment:</label>
+                        <select value={selectedMachine} onChange={handleMachineChange} required>
+                            <option value="" disabled>Select Machine</option>
+                            {machines.map(machine => (
+                                <option key={machine.id} value={machine.machineName}>
+                                    {machine.machineName}
+                                </option>
+                            ))}
+                        </select>
 
                         <label>Assembly Cell:</label>
                         <select
@@ -195,6 +298,20 @@ function OrderCreation() {
                             onChange={(e) => setCreatedBy(e.target.value)}
                             required
                         />
+                        <label>Start Date:</label>
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                required
+                            />
+                            <label>End Date:</label>
+                            <input
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                required
+                            />
                         <label>Production Status:</label>
                         <input
                             type="text"
