@@ -12,26 +12,26 @@ function AllProduction() {
             <div className="production-container">
                 <h4>Production</h4>
                 <div className="production-nav-cards wd-100">
-                    <div className="workflow-steps flex">
-                        <div className="single-production-card padd">
+                    <div className="flex">
+                        <div className="padd">
                             <h3><button onClick={() => setCurrentStep('orderCreation')}>Order Creation</button></h3>
                         </div>
-                        <div className="single-production-card padd">
+                        <div className="padd">
                             <h3><button onClick={() => setCurrentStep('materialAllocation')}>Material Allocation</button></h3>
                         </div>
-                        <div className="single-production-card padd">
+                        <div className=" padd">
                             <h3><button onClick={() => setCurrentStep('workCenter')}>Machine Assignment</button></h3>
                         </div>
-                        <div className="single-production-card padd">
+                        <div className=" padd">
                             <h3><button onClick={() => setCurrentStep('execution')}>Production Execution</button></h3>
                         </div>
-                        <div className="single-production-card padd">
+                        <div className=" padd">
                             <h3><button onClick={() => setCurrentStep('qualityControl')}>Quality Control</button></h3>
                         </div>
-                        <div className="single-production-card padd">
+                        <div className=" padd">
                             <h3><button onClick={() => setCurrentStep('inventory')}>Finished Goods Inventory</button></h3>
                         </div>
-                        <div className="single-production-card padd">
+                        <div className=" padd">
                             <h3><button onClick={() => setCurrentStep('reporting')}>Reporting</button></h3>
                         </div>
                     </div>

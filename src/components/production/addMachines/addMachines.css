@@ -167,3 +167,22 @@
   gap: 12px;
   flex-direction: row;
 }
+.models {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.models div {
+  width: 100%;
+  padding-bottom: 10px;
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+}
+
+.models div label {
+  padding-bottom: 10px;
+}

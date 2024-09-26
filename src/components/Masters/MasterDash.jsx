@@ -10,6 +10,7 @@ import ItemsPopup from './items/itemsPopup/ItemsPopup.jsx';
 import RawMaterialsPopup from './rawMaterial/rawMaterialPopup/RawMaterialsPopup.jsx';
 import SemiFinishedPopup from './semiFinished/semiFinishedPopup/SemiFinishedPopup.jsx';
 import FinishedPopup from './finished/finishedPopup/FinishedPopup.jsx';
+import FGPopup from './FGProducts/FGPopup/FGPopup.jsx';
 
 function MasterDash() {
     const [isFormVisible, setIsFormVisible] = useState(false);
@@ -19,6 +20,7 @@ function MasterDash() {
         customer: [],
         vendor: [],
         items: [],
+        finishedGoods: [],
         rawMaterial: [],
         semiFinished: [],
         finished: []
@@ -39,6 +41,8 @@ function MasterDash() {
                 return "+ Add Semi Finished Materials";
             case 'finished':
                 return "+ Add Finished Materials";
+            case 'finishedGoods':
+                return "+Add FG"
             default:
                 return "+ Add";
         }
@@ -101,6 +105,17 @@ function MasterDash() {
                         id: doc.id
                     }));
                     setData(prevData => ({ ...prevData, finished: items }));
+                }else if (currentTable === 'finishedGoods') {
+                    try {
+                        const querySnapshot = await getDocs(collection(fireDB, 'Finished_Goods'));
+                        const FG = querySnapshot.docs.map(doc => ({
+                            ...doc.data(),
+                            id: doc.id
+                        }));
+                        setData(prevData => ({ ...prevData, finishedGoods: FG }));
+                    } catch (error) {
+                        console.error("Error fetching Finished Goods: ", error);
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -132,6 +147,8 @@ function MasterDash() {
                 await deleteDoc(doc(fireDB, 'vendors', row.id));
             } else if (currentTable === 'items') {
                 await deleteDoc(doc(fireDB, 'items', row.id));
+            } else if (currentTable === 'finishedGoods') {
+                await deleteDoc(doc(fireDB, 'Finished_Goods', row.id));
             }
             setData((prevData) => {
                 const newData = { ...prevData };
@@ -282,6 +299,19 @@ function MasterDash() {
                     { Header: 'Status', accessor: 'status' },
                     actionColumn
                 ];
+            case 'finishedGoods':
+                return [
+                    {
+                        Header: 'Sr/No',
+                        accessor: 'id',
+                        Cell: ({ row }) => row.index + 1
+                    },
+                    { Header: 'FGID', accessor: 'uniqueID'},
+                    { Header: 'Name', accessor: 'FGname'},
+                    { Header: 'Status', accessor: 'status'},
+                    { Header: 'Customer', accessor: 'customerID'},
+                    actionColumn
+                ];
             default:
                 return [];
         }
@@ -301,6 +331,8 @@ function MasterDash() {
                 return "Semi-Finished Goods Table";
             case 'finished':
                 return "Finished Goods Table";
+            case 'finishedGoods':
+                return "FG Table";
             default:
                 return "Table";
         }
@@ -318,6 +350,7 @@ function MasterDash() {
                         <button onClick={() => setCurrentTable('customer')}>Total Customer</button>
                         <button onClick={() => setCurrentTable('vendor')}>Total Vendor</button>
                         <button onClick={() => setCurrentTable('items')}>Total Items</button>
+                        <button onClick={() => setCurrentTable('finishedGoods')}>Finished Goods</button>
                     </div>
                 </div>
             </div>
@@ -386,6 +419,11 @@ function MasterDash() {
             )}
             {isPopupVisible && currentTable === 'finished' && (
                 <FinishedPopup
+                    onClose={() => setIsPopupVisible(false)}
+                />
+            )}
+            {isPopupVisible && currentTable === 'finishedGoods' && (
+                <FGPopup
                     onClose={() => setIsPopupVisible(false)}
                 />
             )}

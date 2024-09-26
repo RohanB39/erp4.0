@@ -173,3 +173,22 @@
 .custom-dropdown .dropdown-option:hover {
   background-color: #f0f0f0;
 }
+
+.FGDD {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.FGDD select {
+  outline: none;
+}
+
+.FGDD input {
+  width: 49%;
+  padding: 2px 10px;
+}
+
+.vendorTable {
+  overflow: hidden;
+}

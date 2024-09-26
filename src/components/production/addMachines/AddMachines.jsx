@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getFirestore, collection, doc, setDoc } from 'firebase/firestore';
 import { app } from '../../firebase/FirebaseConfig';
+import './addMachines.css'
 
 const AddMachines = () => {
   const [uniqueId, setUniqueId] = useState('');
@@ -245,7 +246,7 @@ const AddMachines = () => {
           </div>
         </div>
         <hr />
-        <div className="quantitySelection">
+        <div className="models">
           <div>
             <label htmlFor="machineName">Model Number:</label>
             <input
@@ -324,9 +325,6 @@ const AddMachines = () => {
               required
             />
           </div>
-        </div>
-        <hr />
-        <div className="quantitySelection">
           <div>
             <label htmlFor="machineName">Machine Status:</label>
             <select

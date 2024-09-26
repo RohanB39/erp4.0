@@ -1,27 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import './orderCreation.css';
-import { getFirestore, collection, query, where, getDocs, setDoc, doc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
 
 function OrderCreation() {
-    const [materials, setMaterials] = useState([]);
     const [productionOrderId, setProductionOrderId] = useState('');
     const [productionOrderDate, setProductionOrderDate] = useState('');
-    const [selectedMaterialId, setSelectedMaterialId] = useState('');
-    const [quantity, setQuantity] = useState('');
-    const [productName, setProductName] = useState('');
+    const [quantity, setQuantity] = useState(''); // Planned quantity
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [actualAmount, setActualAmount] = useState('');
     const [assembelyCell, setAssembelyCell] = useState('');
     const [completionWarehouse, setCompletionWarehouse] = useState('');
     const [createdBy, setCreatedBy] = useState('');
-    const [materialLocation, setMaterialLocation] = useState('');
     const [productionStatus, setProductionStatus] = useState('Pending');
     const [progressStatus, setProgressStatus] = useState('Completed Product Order');
-    const [materialId, setMaterialId] = useState('');
-    const [quantityRequested, setQuantityRequested] = useState('');
 
-    // Generate production order ID on component mount
+    const [finishedGoods, setFinishedGoods] = useState([]); // State for finished goods
+    const [selectedProductId, setSelectedProductId] = useState(''); // Selected product ID
+    const [requiredMaterials, setRequiredMaterials] = useState([]); // Store materials as an array of objects
+
+    // For generating unique Order ID
     useEffect(() => {
         const generateProductionId = () => {
             const date = new Date();
@@ -32,113 +30,73 @@ function OrderCreation() {
         generateProductionId();
     }, []);
 
-    // Fetch approved materials from Firestore
-    const fetchApprovedMaterials = async () => {
-        const db = getFirestore();
-        const materialsRef = collection(db, 'Demand_Material');
-        const q = query(materialsRef, where('status', '==', 'Approved'));
-        const querySnapshot = await getDocs(q);
-        const materials = [];
-        querySnapshot.forEach((doc) => {
-            const materialData = doc.data();
-            materials.push({ id: doc.id, ...materialData });
-        });
-        return materials;
-    };
-
+    // Fetch finished goods from Firestore
     useEffect(() => {
-        const loadMaterials = async () => {
-            const approvedMaterials = await fetchApprovedMaterials();
-            setMaterials(approvedMaterials);
+        const fetchFinishedGoods = async () => {
+            const db = getFirestore();
+            const finishedGoodsCollection = collection(db, 'Finished_Goods');
+            const finishedGoodsSnapshot = await getDocs(finishedGoodsCollection);
+            const finishedGoodsList = finishedGoodsSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setFinishedGoods(finishedGoodsList);
         };
-        loadMaterials();
+
+        fetchFinishedGoods();
     }, []);
 
-    // Fetch material location from Store_Racks collection based on selectedMaterialId
-    useEffect(() => {
-        const fetchMaterialLocation = async () => {
-            const selectedMaterial = materials.find(material => material.id === selectedMaterialId);
-            if (!selectedMaterial) return;
+    // Fetch required material when a product is selected
+    const handleProductChange = async (e) => {
+        const selectedId = e.target.value;
+        setSelectedProductId(selectedId);
 
-            const db = getFirestore();
-            const storeRacksRef = collection(db, 'Store_Racks');
-            const querySnapshot = await getDocs(storeRacksRef);
+        const selectedProduct = finishedGoods.find(good => good.id === selectedId);
+        if (selectedProduct) {
+            const { rawMaterials } = selectedProduct; // Assuming rawMaterials is an array of objects
+            // Map to create an array of objects with id, quantity, unit, and requiredQuantity
+            const materialsWithQuantities = rawMaterials.map(material => ({
+                id: material.id, // Extracting material ID
+                quantity: material.quantity, // Extracting material quantity
+                unit: material.unit, // Extracting unit field
+                requiredQuantity: 0 // Initialize requiredQuantity to 0
+            }));
 
-            let foundLocation = 'Location not found';
-            let found = false;
+            // Set the required materials as an array of objects
+            setRequiredMaterials(materialsWithQuantities);
+        } else {
+            // Reset the required materials if no product is selected
+            setRequiredMaterials([]);
+        }
+    };
 
-            querySnapshot.forEach((doc) => {
-                const { products } = doc.data();
-                products.forEach((product) => {
-                    if (product.id === selectedMaterial.selectedMaterialId) {
-                        foundLocation = product.pLocation;
-                        found = true;
-                    }
-                });
-            });
-            setMaterialLocation(foundLocation);
-        };
+    // Calculate required quantities based on planned quantity
+    const handleQuantityChange = (e) => {
+        const plannedQuantity = e.target.value;
+        setQuantity(plannedQuantity);
 
-        fetchMaterialLocation();
-    }, [selectedMaterialId, materials]);
-
-
-
+        // Update required quantities
+        const updatedMaterials = requiredMaterials.map(material => ({
+            ...material,
+            requiredQuantity: material.quantity * plannedQuantity, // Multiply quantity by planned quantity
+        }));
+        setRequiredMaterials(updatedMaterials);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const db = getFirestore();
-        const orderData = {
-            productionOrderId,
-            productionOrderDate,
-            selectedMaterialId,
-            quantity,
-            productName,
-            startDate,
-            endDate,
-            actualAmount,
-            assembelyCell,
-            completionWarehouse,
-            createdBy,
-            materialLocation,
-            productionStatus,
-            progressStatus,
-            materialId,
-            quantityRequested,
-        };
-
-        try {
-            await setDoc(doc(db, 'Production_Orders', productionOrderId), orderData);
-            alert('Order created successfully:');
-        } catch (error) {
-            console.error('Error creating order:', error);
-        }
-    };
-
-    const handleMaterialChange = (e) => {
-        const selectedId = e.target.value;
-        setSelectedMaterialId(selectedId);
-        const selectedMaterial = materials.find((material) => material.id === selectedId);
-        if (selectedMaterial) {
-            setMaterialId(selectedMaterial.selectedMaterialId || ''); // Set materialId
-            setQuantityRequested(selectedMaterial.quantityRequested || 'Unknown'); // Set quantityRequested
-        }
+        // Your submit logic goes here
     };
 
     return (
-        <div className='main subProductionOrder' id='main'>
+        <div className='main'>
             <div className='grn-page'>
                 <h5>Production Order Creation</h5>
                 <form onSubmit={handleSubmit} className='grnForm'>
                     <div className='grnSerch'>
                         <div className='grnNum'>
                             <label>Production Order ID:</label>
-                            <input
-                                type="text"
-                                value={productionOrderId}
-                                readOnly
-                            />
+                            <input type="text" value={productionOrderId} readOnly />
                         </div>
                         <div className="vendorInfo">
                             <label>Production Order Date:</label>
@@ -152,39 +110,46 @@ function OrderCreation() {
                     </div>
                     <hr />
 
-                    <div className="custom-dropdown serchVendor">
-                        <label>Material:</label>
-                        <select value={selectedMaterialId} onChange={handleMaterialChange} required>
-                            <option value="">Select Material</option>
-                            {materials.map((material) => (
-                                <option key={material.id} value={material.id}>
-                                    {material.selectedItem || 'Unknown'}
+                    <div className="FGDD">
+                        <label>Select Finished Product:</label>
+                        <select onChange={handleProductChange} value={selectedProductId} required>
+                            <option value="">Select Product</option>
+                            {finishedGoods.map(good => (
+                                <option key={good.id} value={good.id}>
+                                    {good.FGname} {/* Assuming FGname is the product name */}
                                 </option>
                             ))}
                         </select>
-                    </div>
-                    <div className="custom-dropdown serchVendor">
-                        <label>Material ID:</label>
-                        <input
-                            type="text"
-                            value={materialId}
-                            readOnly
-                        />
+                        <input type='text' placeholder='ID' value={selectedProductId} readOnly /> {/* Fetch the id of that selected product */}
                     </div>
                     <br />
-
-                    <label>Quantity Requested:</label>
-                    <input
-                        type="text"
-                        value={quantityRequested}
-                        readOnly
-                    />
+                    <div className="">
+                        <table className='vendorTable'>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Quantity per piece</th>
+                                    <th>Required Total Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {requiredMaterials.map((material, index) => (
+                                    <tr key={index}>
+                                        <td>{material.id}</td>
+                                        <td>{material.quantity} {material.unit}</td>
+                                        <td>{material.quantity * quantity} {material.unit} </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <br />
                     <div className="vendorInfo">
                         <label>Planned Quantity:</label>
                         <input
                             type="number"
                             value={quantity}
-                            onChange={(e) => setQuantity(e.target.value)}
+                            onChange={handleQuantityChange}
                             required
                         />
                         <label>Actual Amount:</label>
@@ -230,56 +195,23 @@ function OrderCreation() {
                             onChange={(e) => setCreatedBy(e.target.value)}
                             required
                         />
-
-                        <label>Material Location:</label>
-                        <input
-                            type="text"
-                            value={materialLocation}
-                            readOnly
-                        />
-
-                        <label>Product Name:</label>
-                        <input
-                            type="text"
-                            value={productName}
-                            onChange={(e) => setProductName(e.target.value)}
-                            required
-                        />
-
-                        <label>Start Date:</label>
-                        <input
-                            type="date"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                            required
-                        />
-
-                        <label>End Date:</label>
-                        <input
-                            type="date"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                            required
-                        />
-
                         <label>Production Status:</label>
                         <input
                             type="text"
                             value={productionStatus}
-                            readOnly
+                            onChange={(e) => setProductionStatus(e.target.value)}
+                            required
                         />
-
                         <label>Progress Status:</label>
                         <input
                             type="text"
                             value={progressStatus}
-                            readOnly
+                            onChange={(e) => setProgressStatus(e.target.value)}
+                            required
                         />
                     </div>
 
-                    <button type='submit' className='grnBtn'>
-                        Create Order
-                    </button>
+                    <button type="submit" className='submit-button'>Create Production Order</button>
                 </form>
             </div>
         </div>

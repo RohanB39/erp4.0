@@ -104,7 +104,7 @@ const MaterialAllocation = () => {
     };
 
     return (
-        <div className='main' id='main'>
+        <div className='main'>
             <div className='grn-page'>
                 <h2>Completed Product Orders</h2>
                 {completedOrders.length > 0 ? (

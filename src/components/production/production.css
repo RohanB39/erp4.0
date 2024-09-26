@@ -32,7 +32,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
-
+  overflow: auto;
   margin-bottom: 1rem;
 }
 .single-production-card {
@@ -47,6 +47,8 @@
   align-items: center;
   border-radius: 4px;
   cursor: pointer;
+
+
 }
 .single-production-card:hover {
   transform: translateY(6px);
@@ -57,7 +59,7 @@
     rgba(14, 63, 126, 0.04) 0px 12px 12px -6px,
     rgba(14, 63, 126, 0.04) 0px 24px 24px -12px;
 }
-.single-production-card:nth-child(even) {
+.single-production-card:nth-child(even), .padd:nth-child(even) {
   background-color: var(--primary);
 }
 .single-production-card h3 {
@@ -221,21 +223,30 @@ tr:hover {
   letter-spacing: 0.8px;
 }
 
-.wd-100 {
-  width: 100%;
-}
-
 .flex {
-  width: 205%;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .padd {
-  margin: 0 10px;
+  background-color: white;
+  flex-direction: row;
+  height: 8vh;
+  transition: 0.4s ease-in-out;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 200px;
+  font-size: 15px;
 }
 
 .padd button {
   background: none;
   border: none;
   outline: none;
+  font-size: 15px;
 }
