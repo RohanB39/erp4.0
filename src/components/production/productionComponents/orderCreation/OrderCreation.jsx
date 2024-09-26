@@ -215,7 +215,7 @@ function OrderCreation() {
                         <input type='text' placeholder='ID' value={selectedProductId} readOnly /> {/* Fetch the id of that selected product */}
                     </div>
                     <br />
-                    <div className="">
+                    <div>
                         <table className='vendorTable'>
                             <thead>
                                 <tr>

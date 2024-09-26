@@ -108,7 +108,66 @@ const ProducrionDemand = () => {
         usePagination
     );
   return (
-    <div>ProducrionDemand</div>
+    <>
+        <div className="total-stock-content">
+                    <div className='stock-header'>
+                        <h3>Production Demand</h3>
+                        <input type="text" placeholder='Search stock' />
+                    </div>
+                    <div className="stock-list">
+                        <table {...getProductionDemandTableProps()}>
+                            <thead>
+                                {ProductiondemandHeaderGroups.map(headerGroup => (
+                                    <tr {...headerGroup.getHeaderGroupProps()}>
+                                        {headerGroup.headers.map(column => (
+                                            <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </thead>
+                            <tbody {...getProductionDemandTableBodyProps()}>
+                                {ProductiondemandPage.map(row => {
+                                    prepareProductionDemandRow(row);
+                                    return (
+                                        <tr {...row.getRowProps()}>
+                                            {row.cells.map(cell => (
+                                                <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                                            ))}
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="pagination d-flex">
+                        <div className='d-flex'>
+                            <button onClick={() => previousProductionDemandPage()} disabled={!canPreviousProductionDemandPage}>
+                                {'<'}
+                            </button>
+                            <span>
+                                {ProductiondemandPageIndex + 1} of {ProductiondemandPageOptions.length}
+                            </span>
+                            <button onClick={() => nextProductionDemandPage()} disabled={!canNextProductionDemandPage}>
+                                {'>'}
+                            </button>
+                        </div>
+                        <div>
+                            <select
+                                value={ProductiondemandPageSize}
+                                onChange={e => {
+                                    setProductionDemandPageSize(Number(e.target.value));
+                                }}
+                            >
+                                {[10, 20, 30, 40, 50].map(pageSize => (
+                                    <option key={pageSize} value={pageSize}>
+                                        Show {pageSize}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+    </>
   )
 }
 

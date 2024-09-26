@@ -4,6 +4,7 @@ import { getFirestore, collection, query, where, getDocs, updateDoc, doc } from 
 import './Store.css';
 import EditStoreProduct from './editStoreProduct/EditStoreProduct';
 import DemandMaterialEdit from '../production/demandMaterial/DemandMaterialEdit';
+import EditDemandMaterialPopup from '../store/editDemandMaterialPopup/EditDemandMaterialPopup';
 
 const Store = () => {
     const [incomingStock, setIncomingStock] = useState([]);
@@ -13,13 +14,15 @@ const Store = () => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [isDMEditPopup, seisDMEditPopup] = useState(false);
     const [DMSelectedItem, setDMSelectedItem] = useState(null);
+    const [productionDemandMaterials, setProductionDemandMaterials] = useState([]);
+    const [isProductionDemandEditPopupOpen, setProductionDemandEditPopupOpen] = useState(false);
+    const [selectedMaterial, setSelectedMaterial] = useState(null);
 
     const fetchData = async () => {
         const db = getFirestore();
         const materialsRef = collection(db, 'Items');
         const demandRef = collection(db, 'Demand_Material');
         const racksRef = collection(db, 'Store_Racks');
-    
         try {
             const demandMaterialQuery = query(
                 demandRef,
@@ -68,6 +71,29 @@ const Store = () => {
         fetchData();
     }, []);
 
+
+    const fetchProductionDemandData = async () => {
+        const db = getFirestore();
+        const productionDemandRef = collection(db, 'Production_Orders');
+    
+        try {
+            // Fetching production demand
+            const productionDemandQuery = query(
+                productionDemandRef,
+                where('progressStatus', '==', 'Completed Product Order')
+            );
+            const productionDemandSnapshot = await getDocs(productionDemandQuery);
+            const productionDemandMaterial = productionDemandSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setProductionDemandMaterials(productionDemandMaterial);
+        } catch (error) {
+            console.error("Error fetching materials: ", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchProductionDemandData();
+    }, []);
+
     const handleEdit = (item) => {
         setSelectedItem(item);
         setIsPopupOpen(true);
@@ -76,6 +102,11 @@ const Store = () => {
     const handleDemandMaterialEdit = (item) => {
         setDMSelectedItem(item);
         seisDMEditPopup(true);
+    };
+
+    const handleProductionDemandMaterialEdit = (material) => {
+        setSelectedMaterial(material);
+        setProductionDemandEditPopupOpen(true);
     };
 
     const handleClosePopup = () => {
@@ -258,6 +289,86 @@ const Store = () => {
         {
             columns: warehouseColumns,
             data: warehouseStock,
+            initialState: { pageIndex: 0 },
+        },
+        usePagination
+    );
+
+    const productionDemandMaterialColumns = useMemo(
+        () => [
+            {
+                Header: 'ID',
+                accessor: 'productionOrderId', // Unique accessor
+            },
+            {
+                Header: 'MID',
+                accessor: 'requiredMaterials', // Unique accessor for IDs
+                Cell: ({ row }) => {
+                    const requiredMaterials = row.original.requiredMaterials || [];
+                    return (
+                        <div>
+                            {requiredMaterials.map((material, index) => (
+                                <span key={index}>
+                                    {material.id}<br />
+                                </span>
+                            ))}
+                        </div>
+                    );
+                },
+            },
+            {
+                Header: 'Requested Quantity',
+                accessor: 'requiredQuantities', 
+                Cell: ({ row }) => {
+                    const requiredMaterials = row.original.requiredMaterials || [];
+                    return (
+                        <div>
+                            {requiredMaterials.map((material, index) => (
+                                <span key={index}>
+                                    {material.requiredQuantity}  {material.unit}<br />
+                                </span>
+                            ))}
+                        </div>
+                    );
+                },
+            },
+            {
+                Header: 'Delivery Location',
+                accessor: 'assembelyCell',
+            },
+            {
+                Header: 'Actions',
+                Cell: ({ row }) => (
+                    <div>
+                        <button onClick={() => handleProductionDemandMaterialEdit(row.original)}>Edit</button>
+                        <button onClick={() => handleApprove(row.original)}>Approve</button>
+                        <button onClick={() => handleReject(row.original)}>Reject</button>
+                    </div>
+                ),
+            },
+        ],
+        []
+    );
+    
+
+    const {
+        getTableProps: getProductionDemandTableProps,
+        getTableBodyProps: getProductionDemandTableBodyProps,
+        headerGroups: productionDemandHeaderGroups,
+        page: productionDemandPage,
+        prepareRow: prepareProductionDemandRow,
+        canPreviousPage: canPreviousProductionDemandPage,
+        canNextPage: canNextProductionDemandPage,
+        pageOptions: productionDemandPageOptions,
+        pageCount: productionDemandPageCount,
+        nextPage: nextProductionDemandPage,
+        previousPage: previousProductionDemandPage,
+        setPageSize: setProductionDemandPageSize,
+        state: { pageIndex: productionDemandPageIndex, pageSize: productionDemandPageSize },
+    } = useTable(
+        {
+            columns: productionDemandMaterialColumns,
+            data: productionDemandMaterials,
             initialState: { pageIndex: 0 },
         },
         usePagination
@@ -453,6 +564,64 @@ const Store = () => {
                         </div>
                     </div>
                 </div>
+                <div className="total-stock-content">
+                <div className='stock-header'>
+                    <h3>Production Demand</h3>
+                    <input type="text" placeholder='Search stock' />
+                </div>
+                <div className="stock-list">
+                    <table {...getProductionDemandTableProps()}>
+                        <thead>
+                            {productionDemandHeaderGroups.map(headerGroup => (
+                                <tr {...headerGroup.getHeaderGroupProps()}>
+                                    {headerGroup.headers.map(column => (
+                                        <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+                                    ))}
+                                </tr>
+                            ))}
+                        </thead>
+                        <tbody {...getProductionDemandTableBodyProps()}>
+                            {productionDemandPage.map(row => {
+                                prepareProductionDemandRow(row);
+                                return (
+                                    <tr {...row.getRowProps()}>
+                                        {row.cells.map(cell => (
+                                            <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                                        ))}
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+                <div className="pagination d-flex">
+                    <div className='d-flex'>
+                        <button onClick={() => previousProductionDemandPage()} disabled={!canPreviousProductionDemandPage}>
+                            {'<'}
+                        </button>
+                        <span>
+                            {productionDemandPageIndex + 1} of {productionDemandPageOptions.length}
+                        </span>
+                        <button onClick={() => nextProductionDemandPage()} disabled={!canNextProductionDemandPage}>
+                            {'>'}
+                        </button>
+                    </div>
+                    <div>
+                        <select
+                            value={productionDemandPageSize}
+                            onChange={e => {
+                                setProductionDemandPageSize(Number(e.target.value));
+                            }}
+                        >
+                            {[10, 20, 30, 40, 50].map(pageSize => (
+                                <option key={pageSize} value={pageSize}>
+                                    Show {pageSize}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+            </div>
             </div>
             {isPopupOpen && selectedItem && (
                 <EditStoreProduct
@@ -465,6 +634,12 @@ const Store = () => {
                 <DemandMaterialEdit
                     item={DMSelectedItem}
                     onClose={() => seisDMEditPopup(false)}
+                />
+            )}
+            {isProductionDemandEditPopupOpen && (
+                <EditDemandMaterialPopup 
+                    material={selectedMaterial}
+                    onClose={()=> setProductionDemandEditPopupOpen(false)}
                 />
             )}
         </>
