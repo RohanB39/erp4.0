@@ -117,43 +117,38 @@ const Store = () => {
     const handleApprove = async (material) => {
         const selectedMaterialId = material.selectedMaterialId;
         const quantityRequested = material.quantityRequested;
+        const documentId = material.id;
     
         try {
-            // Fetch the Store_Racks collection
             const storeRacksRef = collection(fireDB, 'Store_Racks');
             const storeRacksSnapshot = await getDocs(storeRacksRef);
     
             let updated = false;
-    
-            // Iterate through each document in the collection
             for (const docSnapshot of storeRacksSnapshot.docs) {
                 const data = docSnapshot.data();
-                const products = data.products || []; // Ensure products exists
-    
-                // Check if any product matches the selectedMaterialId
+                const products = data.products || []; 
                 const product = products.find((prod) => prod.id === selectedMaterialId);
     
                 if (product) {
-                    // Calculate the new quantity
                     const newQuantity = product.quantity - quantityRequested;
-    
-                    // Check if the new quantity would be negative
                     if (newQuantity < 0) {
-                        alert("Stock not available"); // Alert if stock is insufficient
-                        return; // Exit the function
+                        alert("Stock not available");
+                        return;
                     }
-    
-                    // Update the product's quantity in the Firestore document
                     const storeRackDocRef = doc(fireDB, 'Store_Racks', docSnapshot.id);
                     await updateDoc(storeRackDocRef, {
                         products: products.map((prod) =>
                             prod.id === selectedMaterialId ? { ...prod, quantity: newQuantity } : prod
                         ),
                     });
+                    updated = true;
     
-                    updated = true; // Set updated flag to true
                     alert(`Successfully updated quantity for ${selectedMaterialId}.`);
-                    break; // Exit loop after updating
+                    const demandMaterialDocRef = doc(fireDB, 'Demand_Material', documentId);
+                    await updateDoc(demandMaterialDocRef, {
+                        status: 'Approved'
+                    });
+                    break;
                 }
             }
     
@@ -166,6 +161,7 @@ const Store = () => {
             alert("An error occurred while updating the quantity.");
         }
     };
+    
 
     const handleSaveLocation = async (item, location) => {
         const db = getFirestore();
