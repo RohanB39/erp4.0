@@ -71,7 +71,7 @@ const EditDemandMaterialPopup = ({ material, onClose, onSave }) => {
                 </div>
                 <div>
                     <label>Required Materials:</label>
-                    <table className="MaterialTable">
+                    <table className='DemandMaterialTablePopup'>
                         <thead>
                             <tr>
                                 <th>ID</th>

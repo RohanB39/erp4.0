@@ -8,11 +8,12 @@ import './productionPhases.css';
 const productionColumns = [
     { Header: 'Sr No', accessor: 'srNo' },
     { Header: 'Machine Name', accessor: 'machineName' },
-    { Header: 'FG ID', accessor: 'fgId' }, // Updated accessor for FG ID
-    { Header: 'Planned Qty', accessor: 'plannedQty' }, // Updated accessor for planned quantity
-    { Header: 'Cycle', accessor: 'cycle' }, // Manual input
-    { Header: 'Per Hr Qty', accessor: 'perHrQty' }, // Manual input
-    { Header: 'Per Day Qty', accessor: 'perDayQty' }, // Manual input
+    { Header: 'Production Order ID', accessor: 'poid' },
+    { Header: 'FG ID', accessor: 'fgId' },
+    { Header: 'Planned Qty', accessor: 'plannedQty' },
+    { Header: 'Cycle', accessor: 'cycle' },
+    { Header: 'Per Hr Qty', accessor: 'perHrQty' },
+    { Header: 'Per Day Qty', accessor: 'perDayQty' },
 ];
 
 const assemblyColumns = [
@@ -65,6 +66,7 @@ function AllproductionMain() {
                 machineName: doc.data().selectedMachine,
                 fgId: doc.data().selectedProductId,
                 plannedQty: doc.data().quantity,
+                poid: doc.data().productionOrderId,
                 cycle: cycleInput[index] || '',
                 perHrQty: perHrQtyInput[index] || '',
                 perDayQty: perDayQtyInput[index] || '',
@@ -81,14 +83,14 @@ function AllproductionMain() {
         }
     }, [activePhase]);
 
-    const updateInputValue = (index, field, value) => {
-        if (field === 'cycle') {
-            setCycleInput({ ...cycleInput, [index]: value });
-        } else if (field === 'perHrQty') {
-            setPerHrQtyInput({ ...perHrQtyInput, [index]: value });
-        } else if (field === 'perDayQty') {
-            setPerDayQtyInput({ ...perDayQtyInput, [index]: value });
-        }
+    const handleInputChange = (index, field, value) => {
+        setInputValues((prevState) => ({
+            ...prevState,
+            [index]: {
+                ...prevState[index],
+                [field]: value,
+            },
+        }));
     };
 
     const productionTableInstance = useTable({
@@ -120,7 +122,7 @@ function AllproductionMain() {
             </div>
             <div className="singlePhase">
                 <div className="phase-title">
-                    {/* <h3>{activePhase.charAt(0).toUpperCase() + activePhase.slice(1)} Process</h3> */}
+                    <h3>{activePhase.charAt(0).toUpperCase() + activePhase.slice(1)} Phase</h3>
                 </div>
                 <div className="phaseMachines">
                     {activePhase === 'production' && (
@@ -128,41 +130,43 @@ function AllproductionMain() {
                             {activePhase === 'production' && (
                                 <div className="phaseMachines">
                                     <div className="machineBody">
-                                        <table {...productionTableInstance.getTableProps()}>
-                                            <thead>
-                                                {productionTableInstance.headerGroups.map((headerGroup) => (
-                                                    <tr {...headerGroup.getHeaderGroupProps()}>
-                                                        {headerGroup.headers.map((column) => (
-                                                            <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                                                        ))}
-                                                    </tr>
+                                    <table {...productionTableInstance.getTableProps()}>
+                                <thead>
+                                    {productionTableInstance.headerGroups.map((headerGroup) => (
+                                        <tr {...headerGroup.getHeaderGroupProps()}>
+                                            {headerGroup.headers.map((column) => (
+                                                <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+                                            ))}
+                                        </tr>
+                                    ))}
+                                </thead>
+                                <tbody {...productionTableInstance.getTableBodyProps()}>
+                                    {productionTableInstance.rows.map((row, i) => {
+                                        productionTableInstance.prepareRow(row);
+                                        return (
+                                            <tr {...row.getRowProps()}>
+                                                {row.cells.map((cell) => (
+                                                    <td {...cell.getCellProps()}>
+                                                        {cell.column.id === 'cycle' ||
+                                                        cell.column.id === 'perHrQty' ||
+                                                        cell.column.id === 'perDayQty' ? (
+                                                            <input
+                                                                type="text"
+                                                                value={cell.value}
+                                                                onChange={(e) =>
+                                                                    handleInputChange(i, cell.column.id, e.target.value)
+                                                                }
+                                                            />
+                                                        ) : (
+                                                            cell.render('Cell')
+                                                        )}
+                                                    </td>
                                                 ))}
-                                            </thead>
-                                            <tbody {...productionTableInstance.getTableBodyProps()}>
-                                                {productionTableInstance.rows.map((row, i) => {
-                                                    productionTableInstance.prepareRow(row);
-                                                    return (
-                                                        <tr {...row.getRowProps()}>
-                                                            {row.cells.map((cell) => (
-                                                                <td {...cell.getCellProps()}>
-                                                                    {cell.column.id === 'cycle' || cell.column.id === 'perHrQty' || cell.column.id === 'perDayQty' ? (
-                                                                        <input
-                                                                            type="text"
-                                                                            value={cell.value}
-                                                                            onChange={(e) =>
-                                                                                updateInputValue(i, cell.column.id, e.target.value)
-                                                                            }
-                                                                        />
-                                                                    ) : (
-                                                                        cell.render('Cell')
-                                                                    )}
-                                                                </td>
-                                                            ))}
-                                                        </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
                                     </div>
                                 </div>
                             )}

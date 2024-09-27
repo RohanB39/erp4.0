@@ -39,7 +39,7 @@ const MachineAssignment = () => {
   };
 
   return (
-    <div id='main' className='main'>
+    <div className='main'>
       <h4>Machine Assignment</h4>
       <div>
         {materials.length > 0 ? (
