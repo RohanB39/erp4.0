@@ -145,13 +145,13 @@ function OrderCreation() {
                 createdBy,
                 productionStatus,
                 progressStatus,
-                selectedProductId, // Assuming this is the product ID for finished goods
+                selectedProductId,
                 selectedMachine,
                 excessBuffer: parseFloat(excessBuffer) || 0,
                 requiredMaterials: requiredMaterials.map(material => ({
                     id: material.id,
-                    requiredQuantity: material.requiredQuantity,  // Save required quantity
-                    unit: material.unit // Save unit
+                    requiredQuantity: material.requiredQuantity, 
+                    unit: material.unit
                 })),
             };
     

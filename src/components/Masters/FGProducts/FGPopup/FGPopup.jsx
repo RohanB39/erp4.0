@@ -94,18 +94,18 @@ const FGPopup = ({ onClose }) => {
     };
 
     const handleRawMaterialSelect = async (id, rawMaterialID) => {
-        const newUniqueIDs = { ...rawUniqueIDs, [id]: "" }; // Initialize the unique ID for this selection
+        const newUniqueIDs = { ...rawUniqueIDs, [id]: "" };
         setRawMaterialSelections((prevSelections) =>
             prevSelections.map((selection) => {
                 if (selection.id === id) {
-                    newUniqueIDs[id] = rawMaterialID; // Set the unique ID when the material is selected
-                    return { ...selection, value: rawMaterialID }; // Update the value of the selection
+                    newUniqueIDs[id] = rawMaterialID; 
+                    return { ...selection, value: rawMaterialID };
                 }
                 return selection;
             })
         );
 
-        setRawUniqueIDs(newUniqueIDs); // Update the unique IDs state
+        setRawUniqueIDs(newUniqueIDs); 
 
         if (rawMaterialID) {
             try {
