@@ -8,10 +8,11 @@ import './productionPhases.css';
 const productionColumns = [
     { Header: 'Sr No', accessor: 'srNo' },
     { Header: 'Machine Name', accessor: 'machineName' },
-    { Header: 'Machine Type', accessor: 'machineType' },
-    { Header: 'Cycle', accessor: 'cycle' },
-    { Header: 'Machine Time', accessor: 'machineTime' },
-    { Header: 'Raw Material', accessor: 'rawMaterial' },
+    { Header: 'FG ID', accessor: 'fgId' }, // Updated accessor for FG ID
+    { Header: 'Planned Qty', accessor: 'plannedQty' }, // Updated accessor for planned quantity
+    { Header: 'Cycle', accessor: 'cycle' }, // Manual input
+    { Header: 'Per Hr Qty', accessor: 'perHrQty' }, // Manual input
+    { Header: 'Per Day Qty', accessor: 'perDayQty' }, // Manual input
 ];
 
 const assemblyColumns = [
@@ -39,64 +40,61 @@ const packingColumns = [
     },
 ];
 
-// Example data for each phase
-const productionData = [
-    { srNo: 1, machineName: 'Machine A', machineType: 'Type 1', cycle: 'Cycle A', machineTime: 'Time A', rawMaterial: 'Material A' },
-    { srNo: 2, machineName: 'Machine B', machineType: 'Type 2', cycle: 'Cycle B', machineTime: 'Time B', rawMaterial: 'Material B' },
-];
-
-const assemblyDataMachineOne = [
-    { machineName: 'Machine X1', machineProcess: 'Process X1', machineCycleTime: 'Cycle Time X1' },
-    { machineName: 'Machine X2', machineProcess: 'Process X2', machineCycleTime: 'Cycle Time X2' },
-];
-
-const assemblyDataMachineTwo = [
-    { machineName: 'Machine Y1', machineProcess: 'Process Y1', machineCycleTime: 'Cycle Time Y1' },
-    { machineName: 'Machine Y2', machineProcess: 'Process Y2', machineCycleTime: 'Cycle Time Y2' },
-];
-
-const packingDataMachineOne = [
-    { srNo: 1, machineName: 'Machine X1', packingProcess: 'Wrapping' },
-    { srNo: 2, machineName: 'Machine X2', packingProcess: 'Boxing' },
-];
-
-const packingDataMachineTwo = [
-    { srNo: 1, machineName: 'Machine Y1', packingProcess: 'Other' },
-    { srNo: 2, machineName: 'Machine Y2', packingProcess: 'Wrapping' },
-];
-
 function AllproductionMain() {
     const [activePhase, setActivePhase] = useState('production');
     const [machineNames, setMachineNames] = useState([]);
-
-    useEffect(() => {
-        const fetchMachineNames = async () => {
-            try {
-                const q = query(collection(fireDB, 'Assign_Machines'), where('status', '==', 'Machine Assigned'));
-                const querySnapshot = await getDocs(q);
-
-                const machines = [];
-                querySnapshot.forEach((doc) => {
-                    machines.push(doc.data().machineName); 
-                });
-
-                setMachineNames(machines);
-            } catch (error) {
-                console.error('Error fetching machine names:', error);
-            }
-        };
-
-        fetchMachineNames();
-    }, []);
+    const [productionData, setProductionData] = useState([]);
+    const [cycleInput, setCycleInput] = useState({});
+    const [perHrQtyInput, setPerHrQtyInput] = useState({});
+    const [perDayQtyInput, setPerDayQtyInput] = useState({});
 
     const handlePhaseClick = (phase) => {
         setActivePhase(phase);
     };
-    const productionTableInstance = useTable({ columns: productionColumns, data: productionData });
-    const assemblyTableInstanceMachineOne = useTable({ columns: assemblyColumns, data: assemblyDataMachineOne });
-    const assemblyTableInstanceMachineTwo = useTable({ columns: assemblyColumns, data: assemblyDataMachineTwo });
-    const packingTableInstanceMachineOne = useTable({ columns: packingColumns, data: packingDataMachineOne, updateData: () => { } });
-    const packingTableInstanceMachineTwo = useTable({ columns: packingColumns, data: packingDataMachineTwo, updateData: () => { } });
+
+    // Function to fetch data from Firestore
+    const fetchProductionData = async () => {
+        try {
+            const q = query(
+                collection(fireDB, 'Production_Orders'),
+                where('progressStatus', '==', 'Material Allocated')
+            );
+            const querySnapshot = await getDocs(q);
+            const productionOrders = querySnapshot.docs.map((doc, index) => ({
+                srNo: index + 1,
+                machineName: doc.data().selectedMachine,
+                fgId: doc.data().selectedProductId,
+                plannedQty: doc.data().quantity,
+                cycle: cycleInput[index] || '',
+                perHrQty: perHrQtyInput[index] || '',
+                perDayQty: perDayQtyInput[index] || '',
+            }));
+            setProductionData(productionOrders);
+        } catch (error) {
+            console.error('Error fetching production data: ', error);
+        }
+    };
+
+    useEffect(() => {
+        if (activePhase === 'production') {
+            fetchProductionData();
+        }
+    }, [activePhase]);
+
+    const updateInputValue = (index, field, value) => {
+        if (field === 'cycle') {
+            setCycleInput({ ...cycleInput, [index]: value });
+        } else if (field === 'perHrQty') {
+            setPerHrQtyInput({ ...perHrQtyInput, [index]: value });
+        } else if (field === 'perDayQty') {
+            setPerDayQtyInput({ ...perDayQtyInput, [index]: value });
+        }
+    };
+
+    const productionTableInstance = useTable({
+        columns: productionColumns,
+        data: productionData,
+    });
 
     return (
         <div className="productionPhases">
@@ -122,34 +120,43 @@ function AllproductionMain() {
             </div>
             <div className="singlePhase">
                 <div className="phase-title">
-                    <h3>{activePhase.charAt(0).toUpperCase() + activePhase.slice(1)} Process</h3>
+                    {/* <h3>{activePhase.charAt(0).toUpperCase() + activePhase.slice(1)} Process</h3> */}
                 </div>
                 <div className="phaseMachines">
                     {activePhase === 'production' && (
                         <>
-                            {machineNames.map((machineName, index) => (
-                                <div className="machineOne" key={index}>
-                                    <div className="machineHead">
-                                        <h4>{machineName}</h4>
-                                    </div>
+                            {activePhase === 'production' && (
+                                <div className="phaseMachines">
                                     <div className="machineBody">
                                         <table {...productionTableInstance.getTableProps()}>
                                             <thead>
-                                                {productionTableInstance.headerGroups.map(headerGroup => (
+                                                {productionTableInstance.headerGroups.map((headerGroup) => (
                                                     <tr {...headerGroup.getHeaderGroupProps()}>
-                                                        {headerGroup.headers.map(column => (
+                                                        {headerGroup.headers.map((column) => (
                                                             <th {...column.getHeaderProps()}>{column.render('Header')}</th>
                                                         ))}
                                                     </tr>
                                                 ))}
                                             </thead>
                                             <tbody {...productionTableInstance.getTableBodyProps()}>
-                                                {productionTableInstance.rows.map(row => {
+                                                {productionTableInstance.rows.map((row, i) => {
                                                     productionTableInstance.prepareRow(row);
                                                     return (
                                                         <tr {...row.getRowProps()}>
-                                                            {row.cells.map(cell => (
-                                                                <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                                                            {row.cells.map((cell) => (
+                                                                <td {...cell.getCellProps()}>
+                                                                    {cell.column.id === 'cycle' || cell.column.id === 'perHrQty' || cell.column.id === 'perDayQty' ? (
+                                                                        <input
+                                                                            type="text"
+                                                                            value={cell.value}
+                                                                            onChange={(e) =>
+                                                                                updateInputValue(i, cell.column.id, e.target.value)
+                                                                            }
+                                                                        />
+                                                                    ) : (
+                                                                        cell.render('Cell')
+                                                                    )}
+                                                                </td>
                                                             ))}
                                                         </tr>
                                                     );
@@ -158,40 +165,10 @@ function AllproductionMain() {
                                         </table>
                                     </div>
                                 </div>
-                            ))}
-                            <div className="machineTwo">
-                                <div className="machineHead">
-                                    <h4>Machine Two</h4>
-                                </div>
-                                <div className="machineBody">
-                                    <table {...productionTableInstance.getTableProps()}>
-                                        <thead>
-                                            {productionTableInstance.headerGroups.map(headerGroup => (
-                                                <tr {...headerGroup.getHeaderGroupProps()}>
-                                                    {headerGroup.headers.map(column => (
-                                                        <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                                                    ))}
-                                                </tr>
-                                            ))}
-                                        </thead>
-                                        <tbody {...productionTableInstance.getTableBodyProps()}>
-                                            {productionTableInstance.rows.map(row => {
-                                                productionTableInstance.prepareRow(row);
-                                                return (
-                                                    <tr {...row.getRowProps()}>
-                                                        {row.cells.map(cell => (
-                                                            <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                                                        ))}
-                                                    </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                            )}
                         </>
                     )}
-                    {activePhase === 'assembly' && (
+                    {/* {activePhase === 'assembly' && (
                         <>
                             <div className="machineOne">
                                 <div className="machineHead">
@@ -318,11 +295,11 @@ function AllproductionMain() {
                                 </div>
                             </div>
                         </>
-                    )}
+                    )} */}
                 </div>
             </div>
         </div>
-    ); 7
+    );
 }
 
 export default AllproductionMain;
