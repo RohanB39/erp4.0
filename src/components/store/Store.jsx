@@ -5,6 +5,7 @@ import './Store.css';
 import EditStoreProduct from './editStoreProduct/EditStoreProduct';
 import DemandMaterialEdit from '../production/demandMaterial/DemandMaterialEdit';
 import EditDemandMaterialPopup from '../store/editDemandMaterialPopup/EditDemandMaterialPopup';
+import { fireDB } from '../firebase/FirebaseConfig';
 
 const Store = () => {
     const [incomingStock, setIncomingStock] = useState([]);
@@ -111,6 +112,59 @@ const Store = () => {
 
     const handleClosePopup = () => {
         setIsPopupOpen(false);
+    };
+
+    const handleApprove = async (material) => {
+        const selectedMaterialId = material.selectedMaterialId;
+        const quantityRequested = material.quantityRequested;
+    
+        try {
+            // Fetch the Store_Racks collection
+            const storeRacksRef = collection(fireDB, 'Store_Racks');
+            const storeRacksSnapshot = await getDocs(storeRacksRef);
+    
+            let updated = false;
+    
+            // Iterate through each document in the collection
+            for (const docSnapshot of storeRacksSnapshot.docs) {
+                const data = docSnapshot.data();
+                const products = data.products || []; // Ensure products exists
+    
+                // Check if any product matches the selectedMaterialId
+                const product = products.find((prod) => prod.id === selectedMaterialId);
+    
+                if (product) {
+                    // Calculate the new quantity
+                    const newQuantity = product.quantity - quantityRequested;
+    
+                    // Check if the new quantity would be negative
+                    if (newQuantity < 0) {
+                        alert("Stock not available"); // Alert if stock is insufficient
+                        return; // Exit the function
+                    }
+    
+                    // Update the product's quantity in the Firestore document
+                    const storeRackDocRef = doc(fireDB, 'Store_Racks', docSnapshot.id);
+                    await updateDoc(storeRackDocRef, {
+                        products: products.map((prod) =>
+                            prod.id === selectedMaterialId ? { ...prod, quantity: newQuantity } : prod
+                        ),
+                    });
+    
+                    updated = true; // Set updated flag to true
+                    alert(`Successfully updated quantity for ${selectedMaterialId}.`);
+                    break; // Exit loop after updating
+                }
+            }
+    
+            if (!updated) {
+                alert(`No product found with ID: ${selectedMaterialId}`);
+            }
+    
+        } catch (error) {
+            console.error("Error updating quantity:", error);
+            alert("An error occurred while updating the quantity.");
+        }
     };
 
     const handleSaveLocation = async (item, location) => {
