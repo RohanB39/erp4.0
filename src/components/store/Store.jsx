@@ -430,6 +430,10 @@ const Store = () => {
                 accessor: 'productionOrderId', // Unique accessor
             },
             {
+                Header: 'Machine',
+                accessor: 'selectedMachine',
+            },
+            {
                 Header: 'MID',
                 accessor: 'requiredMaterials', // Unique accessor for IDs
                 Cell: ({ row }) => {
