@@ -50,6 +50,7 @@ const EditDemandMaterialPopup = ({ material, onClose, onSave }) => {
                     progressStatus: 'Material Allocated'
                 });
             }
+            alert("Material Approved")
             onClose();
         } catch (error) {
             console.error("Error updating quantities or progressStatus: ", error);
@@ -96,7 +97,7 @@ const EditDemandMaterialPopup = ({ material, onClose, onSave }) => {
                     </table>
                 </div>
                 <div>
-                    <button onClick={handleSave}>Save</button>
+                    <button onClick={handleSave}>Approve</button>
                     <button onClick={onClose}>Close</button>
                 </div>
             </div>
