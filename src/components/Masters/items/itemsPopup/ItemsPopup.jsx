@@ -232,7 +232,7 @@ const ItemsPopup = ({ onClose }) => {
                         />
                         <input
                             type="text"
-                            placeholder="Price"
+                            placeholder="Price Per Unit"
                             value={price}
                             onChange={(e) => setPrice(e.target.value)}
                             required
