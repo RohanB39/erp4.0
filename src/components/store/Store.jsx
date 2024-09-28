@@ -348,7 +348,7 @@ const Store = () => {
         const { productionOrderId, requiredMaterials } = productionOrder;
     
         try {
-            const storeRacksSnapshot = await getDocs(collection(db, "Store_Racks"));
+            const storeRacksSnapshot = await getDocs(collection(fireDB, "Store_Racks"));
             const storeRacksDocs = storeRacksSnapshot.docs;
             for (const material of requiredMaterials) {
                 let productFound = false;
