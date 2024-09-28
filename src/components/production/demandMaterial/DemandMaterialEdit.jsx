@@ -61,8 +61,12 @@ const DemandMaterialEdit = ({ item, onClose, onSave }) => {
 
     const handleSave = async () => {
         const db = getFirestore();
-        const updatedQuantity = quantity - requestedQuantity;
+        if(requestedQuantity > quantity){
+            alert("Requested quantity exceeds available stock");
+            return;
+        }
 
+        const updatedQuantity = quantity - requestedQuantity;
         if (updatedQuantity < 0) {
             setMessage('Error: Requested quantity exceeds available stock.');
             return;
@@ -137,7 +141,7 @@ const DemandMaterialEdit = ({ item, onClose, onSave }) => {
                 {message && <div className="message">{message}</div>} 
 
                 <div>
-                    <button onClick={handleSave}>Save</button>
+                    <button onClick={handleSave}>Approve</button>
                     <button onClick={onClose}>Close</button>
                 </div>
             </div>
