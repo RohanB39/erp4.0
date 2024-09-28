@@ -50,7 +50,6 @@ function InwardQuality() {
 
     const columns = useMemo(() => [
         { Header: 'Item Name', accessor: 'materialName' },
-        { Header: 'Item Location', accessor: 'materialLocation' },
         { Header: 'Batch Number', accessor: 'batchNumber' },
         { Header: 'Vendor Name', accessor: 'vendorName' },
         {
