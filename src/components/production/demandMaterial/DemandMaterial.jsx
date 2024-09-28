@@ -121,7 +121,7 @@ const DemandMaterial = () => {
 
     try {
       await setDoc(doc(db, 'Demand_Material', uniqueId), formData);
-      alert("Form data successfully saved to Firebase!");
+      alert("Demand send to store");
     } catch (error) {
       console.error("Error saving form data to Firebase: ", error);
     }
