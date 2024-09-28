@@ -351,57 +351,76 @@ const Store = () => {
             const storeRacksSnapshot = await getDocs(collection(fireDB, "Store_Racks"));
             const storeRacksDocs = storeRacksSnapshot.docs;
     
-            // Step 1: Iterate over required materials
+            // Step 1: Check availability of all required materials before proceeding
+            let allMaterialsAvailable = true;
+    
             for (const material of requiredMaterials) {
                 let productFound = false;
     
-                // Step 2: Iterate over each Store Rack document
                 for (const rackDoc of storeRacksDocs) {
                     const rackData = rackDoc.data();
                     const { products } = rackData;
     
-                    // Step 3: Find matching product by ID in the products array
                     const product = products.find(product => product.id === material.id);
     
                     if (product) {
                         productFound = true;
     
-                        // Step 4: Compare every requiredQuantity with available stock
+                        // Check if the required quantity exceeds the available stock
                         if (material.requiredQuantity > product.quantity) {
-                            alert(`Insufficient stock for material ID: ${material.id}`);
-                            return; // Stop further execution if stock is insufficient
+                            allMaterialsAvailable = false; // Set this to false if any material has insufficient stock
+                            alert(`Insufficient stock for material ID: ${material.id}. Required: ${material.requiredQuantity}, Available: ${product.quantity}`);
+                            break; // No need to continue further for this material
                         }
-    
-                        // Step 5: Subtract the required quantity from the product's stock
-                        const updatedProducts = products.map(p => 
-                            p.id === material.id 
-                            ? { ...p, quantity: p.quantity - material.requiredQuantity } 
-                            : p
-                        );
-    
-                        // Step 6: Update the Store_Racks document with the new product quantities
-                        const rackDocRef = doc(fireDB, "Store_Racks", rackDoc.id);
-                        await updateDoc(rackDocRef, { products: updatedProducts });
-                        console.log(`Updated stock for material ID: ${material.id}`);
                     }
                 }
     
-                // If no matching product found for the material in any of the Store_Racks docs
                 if (!productFound) {
                     alert(`Product with ID: ${material.id} not found in Store_Racks`);
                     return; // Stop if any product is not found
                 }
+    
+                // If at least one material is not available, stop checking further
+                if (!allMaterialsAvailable) {
+                    return; // Don't proceed with stock update if any material is unavailable
+                }
             }
     
-            // Step 7: After stock update, update the production order status
-            const productionOrderRef = doc(fireDB, "Production_Orders", productionOrderId);
-            await updateDoc(productionOrderRef, { progressStatus: "Material Allocated" });
-            console.log(`Production order ID: ${productionOrderId} status updated to Material Allocated`);
+            // Step 2: If all materials are available, proceed to subtract the required quantities
+            if (allMaterialsAvailable) {
+                for (const material of requiredMaterials) {
+                    for (const rackDoc of storeRacksDocs) {
+                        const rackData = rackDoc.data();
+                        const { products } = rackData;
     
+                        const product = products.find(product => product.id === material.id);
+    
+                        if (product) {
+                            // Update product quantities
+                            const updatedProducts = products.map(p => 
+                                p.id === material.id 
+                                ? { ...p, quantity: p.quantity - material.requiredQuantity } 
+                                : p
+                            );
+    
+                            // Update Firestore with the new quantities
+                            const rackDocRef = doc(fireDB, "Store_Racks", rackDoc.id);
+                            await updateDoc(rackDocRef, { products: updatedProducts });
+                            alert(`Updated stock for material ID: ${material.id}`);
+                        }
+                    }
+                }
+    
+                // Step 3: After stock update, update the production order status
+                const productionOrderRef = doc(fireDB, "Production_Orders", productionOrderId);
+                await updateDoc(productionOrderRef, { progressStatus: "Material Allocated" });
+                console.log(`Production order ID: ${productionOrderId} status updated to Material Allocated`);
+            }
         } catch (error) {
             console.error("Error in updating material allocation:", error);
         }
     };
+    
     
 
     const productionDemandMaterialColumns = useMemo(
