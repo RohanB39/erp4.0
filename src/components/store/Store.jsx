@@ -344,6 +344,54 @@ const Store = () => {
         usePagination
     );
 
+    const handleProductionDemandApprove = async (productionOrder) => {
+        const { productionOrderId, requiredMaterials } = productionOrder;
+    
+        try {
+            const storeRacksSnapshot = await getDocs(collection(db, "Store_Racks"));
+            const storeRacksDocs = storeRacksSnapshot.docs;
+            for (const material of requiredMaterials) {
+                let productFound = false;
+                for (const rackDoc of storeRacksDocs) {
+                    const rackData = rackDoc.data();
+                    const { products } = rackData;
+                    const product = products.find(product => product.id === material.id);
+                    
+                    if (product) {
+                        productFound = true;
+    
+                        if (material.requiredQuantity > product.quantity) {
+                            alert(`Stock not available for material ID: ${material.id}`);
+                            return;
+                        }
+    
+                        const updatedProducts = products.map(p => 
+                            p.id === material.id 
+                            ? { ...p, quantity: p.quantity - material.requiredQuantity } 
+                            : p
+                        );
+    
+                        const rackDocRef = doc(db, "Store_Racks", rackDoc.id);
+                        await updateDoc(rackDocRef, { products: updatedProducts });
+                        console.log(`Updated stock for material ID: ${material.id}`);
+                    }
+                }
+    
+                if (!productFound) {
+                    alert(`Product with ID: ${material.id} not found in Store_Racks`);
+                    return; 
+                }
+            }
+    
+            const productionOrderRef = doc(db, "Production_Orders", productionOrderId);
+            await updateDoc(productionOrderRef, { progressStatus: "Material Allocated" });
+            console.log(`Updated progress status for Production Order ID: ${productionOrderId}`);
+    
+        } catch (error) {
+            console.error("Error in updating material allocation:", error);
+        }
+    };
+
     const productionDemandMaterialColumns = useMemo(
         () => [
             {
@@ -391,7 +439,7 @@ const Store = () => {
                 Cell: ({ row }) => (
                     <div>
                         <button onClick={() => handleProductionDemandMaterialEdit(row.original)}>Edit</button>
-                        <button onClick={() => handleApprove(row.original)}>Approve</button>
+                        <button onClick={() => handleProductionDemandApprove(row.original)}>Approve</button>
                         <button onClick={() => handleReject(row.original)}>Reject</button>
                     </div>
                 ),
