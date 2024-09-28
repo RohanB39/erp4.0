@@ -156,7 +156,7 @@ const EditStoreProduct = ({ item, onClose, onSave }) => {
                     />
                 </div>
                 <div>
-                    <button onClick={handleSave}>Save</button>
+                    <button onClick={handleSave}>Approve</button>
                     <button onClick={onClose}>Close</button>
                 </div>
             </div>
