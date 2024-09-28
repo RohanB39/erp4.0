@@ -33,13 +33,20 @@
   .popup-content input, 
   .popup-content textarea {
     width: 100%;
-    padding: 8px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    background-color: antiquewhite;
   }
   
   .popup-content button {
     margin-right: 10px; /* Space between buttons */
   }
   
+  .MachineAssignmentPopup {
+    display: flex;
+  }
+
+  .MachineAssignmentPopup input {
+    background-color: aquamarine;
+  }

@@ -20,7 +20,6 @@ const productionColumns = [
                 <div>
                     <div className="button-group">
                         <button onClick={() => handleStart(row.original)}>Start</button>
-                        <button onClick={() => handleStop(row.original)}>Stop</button>
                     </div>
                 </div>
             );
@@ -46,10 +45,6 @@ const handleStart = async (rowData) => {
     }
 };
 
-
-const handleStop = (rowData) => {
-    console.log('Stop action for:', rowData);
-};
 const assemblyColumns = [
     { Header: 'Machine Name', accessor: 'machineName' },
     { Header: 'Machine Process', accessor: 'machineProcess' },
