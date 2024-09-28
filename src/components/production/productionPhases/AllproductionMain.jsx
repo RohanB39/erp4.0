@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTable } from 'react-table';
 import { fireDB } from '../../firebase/FirebaseConfig';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import './productionPhases.css';
 
 
@@ -11,11 +11,45 @@ const productionColumns = [
     { Header: 'Production Order ID', accessor: 'poid' },
     { Header: 'FG ID', accessor: 'fgId' },
     { Header: 'Planned Qty', accessor: 'plannedQty' },
-    { Header: 'Cycle', accessor: 'cycle' },
+    { Header: 'Cycle (sec)', accessor: 'cycle' },
     { Header: 'Per Hr Qty', accessor: 'perHrQty' },
     { Header: 'Per Day Qty', accessor: 'perDayQty' },
+    {Header: 'Required Time',accessor: 'requiredTime',},
+    {Header: 'Action', Cell: ({ row }) => {
+            return (
+                <div>
+                    <div className="button-group">
+                        <button onClick={() => handleStart(row.original)}>Start</button>
+                        <button onClick={() => handleStop(row.original)}>Stop</button>
+                    </div>
+                </div>
+            );
+        },}
 ];
 
+const handleStart = async (rowData) => {
+    try {
+        const docRef = doc(fireDB, 'Production_Orders', rowData.poid);
+        await updateDoc(docRef, {
+            progressStatus: "Production Started",
+            productionStatus: "Production phase started",
+            cycle: rowData.cycle,       
+            perHrQty: rowData.perHrQty, 
+            perDayQty: rowData.perDayQty,
+            requiredTime: rowData.requiredTime,
+            startTime: serverTimestamp()
+        });
+
+        alert('Production started', rowData.poid);
+    } catch (error) {
+        alert('Error updating document: ', error);
+    }
+};
+
+
+const handleStop = (rowData) => {
+    console.log('Stop action for:', rowData);
+};
 const assemblyColumns = [
     { Header: 'Machine Name', accessor: 'machineName' },
     { Header: 'Machine Process', accessor: 'machineProcess' },
@@ -42,12 +76,14 @@ const packingColumns = [
 ];
 
 function AllproductionMain() {
-    const [activePhase, setActivePhase] = useState('production');
     const [machineNames, setMachineNames] = useState([]);
     const [productionData, setProductionData] = useState([]);
     const [cycleInput, setCycleInput] = useState({});
     const [perHrQtyInput, setPerHrQtyInput] = useState({});
     const [perDayQtyInput, setPerDayQtyInput] = useState({});
+    const [activePhase, setActivePhase] = useState('production');
+
+    const [inputValues, setInputValues] = useState({});
 
     const handlePhaseClick = (phase) => {
         setActivePhase(phase);
@@ -84,14 +120,45 @@ function AllproductionMain() {
     }, [activePhase]);
 
     const handleInputChange = (index, field, value) => {
-        setInputValues((prevState) => ({
-            ...prevState,
-            [index]: {
-                ...prevState[index],
-                [field]: value,
-            },
-        }));
+        const updatedData = productionData.map((item, i) => {
+            if (i === index) {
+                let newValue = { ...item, [field]: value };
+                
+                // If the cycle input is changed, calculate the Per Hr Qty and Per Day Qty
+                if (field === 'cycle' && value) {
+                    const cycleInSeconds = parseFloat(value);
+                    if (!isNaN(cycleInSeconds) && cycleInSeconds > 0) {
+                        const perHrQty = Math.round(3600 / cycleInSeconds); 
+                        const perDayQty = Math.round(perHrQty * 12);
+    
+                        // Get planned quantity from the state
+                        const pq = item.plannedQty; // Use item.plannedQty for the current row
+                        let requiredTime;
+    
+                        // Calculate required time
+                        const requiredHours = pq / perHrQty;
+                        if (requiredHours > 12) {
+                            // Convert to days
+                            requiredTime = Math.round(requiredHours / 12) + ' days';
+                        } else {
+                            requiredTime = Math.ceil(requiredHours) + ' hours';
+                        }
+    
+                        newValue = {
+                            ...newValue,
+                            perHrQty,
+                            perDayQty,
+                            requiredTime, // Store the required time
+                        };
+                    }
+                }
+                return newValue;
+            }
+            return item;
+        });
+        setProductionData(updatedData);  // Update the entire production data state
     };
+    
 
     const productionTableInstance = useTable({
         columns: productionColumns,
@@ -125,37 +192,34 @@ function AllproductionMain() {
                     <h3>{activePhase.charAt(0).toUpperCase() + activePhase.slice(1)} Phase</h3>
                 </div>
                 <div className="phaseMachines">
-                    {activePhase === 'production' && (
+                {activePhase === 'production' && (
                         <>
-                            {activePhase === 'production' && (
-                                <div className="phaseMachines">
-                                    <div className="machineBody">
-                                    <table {...productionTableInstance.getTableProps()}>
-                                <thead>
-                                    {productionTableInstance.headerGroups.map((headerGroup) => (
-                                        <tr {...headerGroup.getHeaderGroupProps()}>
-                                            {headerGroup.headers.map((column) => (
-                                                <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                                            ))}
-                                        </tr>
-                                    ))}
-                                </thead>
-                                <tbody {...productionTableInstance.getTableBodyProps()}>
-                                    {productionTableInstance.rows.map((row, i) => {
-                                        productionTableInstance.prepareRow(row);
-                                        return (
-                                            <tr {...row.getRowProps()}>
+                            <div className="machineBody">
+                                <table {...productionTableInstance.getTableProps()}>
+                                    <thead>
+                                        {productionTableInstance.headerGroups.map((headerGroup) => (
+                                            <tr {...headerGroup.getHeaderGroupProps()}>
+                                                {headerGroup.headers.map((column) => (
+                                                    <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+                                                ))}
+                                            </tr>
+                                        ))}
+                                    </thead>
+                                    <tbody {...productionTableInstance.getTableBodyProps()}>
+                                        {productionTableInstance.rows.map((row, i) => {
+                                            productionTableInstance.prepareRow(row);
+                                            return (
+                                                <tr {...row.getRowProps()}>
                                                 {row.cells.map((cell) => (
                                                     <td {...cell.getCellProps()}>
-                                                        {cell.column.id === 'cycle' ||
-                                                        cell.column.id === 'perHrQty' ||
-                                                        cell.column.id === 'perDayQty' ? (
+                                                        {['cycle', 'perHrQty', 'perDayQty'].includes(cell.column.id) ? (
                                                             <input
                                                                 type="text"
                                                                 value={cell.value}
                                                                 onChange={(e) =>
                                                                     handleInputChange(i, cell.column.id, e.target.value)
                                                                 }
+                                                                readOnly={cell.column.id !== 'cycle'} // Only 'cycle' is editable
                                                             />
                                                         ) : (
                                                             cell.render('Cell')
@@ -163,13 +227,11 @@ function AllproductionMain() {
                                                     </td>
                                                 ))}
                                             </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                                    </div>
-                                </div>
-                            )}
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
                         </>
                     )}
                     {/* {activePhase === 'assembly' && (
