@@ -6,7 +6,7 @@ import MachineAssignment from './productionComponents/machineAssignment/MachineA
 
 function AllProduction() {
     const [productionData, setProductionData] = useState([]);
-    const [currentStep, setCurrentStep] = useState('orderCreation'); // Current step in the workflow
+    const [currentStep, setCurrentStep] = useState('orderCreation'); 
     return (
         <div className='main' id='main'>
             <div className="production-container">

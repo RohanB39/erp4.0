@@ -1,111 +1,154 @@
-import React, { useMemo, useState } from 'react';
-import { useTable } from 'react-table';
-import './quality.css'
+import React, { useState, useEffect } from 'react';
+import { fireDB, collection, query, where, getDocs, updateDoc, doc } from '../firebase/FirebaseConfig';
+import './quality.css';
+import GreenTickGif from '../../assets/approve.mp4';
 
 function InProcessQuality() {
-    const [activeTab, setActiveTab] = useState('approved');
-    const [data, setData] = useState([
-        { itemName: 'Item 1', status: 'approved' },
-        { itemName: 'Item 2', status: 'hold' },
-        { itemName: 'Item 3', status: 'pass' },
-    ]);
+    const [groupedData, setGroupedData] = useState({});
+    const [showPopup, setShowPopup] = useState(false);
+    const [popupData, setPopupData] = useState(null);
+    const [searchDate, setSearchDate] = useState(''); // State for the search input
 
-    const handleTabClick = (tab) => {
-        setActiveTab(tab);
+    const fetchData = async () => {
+        try {
+            const q = query(
+                collection(fireDB, 'Production_Orders'),
+                where('progressStatus', '==', 'Production Completed'),
+                where('productionStatus', '==', 'Production Phase 1 complete')
+            );
+
+            const querySnapshot = await getDocs(q);
+            const dataByDate = {};
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const startDate = data.startDate;
+                if (!dataByDate[startDate]) {
+                    dataByDate[startDate] = [];
+                }
+                dataByDate[startDate].push({
+                    id: doc.id,
+                    productionOrderId: data.productionOrderId,
+                    FGID: data.selectedProductId,
+                    machineName: data.selectedMachine,
+                    plannedQty: data.quantity,
+                    productionQty: data.productionQuantity,
+                    productionStarted: data.startDate,
+                    productionEnded: data.endDate,
+                    progressStatus: data.progressStatus,
+                });
+            });
+
+            setGroupedData(dataByDate);
+        } catch (error) {
+            console.error('Error fetching data: ', error);
+        }
     };
 
-    const columns = useMemo(() => [
-        { Header: 'Item Name', accessor: 'itemName' },
-        { Header: 'Approved', accessor: 'approved' },
-        { Header: 'Hold', accessor: 'hold' },
-        { Header: 'Pass', accessor: 'pass' },
-        {
-            Header: 'Action',
-            accessor: 'action',
-            Cell: ({ row }) => {
-                const handleActionClick = () => {
-                    const newData = data.map((item, index) => {
-                        if (index === row.index) {
-                            if (item.status === 'approved') item.status = 'hold';
-                            else if (item.status === 'hold') item.status = 'pass';
-                            else if (item.status === 'pass') item.status = 'approved';
-                        }
-                        return item;
-                    });
-                    setData(newData);
-                };
+    const handleApprove = async (id, productionOrderId, FGID) => {
+        try {
+            const docRef = doc(fireDB, 'Production_Orders', id);
+            await updateDoc(docRef, { progressStatus: 'In Process Quality Approved' });
+            setPopupData({ productionOrderId, FGID });
+            setShowPopup(true);
+            setTimeout(() => setShowPopup(false), 5000);
 
-                const getButtonLabel = (status) => {
-                    if (status === 'approved') return 'Send to Hold';
-                    if (status === 'hold') return 'Send to Pass';
-                    if (status === 'pass') return ' Approved';
-                    return '';
-                };
-
-                return (
-                    <button onClick={handleActionClick}>
-                        {getButtonLabel(row.original.status)}
-                    </button>
-                );
-            }
+            fetchData();
+        } catch (error) {
+            console.error('Error approving order:', error);
         }
-    ], [data]);
+    };
 
-    const modifiedData = useMemo(() => {
-        return data.map(item => ({
-            ...item,
-            approved: item.status === 'approved' ? 'Yes' : 'No',
-            hold: item.status === 'hold' ? 'Yes' : 'No',
-            pass: item.status === 'pass' ? 'Yes' : 'No',
-        }));
-    }, [data]);
+    const handleHold = async (id) => {
+        try {
+            const docRef = doc(fireDB, 'Production_Orders', id);
+            await updateDoc(docRef, { progressStatus: 'In Process Quality Hold' });
+            fetchData();
+        } catch (error) {
+            console.error('Error holding order:', error);
+        }
+    };
 
-    const {
-        getTableProps,
-        getTableBodyProps,
-        headerGroups,
-        rows,
-        prepareRow,
-    } = useTable({ columns, data: modifiedData });
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const filteredData = Object.keys(groupedData).filter(date => {
+        return date.includes(searchDate);
+    });
 
     return (
         <div className='qualityTable'>
-          
+            <input
+                type="date"
+                value={searchDate}
+                onChange={(e) => setSearchDate(e.target.value)}
+                placeholder="Search by Date"
+                style={{ marginBottom: '20px', padding: '10px', width: '100%' }} // Style for the input
+            />
             <div className='tab-content'>
-                <table {...getTableProps()} style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                        {headerGroups.map(headerGroup => (
-                            <tr {...headerGroup.getHeaderGroupProps()}>
-                                {headerGroup.headers.map(column => (
-                                    <th
-                                        {...column.getHeaderProps()}
-                                    
-                                    >
-                                        {column.render('Header')}
-                                    </th>
-                                ))}
-                            </tr>
-                        ))}
-                    </thead>
-                    <tbody {...getTableBodyProps()}>
-                        {rows.map(row => {
-                            prepareRow(row);
-                            return (
-                                <tr {...row.getRowProps()}>
-                                    {row.cells.map(cell => (
-                                        <td
-                                            {...cell.getCellProps()}
-                                         
-                                        >
-                                            {cell.render('Cell')}
-                                        </td>
-                                    ))}
+                {filteredData.map((startDate) => (
+                    <div key={startDate}>
+                        <h3 style={{ textAlign: 'left' }}>Date: {startDate}</h3>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
+                            <thead>
+                                <tr>
+                                    <th>Production Order ID</th>
+                                    <th>FG ID</th>
+                                    <th>Machine Name</th>
+                                    <th>Planned QTY</th>
+                                    <th>Production QTY</th>
+                                    <th>Production Started</th>
+                                    <th>Production Ended</th>
+                                    <th>Progress Status</th>
+                                    <th>Action</th>
                                 </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                            </thead>
+                            <tbody>
+                                {groupedData[startDate].map((row) => (
+                                    <tr key={row.id}>
+                                        <td>{row.productionOrderId}</td>
+                                        <td>{row.FGID}</td>
+                                        <td>{row.machineName}</td>
+                                        <td>{row.plannedQty}</td>
+                                        <td>{row.productionQty}</td>
+                                        <td>{row.productionStarted}</td>
+                                        <td>{row.productionEnded}</td>
+                                        <td>{row.progressStatus}</td>
+                                        <td>
+                                            <button
+                                                onClick={() => handleApprove(row.id, row.productionOrderId, row.FGID)}
+                                                className="approve-btn"
+                                                style={{ marginRight: '10px' }}
+                                            >
+                                                Approve
+                                            </button>
+                                            <button
+                                                onClick={() => handleHold(row.id)}
+                                                className="hold-btn"
+                                            >
+                                                Hold
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ))}
             </div>
+
+            {/* Popup Modal */}
+            {showPopup && popupData && (
+                <div className="popup-overlay">
+                    <div className="popup-content animate__animated animate__fadeIn">
+                        <video src={GreenTickGif} alt="Approved" className="green-tick-gif" autoPlay />
+                        <h3>Approved</h3>
+                        <p>Production Order ID: {popupData.productionOrderId}</p>
+                        <p>FG ID: {popupData.FGID}</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

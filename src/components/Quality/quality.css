@@ -68,6 +68,18 @@
   cursor: pointer;
 }
 
+.popup-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.green-tick-gif {
+  border-radius: 100px;
+  height: 20%;
+  width: 100%;
+}
+
 @keyframes tick-bounce {
   0%, 100% {
       transform: scale(1);

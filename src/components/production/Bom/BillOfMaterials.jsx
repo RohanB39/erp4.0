@@ -1,16 +1,29 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTable, usePagination } from 'react-table';
 import { IoAdd } from "react-icons/io5";
+import { fireDB, collection, getDocs } from '../../firebase/FirebaseConfig';
 import './bomModal.css'; 
 
 const BillOfMaterials = () => {
     const [showModal, setShowModal] = useState(false);
+    const [data, setData] = useState([]);
 
-    const data = useMemo(() => [
-        { id: 1, bomName: "BOM 1", status: "Active", fgName: "FG 1", numOfRm: 3, modifiedBy: "User A", modifiedDate: "2024-06-01" },
-        { id: 2, bomName: "BOM 2", status: "Inactive", fgName: "FG 2", numOfRm: 4, modifiedBy: "User B", modifiedDate: "2024-06-02" },
-        // Add more data as needed
-    ], []);
+    const fetchData = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(fireDB, 'BOMs'));
+            const fetchedData = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setData(fetchedData);
+        } catch (error) {
+            console.error('Error fetching BOM data:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     const columns = useMemo(() => [
         { Header: 'BOM ID', accessor: 'id' },
@@ -39,10 +52,6 @@ const BillOfMaterials = () => {
     return (
         <div className="allproduction">
             <div className={`overlay ${showModal ? 'show' : ''}`} onClick={() => setShowModal(false)}></div>
-            <div className="info">
-                <h3>Production</h3>
-                <p>Bill Of Materials</p>
-            </div>
             <div className="allproduction-table">
                 <div className="allproduction-table-header">
                     <div className='productionsearch'>
