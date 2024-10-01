@@ -1,70 +1,203 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useTable, usePagination } from 'react-table';
+import { MdOutlineFileDownload } from "react-icons/md";
 import { IoAdd } from "react-icons/io5";
-import { fireDB, collection, getDocs, addDoc } from '../../firebase/FirebaseConfig';
-import BomModal from './bomPopup/BOMPopup';
-import './bomModal.css'; 
+import 'jspdf-autotable'; // Table Sathi
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { fireDB } from '../../firebase/FirebaseConfig';
+import { useNavigate } from 'react-router-dom';
+import jsPDF from 'jspdf';
+import logo from '../../../assets/Tectigon_logo.png';
+import * as XLSX from 'xlsx';
+import ExportModal from '../../purchase/ExportModal';
+import './bomModal.css';
 
 const BillOfMaterials = () => {
-    const [showModal, setShowModal] = useState(false);
+    const [searchInput, setSearchInput] = useState('');
+    const [isExportModalOpen, setExportModalOpen] = useState(false);
+    const [filterStatus, setFilterStatus] = useState('All');
     const [data, setData] = useState([]);
+    const [purchaseStock, setPurchaseStock] = useState([]);
+    const [vendorSearch, setVendorSearch] = useState([]);
+    const navigate = useNavigate();
+    const [totalItemsCount, setTotalItemsCount] = useState(0);
+    const [hold, setHold] = useState(0);
 
-    const columns = useMemo(() => [
-        { Header: 'BOM ID', accessor: 'id' },
-        { Header: 'BOM Name', accessor: 'bomName' },
-        { Header: 'Status', accessor: 'status' },
-        { Header: 'FG Name', accessor: 'fgName' },
-        { Header: 'Number of RM', accessor: 'numOfRm' },
-        { Header: 'Last Modified By', accessor: 'modifiedBy' },
-        { Header: 'Last Modified Date', accessor: 'modifiedDate' }
-    ], []);
+    const handleCreatePurchaseOrder = () => {
+        navigate('/purchase-order');
+    };
 
-    const {
-        getTableProps,
-        getTableBodyProps,
-        headerGroups,
-        page,
-        nextPage,
-        previousPage,
-        canNextPage,
-        canPreviousPage,
-        pageOptions,
-        state: { pageIndex },
-        prepareRow
-    } = useTable({ columns, data, initialState: { pageIndex: 0 }, pageSize: 10 }, usePagination);
+    // Fetch data from Items and Purchase_Orders collection and match materialId
+    useEffect(() => {
+        const fetchData = async () => {
+            const materialsRef = collection(fireDB, 'Items');
+            try {
+                const allItemsSnapshot = await getDocs(materialsRef);
+                setTotalItemsCount(allItemsSnapshot.size); // Store total count
 
-    const handleCreateBom = async (formData) => {
-        const newBOM = {
-            id: nextBOMId,
-            ...formData
+                const q = query(
+                    materialsRef,
+                    where('status', 'in', ['Hold', 'Rejected'])
+                );
+
+                const holdItems = await getDocs(q);
+                setHold(holdItems.size);
+
+                const purchaseQuery = query(
+                    materialsRef,
+                    // where('status', '==', 'QC Approved'),
+                    where('materialLocation', '!=', null)
+                );
+                const purchaseSnapshot = await getDocs(purchaseQuery);
+                const purchaseMaterial = purchaseSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                setPurchaseStock(purchaseMaterial);
+            } catch (error) {
+                console.error("Error fetching data: ", error);
+            }
         };
 
-        try {
-            await addDoc(collection(fireDB, 'BOMs'), newBOM);
-            console.log("New BOM added with ID:", newBOM.id);
-            setShowModal(false);
-            fetchData();  // Refresh the data after adding new BOM
-        } catch (error) {
-            console.error("Error adding BOM:", error);
+        fetchData();
+    }, []);
+
+
+    const purchasecolumns = useMemo(
+        () => [
+            { Header: 'Sr/No', Cell: ({ row }) => row.index + 1 },
+            { Header: 'MID', accessor: 'materialId' },
+            { Header: 'Name', accessor: 'materialName' },
+            { Header: 'Invoice Details', accessor: 'vendorInvoice' },
+            { Header: 'Status', accessor: 'status' },
+            { Header: 'Vendor & Details', accessor: 'vendorName' },
+            { Header: 'Amount', accessor: 'price' },
+        ],
+        []
+    );
+
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+        doc.addImage(logo, 'PNG', 10, 10, 50, 20);
+        doc.setFontSize(14);
+        doc.text('Tectigon IT Solutions Pvt Ltd', 15, 35);
+        doc.setFontSize(11);
+        doc.text('Pune Maharashtra 411021', 20, 40);
+        doc.text('The Kode, 6th Floor, Baner Pashan Link Road', 10, 45);
+        const itemHeaders = ['#', 'Invoice Details', 'Status', 'Vendor', 'Amount'];
+        const itemRows = filteredData.map((item, index) => [
+            `${index + 1}`,
+            `${item.vendorInvoice}`,
+            `${item.status}`,
+            `${item.vendorName}`,
+            `${item.price}`
+        ]);
+        doc.autoTable({
+            startY: 50,
+            head: [itemHeaders],
+            body: itemRows,
+            theme: 'grid',
+            styles: { halign: 'center' },
+            columnStyles: {
+                0: { cellWidth: 10 },
+                1: { cellWidth: 80, halign: 'left' },
+                2: { cellWidth: 20 },
+                3: { cellWidth: 30 },
+                4: { cellWidth: 30 }
+            }
+        });
+
+        const finalY = doc.lastAutoTable.finalY;
+        doc.setFontSize(12);
+        doc.text('Bank Details:', 10, finalY + 40);
+        doc.setFontSize(11);
+        doc.text('Account Holder Name: Tectigon IT Solutions Pvt Ltd', 10, finalY + 45);
+        doc.text('Account Number: 259890368180 IFSC INDB0000269', 10, finalY + 50);
+        doc.text('Bank: IndusInd Bank', 10, finalY + 55);
+        doc.text('Notes:', 10, finalY + 70);
+        doc.setFontSize(10);
+        doc.text('Thanks for your business.', 10, finalY + 75);
+
+        doc.text('Terms & Conditions:', 10, finalY + 85);
+        doc.text('Please do the payment within 14 days. After 14 days, 14% will be charged.', 10, finalY + 90);
+        doc.setFontSize(12);
+        doc.text('Tectigon IT Solutions Pvt Ltd', 140, finalY + 70);
+        doc.text('Sangita Kulkarni', 140, finalY + 80);
+        doc.text('Authorized Signature', 140, finalY + 85);
+        doc.save('all_data.pdf');
+    };
+
+    const exportToExcel = () => {
+        const worksheet = XLSX.utils.json_to_sheet(filteredData.map((item, index) => ({
+            '#': index + 1,
+            'Invoice Details': item.vendorInvoice,
+            'Status': item.status,
+            'Vendor': item.vendorName,
+            'Amount': item.price,
+        })));
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Purchases');
+        XLSX.writeFile(workbook, 'all_data.xlsx');
+    };
+
+    const handleExport = (type) => {
+        if (type === 'pdf') {
+            exportToPDF();
+        } else {
+            exportToExcel();
         }
     };
 
+    const filteredData = useMemo(() => {
+        return purchaseStock.filter(item => {
+            const materialNameMatch = item.materialName && item.materialName.toLowerCase().includes(searchInput.toLowerCase());
+            const vendorNameMatch = item.vendorName && item.vendorName.toLowerCase().includes(searchInput.toLowerCase());
+            return materialNameMatch || vendorNameMatch;
+        });
+    }, [searchInput, purchaseStock]);
+
+    const {
+        getTableProps: getPurchaseTableProps,
+        getTableBodyProps: getPurchaseTableBodyProps,
+        headerGroups: purchaseHeaderGroups,
+        page: purchasePage,
+        prepareRow: preparePurchaseRow,
+        canPreviousPage: canPreviousWarehousePage,
+        canNextPage: canNextPurchasePage,
+        pageOptions: purchasePageOptions,
+        pageCount: purchasePageCount,
+        nextPage: nextpurchasePage,
+        previousPage: previousPage,
+        setPageSize: setPurchasePageSize,
+        state: { pageIndex: purchasePageIndex, pageSize: purchasePageSize },
+    } = useTable(
+        {
+            columns: purchasecolumns,
+            data: filteredData,
+            initialState: { pageIndex: 0 },
+        },
+        usePagination
+    );
+
     return (
         <div className="allproduction">
-            <div className={`overlay ${showModal ? 'show' : ''}`} onClick={() => setShowModal(false)}></div>
             <div className="allproduction-table">
                 <div className="allproduction-table-header">
                     <div className='productionsearch'>
-                        <input type="text" placeholder='Search' />
+                        <input
+                            type="text"
+                            placeholder='Search by invoice'
+                            value={searchInput}
+                            onChange={(e) => setSearchInput(e.target.value)}
+                        />
                     </div>
                     <div className='createproduction'>
-                        <button onClick={() => setShowModal(true)}> <IoAdd className='icon' />Create BOM</button>
+                        <button onClick={() => setExportModalOpen(true)}><MdOutlineFileDownload className='icon' /> Export</button>
+                        <button onClick={handleCreatePurchaseOrder}> <IoAdd className='icon' />Create Purchase Order</button>
                     </div>
                 </div>
                 <div className="production-item-list">
-                    <table {...getTableProps()}>
+                    <table {...getPurchaseTableProps()}>
                         <thead>
-                            {headerGroups.map(headerGroup => (
+                            {purchaseHeaderGroups.map(headerGroup => (
                                 <tr {...headerGroup.getHeaderGroupProps()}>
                                     {headerGroup.headers.map(column => (
                                         <th {...column.getHeaderProps()}>{column.render('Header')}</th>
@@ -72,13 +205,15 @@ const BillOfMaterials = () => {
                                 </tr>
                             ))}
                         </thead>
-                        <tbody {...getTableBodyProps()}>
-                            {page.map(row => {
-                                prepareRow(row);
+                        <tbody {...getPurchaseTableBodyProps()}>
+                            {purchasePage.map(row => {
+                                preparePurchaseRow(row);
                                 return (
                                     <tr {...row.getRowProps()}>
                                         {row.cells.map(cell => (
-                                            <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                                            <td {...cell.getCellProps()}>
+                                                {cell.render('Cell')}
+                                            </td>
                                         ))}
                                     </tr>
                                 );
@@ -87,19 +222,23 @@ const BillOfMaterials = () => {
                     </table>
                 </div>
                 <div className="pagination">
-                    <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+                    <button onClick={() => previousPage()} disabled={!canPreviousWarehousePage}>
                         {'<'}
                     </button>
                     <span>
-                        {pageIndex + 1} of {pageOptions.length}
+                        Showing{' '}
+                        {purchasePageIndex + 1} of {purchasePageOptions.length}
                     </span>
-                    <button onClick={() => nextPage()} disabled={!canNextPage}>
+                    <button onClick={() => nextpurchasePage()} disabled={!canNextPurchasePage}>
                         {'>'}
                     </button>
                 </div>
             </div>
-            {showModal && (
-                <BomModal onClose={() => setShowModal(false)} onSubmit={handleCreateBom} />
+            {isExportModalOpen && (
+                <ExportModal
+                    onClose={() => setExportModalOpen(false)}
+                    onExport={handleExport}
+                />
             )}
         </div>
     );

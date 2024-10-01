@@ -191,7 +191,6 @@ function SalesPurchase() {
                         </div>
                         <div className="purchase-process">
                             <button onClick={() => setExportModalOpen(true)}><MdOutlineFileDownload className='icon' /> Export</button>
-                            {/* <button className='invoice' onClick={() => setPopupOpen(true)}> <IoAdd className='icon' />Add Invoice</button> */}
                             <button onClick={handleCreatePurchaseOrder}> <IoAdd className='icon' />Create Purchase Order</button>
                         </div>
                     </div>
