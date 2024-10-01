@@ -1,29 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTable, usePagination } from 'react-table';
 import { IoAdd } from "react-icons/io5";
-import { fireDB, collection, getDocs } from '../../firebase/FirebaseConfig';
+import { fireDB, collection, getDocs, addDoc } from '../../firebase/FirebaseConfig';
+import BomModal from './bomPopup/BOMPopup';
 import './bomModal.css'; 
 
 const BillOfMaterials = () => {
     const [showModal, setShowModal] = useState(false);
     const [data, setData] = useState([]);
-
-    const fetchData = async () => {
-        try {
-            const querySnapshot = await getDocs(collection(fireDB, 'BOMs'));
-            const fetchedData = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            setData(fetchedData);
-        } catch (error) {
-            console.error('Error fetching BOM data:', error);
-        }
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, []);
 
     const columns = useMemo(() => [
         { Header: 'BOM ID', accessor: 'id' },
@@ -48,6 +32,22 @@ const BillOfMaterials = () => {
         state: { pageIndex },
         prepareRow
     } = useTable({ columns, data, initialState: { pageIndex: 0 }, pageSize: 10 }, usePagination);
+
+    const handleCreateBom = async (formData) => {
+        const newBOM = {
+            id: nextBOMId,
+            ...formData
+        };
+
+        try {
+            await addDoc(collection(fireDB, 'BOMs'), newBOM);
+            console.log("New BOM added with ID:", newBOM.id);
+            setShowModal(false);
+            fetchData();  // Refresh the data after adding new BOM
+        } catch (error) {
+            console.error("Error adding BOM:", error);
+        }
+    };
 
     return (
         <div className="allproduction">
@@ -99,36 +99,8 @@ const BillOfMaterials = () => {
                 </div>
             </div>
             {showModal && (
-                <Modal onClose={() => setShowModal(false)}>
-                    <form>
-                        <h2>Create BOM</h2>
-                        <label>BOM Name:</label>
-                        <input type="text" required />
-                        <label>Status:</label>
-                        <input type="text" required />
-                        <label>FG Name:</label>
-                        <input type="text" required />
-                        <label>Number of RM:</label>
-                        <input type="number" required />
-                        <label>Last Modified By:</label>
-                        <input type="text" required />
-                        <label>Last Modified Date:</label>
-                        <input type="date" required />
-                        <button type="submit">Submit</button>
-                    </form>
-                </Modal>
+                <BomModal onClose={() => setShowModal(false)} onSubmit={handleCreateBom} />
             )}
-        </div>
-    );
-};
-
-const Modal = ({ onClose, children }) => {
-    return (
-        <div className="modal">
-            <div className="modal-content">
-                <button className="close-button" onClick={onClose}>×</button>
-                {children}
-            </div>
         </div>
     );
 };
