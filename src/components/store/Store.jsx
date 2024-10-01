@@ -420,14 +420,12 @@ const Store = () => {
             console.error("Error in updating material allocation:", error);
         }
     };
-    
-    
 
     const productionDemandMaterialColumns = useMemo(
         () => [
             {
                 Header: 'ID',
-                accessor: 'productionOrderId', // Unique accessor
+                accessor: 'productionOrderId',
             },
             {
                 Header: 'Machine',
@@ -435,7 +433,7 @@ const Store = () => {
             },
             {
                 Header: 'MID',
-                accessor: 'requiredMaterials', // Unique accessor for IDs
+                accessor: 'requiredMaterials',
                 Cell: ({ row }) => {
                     const requiredMaterials = row.original.requiredMaterials || [];
                     return (
