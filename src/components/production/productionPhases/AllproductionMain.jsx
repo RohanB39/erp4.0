@@ -61,7 +61,7 @@ const assemblyColumns = [
         accessor: 'action',
         Cell: ({ row }) => (
             <button
-                onClick={() => handleAssemblyStart(row.original)} // Using the function here
+                onClick={() => handleAssemblyStart(row.original)}
                 className="start-button"
             >
                 Start
