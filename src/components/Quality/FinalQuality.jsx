@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTable } from 'react-table';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { fireDB } from '../../../firebase/FirebaseConfig'; // Import Firebase config
+import { fireDB } from '../firebase/FirebaseConfig'; // Import Firebase config
 import './quality.css';
 
 function FinalQuality() {
