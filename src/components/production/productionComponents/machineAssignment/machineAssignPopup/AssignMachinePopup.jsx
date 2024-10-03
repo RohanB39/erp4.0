@@ -5,12 +5,19 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 const AssignMachinePopup = ({ material, isOpen, onClose }) => {
   const [productionQuantity, setProductionQuantity] = useState('');
+  const [isChoiceOpen, setIsChoiceOpen] = useState(false); // State to control the choice popup
+  const [userChoice, setUserChoice] = useState(''); // Store user choice (Assembly or Dispatch)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted for material:", material);
-    console.log("Production Quantity:", productionQuantity);
-    
+    // Open the choice popup to ask the user
+    setIsChoiceOpen(true);
+  };
+
+  const handleChoiceSubmit = async (choice) => {
+    setUserChoice(choice);
+    setIsChoiceOpen(false); // Close the choice popup
+
     if (material?.productionOrderId) {
       try {
         // Reference to the Firestore document
@@ -20,17 +27,21 @@ const AssignMachinePopup = ({ material, isOpen, onClose }) => {
         const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {
-          // Prepare data to update
+          // Prepare data to update based on user choice
           const updateData = {
             productionQuantity: productionQuantity,
             stopTime: getCurrentTime(),
-            progressStatus: 'Production Completed',
-            productionStatus: 'Production Phase 1 complete'
+            progressStatus: choice === 'Dispatch' 
+              ? 'Production Completed'
+              : 'Production Completed Delivered To Dispatch',
+            productionStatus: choice === 'Assembly' 
+              ? 'Production Phase 1 complete'
+              : 'Production Phase 1 complete ready to dispatch'
           };
 
           // Update the document
           await updateDoc(docRef, updateData);
-          alert('Production Completed');
+          alert(`Production Completed: ${choice}`);
           onClose();
         } else {
           console.error("No such document!");
@@ -113,6 +124,16 @@ const AssignMachinePopup = ({ material, isOpen, onClose }) => {
           <button type="button" onClick={onClose}>Close</button>
         </form>
       </div>
+
+      {isChoiceOpen && (
+        <div className="choice-popup-overlay">
+          <div className="choice-popup-content">
+            <h4>Select Process</h4>
+            <button onClick={() => handleChoiceSubmit('Assembly')}>Assembly</button>
+            <button onClick={() => handleChoiceSubmit('Dispatch')}>Dispatch</button>
+          </div>
+        </div>
+      )}
     </div>
   ) : null;
 };

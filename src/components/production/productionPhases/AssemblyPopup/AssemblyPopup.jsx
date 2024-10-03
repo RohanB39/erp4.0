@@ -5,6 +5,7 @@ import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 const AssemblyPopup = ({ rowData, onClose }) => {
   const [workers, setWorkers] = useState(['']);
   const [cycleTime, setCycleTime] = useState('');
+  
   const handleAddWorker = () => {
     setWorkers([...workers, '']);
   };
@@ -37,12 +38,19 @@ const AssemblyPopup = ({ rowData, onClose }) => {
   const handleStart = async () => {
     const productionOrderId = rowData?.poid;
     const orderDocRef = doc(fireDB, 'Production_Orders', productionOrderId);
+    
+    // Determine whether to save time in hours or days
+    const timeRequired = timeRequiredInHours < 12 ? timeRequiredInHours : timeRequiredInDays;
+    const timeUnit = timeRequiredInHours < 12 ? 'hours' : 'days';
+
     try {
       await updateDoc(orderDocRef, {
         assemblyWorkers: workers,
         assemblyCycleTimePerWorker: cycleTime,
         assemblyPerHourQuantity: perHrQty,
         assemblyPerDayQuantity: perDayQty,
+        assemblyTimeRequired: timeRequired,
+        assemblyTimeUnit: timeUnit,
         assemblyStartTimestamp: serverTimestamp(),
         productionStatus: 'Assembly Start',
         progressStatus: 'Assembly started'
