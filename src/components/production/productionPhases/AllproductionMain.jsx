@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTable } from 'react-table';
 import { fireDB } from '../../firebase/FirebaseConfig';
 import { collection, query, where, getDocs, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
@@ -48,6 +48,28 @@ const handleStart = async (rowData) => {
     }
 };
 
+const assemblyColumns = [
+    { Header: 'Sr/No', accessor: 'srNo' },
+    { Header: 'Production Order ID', accessor: 'poid' },
+    { Header: 'Machine Name', accessor: 'machineName' },
+    { Header: 'FG ID', accessor: 'fgId' },
+    { Header: 'Planned Quantity', accessor: 'plannedQty' },
+    { Header: 'Production Quantity', accessor: 'productionQuantity' },
+    { Header: 'Approval Date & Time', accessor: 'approvalDate' },
+    {
+        Header: 'Action',
+        accessor: 'action',
+        Cell: ({ row }) => (
+            <button
+                onClick={() => handleAssemblyStart(row.original)} // Using the function here
+                className="start-button"
+            >
+                Start
+            </button>
+        )
+    }
+];
+
 function AllproductionMain() {
     const [machineNames, setMachineNames] = useState([]);
     const [productionData, setProductionData] = useState([]);
@@ -59,41 +81,10 @@ function AllproductionMain() {
     const [machineData, setMachineData] = useState([]);
     const [assemblyData, setAssemblyData] = useState([]);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const [selectedRowData, setSelectedRowData] = useState(null);
+    const [selectedRowData, setSelectedRowData] = useState(null); 
     
     const handlePhaseClick = (phase) => {
         setActivePhase(phase);
-    };
-
-    const assemblyColumns = [
-        { Header: 'Sr/No', accessor: 'srNo' },
-        { Header: 'Production Order ID', accessor: 'poid' },
-        { Header: 'Machine Name', accessor: 'machineName' },
-        { Header: 'FG ID', accessor: 'fgId' },
-        { Header: 'Planned Quantity', accessor: 'plannedQty' },
-        { Header: 'Production Quantity', accessor: 'productionQuantity' },
-        { Header: 'Approval Date & Time', accessor: 'approvalDate' },
-        {
-            Header: 'Action',
-            accessor: 'action',
-            Cell: ({ row }) => (
-                <button
-                    onClick={() => handleAssemblyStart(row.original)}
-                    className="start-button"
-                >
-                    Start
-                </button>
-            )
-        }
-    ];
-
-    const handleAssemblyStart = (rowData) => {
-        setSelectedRowData(rowData);
-        setIsPopupOpen(true);
-    };
-
-    const closePopup = () => {
-        setIsPopupOpen(false);
     };
 
     // Function to fetch data from Firestore
@@ -159,17 +150,52 @@ function AllproductionMain() {
             console.error('Error fetching assembly data: ', error);
         }
     };
-
-
-    // Component logic and table rendering
     useEffect(() => {
         fetchAssemblyData();
     }, []);
 
+
+    const assemblyColumns = useMemo(() => [
+        { Header: 'Sr/No', accessor: 'srNo' },
+        { Header: 'Production Order ID', accessor: 'poid' },
+        { Header: 'Machine Name', accessor: 'machineName' },
+        { Header: 'FG ID', accessor: 'fgId' },
+        { Header: 'Planned Quantity', accessor: 'plannedQty' },
+        { Header: 'Production Quantity', accessor: 'productionQuantity' },
+        { Header: 'Approval Date & Time', accessor: 'approvalDate' },
+        {
+            Header: 'Action',
+            accessor: 'action',
+            Cell: ({ row }) => (
+                <button
+                    onClick={() => handleAssemblyStart(row.original)}
+                    className="start-button"
+                >
+                    Start
+                </button>
+            ),
+        },
+    ], []);
+
+    // Memoize the data to prevent unnecessary re-renders
+    const assemblyDataMemo = useMemo(() => assemblyData, [assemblyData]);
+
+    // Handle assembly start button
+    const handleAssemblyStart = (rowData) => {
+        setSelectedRowData(rowData);
+        setIsPopupOpen(true);
+    };
+
+    const closePopup = () => {
+        setIsPopupOpen(false);
+    };
+
+    // Use the memoized data and columns in the useTable hook
     const assemblyTableInstance = useTable({
         columns: assemblyColumns,
-        data: assemblyData,
+        data: assemblyDataMemo,
     });
+
 
 
     useEffect(() => {
@@ -282,7 +308,7 @@ function AllproductionMain() {
                     )}
                     {activePhase === 'assembly' && (
                         <div className="machineBody">
-                            <table {...assemblyTableInstance.getTableProps()}>
+                        <table {...assemblyTableInstance.getTableProps()}>
                                 <thead>
                                     {assemblyTableInstance.headerGroups.map((headerGroup) => (
                                         <tr {...headerGroup.getHeaderGroupProps()}>
@@ -307,14 +333,9 @@ function AllproductionMain() {
                             </table>
                         </div>
                     )}
-                    {isPopupOpen && (
-                        <AssemblyPopup
-                            rowData={selectedRowData}
-                            onClose={closePopup}
-                        />
-                    )}
                 </div>
             </div>
+            {isPopupOpen && <AssemblyPopup rowData={selectedRowData} onClose={closePopup} />}
         </div>
         
     );
