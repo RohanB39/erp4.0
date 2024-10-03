@@ -2,13 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { fireDB } from '../../../firebase/FirebaseConfig';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useTable } from 'react-table';
-import AssignMachinePopup from '../machineAssignment/machineAssignPopup/AssignMachinePopup'; 
+import AssignMachinePopup from '../machineAssignment/machineAssignPopup/AssignMachinePopup';
 import './machineAssignment.css';
+import AssemblyComponent from './AssemblyComponent';
 
 const MachineAssignment = () => {
   const [materials, setMaterials] = useState([]);
-  const [selectedMaterial, setSelectedMaterial] = useState(null); 
-  const [isPopupOpen, setIsPopupOpen] = useState(false); 
+  const [selectedMaterial, setSelectedMaterial] = useState(null);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('production'); 
 
   useEffect(() => {
     const fetchMaterials = async () => {
@@ -30,13 +32,13 @@ const MachineAssignment = () => {
   }, []);
 
   const handleAssignMachine = (material) => {
-    setSelectedMaterial(material); 
-    setIsPopupOpen(true); 
+    setSelectedMaterial(material);
+    setIsPopupOpen(true);
   };
 
   const closePopup = () => {
-    setIsPopupOpen(false); 
-    setSelectedMaterial(null); 
+    setIsPopupOpen(false);
+    setSelectedMaterial(null);
   };
 
   // Function to group materials by date
@@ -95,21 +97,21 @@ const MachineAssignment = () => {
         Cell: ({ row }) => {
           const { startTime, requiredTime } = row.original;
           const [remainingTime, setRemainingTime] = useState(null); // State to track remaining time
-      
+
           useEffect(() => {
             const calculateTimeRemaining = () => {
               const currentTime = new Date();
-      
+
               if (startTime && startTime.seconds && requiredTime) {
                 const startTimeDate = new Date(startTime.seconds * 1000);
-                
+
                 // Calculate elapsed time in milliseconds
                 const elapsedTime = currentTime - startTimeDate;
-      
+
                 // Parse the requiredTime string (e.g., "1 days" or "12 hours")
                 const [requiredValue, requiredUnit] = requiredTime.split(' ');
                 let requiredTimeMs;
-      
+
                 // Convert the requiredTime to milliseconds based on the unit
                 if (requiredUnit === 'days') {
                   requiredTimeMs = requiredValue * 12 * 60 * 60 * 1000; // Convert days to 12 hours in milliseconds
@@ -122,36 +124,36 @@ const MachineAssignment = () => {
                 } else {
                   return 'Invalid Time Unit';
                 }
-      
+
                 // If elapsed time is greater than or equal to requiredTime, show "Stop Machine"
                 if (elapsedTime >= requiredTimeMs) {
                   setRemainingTime('Stop Machine');
                 } else {
                   // Calculate time remaining and display it
                   const timeRemainingMs = requiredTimeMs - elapsedTime;
-      
+
                   // Convert the remaining time into hours, minutes, and seconds
                   const hours = Math.floor(timeRemainingMs / (1000 * 60 * 60));
                   const minutes = Math.floor((timeRemainingMs % (1000 * 60 * 60)) / (1000 * 60));
                   const seconds = Math.floor((timeRemainingMs % (1000 * 60)) / 1000);
-      
+
                   setRemainingTime(`${hours}h ${minutes}m ${seconds}s`);
                 }
               } else {
                 setRemainingTime('Invalid Time');
               }
             };
-      
+
             // Set an interval to update the remaining time every second
             const intervalId = setInterval(calculateTimeRemaining, 1000);
-      
+
             // Clear the interval when the component is unmounted
             return () => clearInterval(intervalId);
           }, [startTime, requiredTime]);
-      
+
           return remainingTime ? remainingTime : 'Loading...';
         }
-      },     
+      },
       {
         Header: 'Assembly Cell',
         accessor: 'assembelyCell',
@@ -182,47 +184,72 @@ const MachineAssignment = () => {
     <div className='main'>
       <h4>Machine Assignment</h4>
 
-      {/* Render the table grouped by date */}
-      {Object.keys(groupedMaterials).map(date => (
-        <div key={date}>
-          <h5>{date}</h5> {/* Date Header */}
-          <table {...getTableProps()} className="react-table">
-            <thead>
-              {headerGroups.map(headerGroup => (
-                <tr {...headerGroup.getHeaderGroupProps()}>
-                  {headerGroup.headers.map(column => (
-                    <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody {...getTableBodyProps()}>
-              {groupedMaterials[date].map(material => {
-                const rowIndex = rows.findIndex(row => row.original.id === material.id);
-                if (rowIndex !== -1) {
-                  const row = rows[rowIndex];
-                  prepareRow(row);
-                  return (
-                    <tr {...row.getRowProps()}>
-                      {row.cells.map(cell => (
-                        <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+      {/* Tab Navigation */}
+      <div className="tabs">
+        <button
+          className={`tab ${activeTab === 'production' ? 'active' : ''}`}
+          onClick={() => setActiveTab('production')}
+        >
+          Production
+        </button>
+        <button
+          className={`tab ${activeTab === 'assembly' ? 'active' : ''}`}
+          onClick={() => setActiveTab('assembly')}
+        >
+          Assembly
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'production' ? (
+        // Production Tab Content
+        <>
+          {/* Render the table grouped by date */}
+          {Object.keys(groupedMaterials).map(date => (
+            <div key={date}>
+              <h5>{date}</h5> {/* Date Header */}
+              <table {...getTableProps()} className="react-table">
+                <thead>
+                  {headerGroups.map(headerGroup => (
+                    <tr {...headerGroup.getHeaderGroupProps()}>
+                      {headerGroup.headers.map(column => (
+                        <th {...column.getHeaderProps()}>{column.render('Header')}</th>
                       ))}
                     </tr>
-                  );
-                }
-                return null;
-              })}
-            </tbody>
-          </table>
-        </div>
-      ))}
+                  ))}
+                </thead>
+                <tbody {...getTableBodyProps()}>
+                  {groupedMaterials[date].map(material => {
+                    const rowIndex = rows.findIndex(row => row.original.id === material.id);
+                    if (rowIndex !== -1) {
+                      const row = rows[rowIndex];
+                      prepareRow(row);
+                      return (
+                        <tr {...row.getRowProps()}>
+                          {row.cells.map(cell => (
+                            <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                          ))}
+                        </tr>
+                      );
+                    }
+                    return null;
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ))}
 
-      {/* Render the popup component */}
-      <AssignMachinePopup 
-        material={selectedMaterial} 
-        isOpen={isPopupOpen} 
-        onClose={closePopup} 
-      />
+          {/* Render the popup component */}
+          <AssignMachinePopup 
+            material={selectedMaterial} 
+            isOpen={isPopupOpen} 
+            onClose={closePopup} 
+          />
+        </>
+      ) : (
+        // Assembly Tab Content (Render the Assembly Component)
+        <AssemblyComponent />
+      )}
     </div>
   );
 }

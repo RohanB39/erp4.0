@@ -5,12 +5,51 @@ import { collection, query, where, getDocs, doc, updateDoc, serverTimestamp } fr
 import './productionPhases.css';
 
 const assemblyColumns = [
-    { Header: 'Machine Name', accessor: 'machineName' },
-    { Header: 'Machine Process', accessor: 'machineProcess' },
-    { Header: 'Machine Cycle Time', accessor: 'machineCycleTime' },
+    { Header: 'Sr/No', accessor: 'srNo' },
+    { Header: 'Machine Name', accessor: 'selectedMachine' }
 ];
 
 function AllproductionMain() {
+    const [machineNames, setMachineNames] = useState([]);
+    const [productionData, setProductionData] = useState([]);
+    const [cycleInput, setCycleInput] = useState({});
+    const [perHrQtyInput, setPerHrQtyInput] = useState({});
+    const [perDayQtyInput, setPerDayQtyInput] = useState({});
+    const [activePhase, setActivePhase] = useState('production');
+    const [inputValues, setInputValues] = useState({});
+    const [machineData, setMachineData] = useState([]);
+
+    const fetchAssemblyData = async () => {
+        try {
+            const q = query(
+                collection(fireDB, 'Production_Orders'),
+                where('progressStatus', '==', 'In Process Quality Approved'),
+                where('productionStatus', '==', 'Production Phase 1 complete')
+            );
+    
+            const querySnapshot = await getDocs(q);
+    
+            const fetchedData = querySnapshot.docs.map((doc, index) => {
+                const data = doc.data();
+                return {
+                    srNo: index + 1,
+                    selectedMachine: data.selectedMachine || 'N/A',
+                    ...data
+                };
+            });
+    
+            setMachineData(fetchedData); // Directly update state with fetched data
+        } catch (error) {
+            console.error('Error fetching assembly data: ', error);
+        }
+    };    
+
+    // Component logic and table rendering
+    useEffect(() => {
+        fetchAssemblyData();
+    }, []);
+
+    const tableInstance = useTable({ columns: assemblyColumns, data: machineData });
     return (
         <div className="productionPhases">
             <div className="phases">
@@ -26,68 +65,37 @@ function AllproductionMain() {
                     <h3>{activePhase.charAt(0).toUpperCase() + activePhase.slice(1)} Phase</h3>
                 </div>
                 <div className="phaseMachines">
-                    {activePhase === 'assembly' && (
+                {activePhase === 'assembly' && machineData.length > 0 && (
                         <>
-                            <div className="machineOne">
-                                <div className="machineHead">
-                                    <h4>Machine One</h4>
-                                </div>
-                                <div className="machineBody">
-                                    <table {...assemblyTableInstanceMachineOne.getTableProps()}>
-                                        <thead>
-                                            {assemblyTableInstanceMachineOne.headerGroups.map(headerGroup => (
-                                                <tr {...headerGroup.getHeaderGroupProps()}>
-                                                    {headerGroup.headers.map(column => (
-                                                        <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                                                    ))}
-                                                </tr>
-                                            ))}
-                                        </thead>
-                                        <tbody {...assemblyTableInstanceMachineOne.getTableBodyProps()}>
-                                            {assemblyTableInstanceMachineOne.rows.map(row => {
-                                                assemblyTableInstanceMachineOne.prepareRow(row);
-                                                return (
-                                                    <tr {...row.getRowProps()}>
-                                                        {row.cells.map(cell => (
-                                                            <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                            {machineData.map((machine, index) => (
+                                <div key={index} className="machine">
+                                    <div className="machineBody">
+                                        <table {...tableInstance.getTableProps()}>
+                                            <thead>
+                                                {tableInstance.headerGroups.map(headerGroup => (
+                                                    <tr {...headerGroup.getHeaderGroupProps()}>
+                                                        {headerGroup.headers.map(column => (
+                                                            <th {...column.getHeaderProps()}>{column.render('Header')}</th>
                                                         ))}
                                                     </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </table>
+                                                ))}
+                                            </thead>
+                                            <tbody {...tableInstance.getTableBodyProps()}>
+                                                {tableInstance.rows.map(row => {
+                                                    tableInstance.prepareRow(row);
+                                                    return (
+                                                        <tr {...row.getRowProps()}>
+                                                            {row.cells.map(cell => (
+                                                                <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                                                            ))}
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="machineTwo">
-                                <div className="machineHead">
-                                    <h4>Machine Two</h4>
-                                </div>
-                                <div className="machineBody">
-                                    <table {...assemblyTableInstanceMachineTwo.getTableProps()}>
-                                        <thead>
-                                            {assemblyTableInstanceMachineTwo.headerGroups.map(headerGroup => (
-                                                <tr {...headerGroup.getHeaderGroupProps()}>
-                                                    {headerGroup.headers.map(column => (
-                                                        <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                                                    ))}
-                                                </tr>
-                                            ))}
-                                        </thead>
-                                        <tbody {...assemblyTableInstanceMachineTwo.getTableBodyProps()}>
-                                            {assemblyTableInstanceMachineTwo.rows.map(row => {
-                                                assemblyTableInstanceMachineTwo.prepareRow(row);
-                                                return (
-                                                    <tr {...row.getRowProps()}>
-                                                        {row.cells.map(cell => (
-                                                            <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                                                        ))}
-                                                    </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                            ))}
                         </>
                     )}
                 </div>

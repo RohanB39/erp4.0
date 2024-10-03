@@ -91,21 +91,31 @@ function AllproductionMain() {
     };
 
     const fetchAssemblyData = async () => {
-        const q = query(
-            collection(fireDB, 'Production_Orders'),
-            where('progressStatus', '==', 'In Process Quality Approved'),
-            where('productionStatus', '==', 'Production Phase 1 complete')
-        );
+        try {
+            const q = query(
+                collection(fireDB, 'Production_Orders'),
+                where('progressStatus', '==', 'In Process Quality Approved'),
+                where('productionStatus', '==', 'Production Phase 1 complete')
+            );
+    
+            const querySnapshot = await getDocs(q);
+    
+            const fetchedData = querySnapshot.docs.map((doc, index) => {
+                const data = doc.data();
+                return {
+                    srNo: index + 1,
+                    selectedMachine: data.selectedMachine || 'N/A',
+                    ...data
+                };
+            });
+    
+            setMachineData(fetchedData); // Directly update state with fetched data
+        } catch (error) {
+            console.error('Error fetching assembly data: ', error);
+        }
+    };    
 
-        const querySnapshot = await getDocs(q);
-        const fetchedData = querySnapshot.docs.map((doc, index) => ({
-            srNo: index + 1,
-            selectedMachine: doc.data().selectedMachine || 'N/A',
-            ...doc.data()
-        }));
-
-        setMachineData(fetchedData);
-    };
+    // Component logic and table rendering
     useEffect(() => {
         fetchAssemblyData();
     }, []);
@@ -224,9 +234,6 @@ function AllproductionMain() {
                         <>
                             {machineData.map((machine, index) => (
                                 <div key={index} className="machine">
-                                    <div className="machineHead">
-                                        <h4>{machine.selectedMachine}</h4>
-                                    </div>
                                     <div className="machineBody">
                                         <table {...tableInstance.getTableProps()}>
                                             <thead>
