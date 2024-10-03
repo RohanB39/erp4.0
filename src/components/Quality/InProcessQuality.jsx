@@ -8,7 +8,7 @@ function InProcessQuality() {
     const [groupedData, setGroupedData] = useState({});
     const [showPopup, setShowPopup] = useState(false);
     const [popupData, setPopupData] = useState(null);
-    const [searchDate, setSearchDate] = useState(''); // State for the search input
+    const [searchDate, setSearchDate] = useState('');
 
     const fetchData = async () => {
         try {

@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTable } from 'react-table';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { fireDB } from '../firebase/FirebaseConfig'; // Import Firebase config
+import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { fireDB } from '../firebase/FirebaseConfig';
 import './quality.css';
+import GreenTickGif from '../../assets/approve.mp4';
 
 function FinalQuality() {
   const [data, setData] = useState([]);
+  const [searchDate, setSearchDate] = useState('');
 
   // Fetch data from Firestore based on the specified criteria
   useEffect(() => {
@@ -39,51 +41,51 @@ function FinalQuality() {
   const columns = useMemo(
     () => [
       { Header: 'Machine Name', accessor: 'selectedMachine' },
-      { Header: 'Approved', accessor: 'approved' },
-      { Header: 'Hold', accessor: 'hold' },
-      { Header: 'Pass', accessor: 'pass' },
+      { Header: 'Assembled Quantity', accessor: 'assembledQuantity' },
+      { Header: 'Production Quantity', accessor: 'productionQuantity' },
+      { Header: 'FG ID', accessor: 'selectedProductId' },
+      { Header: 'Planned Quantity', accessor: 'quantity' },
+      { Header: 'Production Order ID', accessor: 'productionOrderId' },
       {
         Header: 'Action',
         accessor: 'action',
         Cell: ({ row }) => {
-          const handleActionClick = () => {
-            const newData = data.map((item, index) => {
-              if (index === row.index) {
-                if (item.status === 'approved') item.status = 'hold';
-                else if (item.status === 'hold') item.status = 'pass';
-                else if (item.status === 'pass') item.status = 'approved';
-              }
-              return item;
-            });
-            setData(newData);
-          };
+            const handleApprove = async () => {
+                try {
+                  const docRef = doc(fireDB, 'Production_Orders', row.original.id);
+                  await updateDoc(docRef, { progressStatus: 'Final Quality Approved' });
+                  alert('Approved:', row.original.productionOrderId);
+                } catch (error) {
+                  console.error('Error approving:', error);
+                }
+              };
 
-          const getButtonLabel = (status) => {
-            if (status === 'approved') return 'Send to Hold';
-            if (status === 'hold') return 'Send to Pass';
-            if (status === 'pass') return 'Approved';
-            return '';
-          };
+              const handleReject = async () => {  // Marked as async
+                try {
+                  const docRef = doc(fireDB, 'Production_Orders', row.original.id);
+                  await updateDoc(docRef, { progressStatus: 'Final Quality Rejected' });
+                  alert('Rejected:', row.original.productionOrderId);
+                } catch (error) {
+                  console.error('Error rejecting:', error); // Updated error message for clarity
+                }
+              };
 
           return (
-            <button onClick={handleActionClick}>
-              {getButtonLabel(row.original.status)}
-            </button>
+            <div>
+              <button onClick={handleApprove}>Approve</button>
+              <button onClick={handleReject} style={{ marginLeft: '10px' }}>Reject</button>
+            </div>
           );
-        }
-      }
+        },
+      },
     ],
     [data]
   );
 
-  // Modify the data to add Yes/No based on status
   const modifiedData = useMemo(
     () =>
       data.map((item) => ({
         ...item,
-        approved: item.status === 'approved' ? 'Yes' : 'No',
-        hold: item.status === 'hold' ? 'Yes' : 'No',
-        pass: item.status === 'pass' ? 'Yes' : 'No',
       })),
     [data]
   );

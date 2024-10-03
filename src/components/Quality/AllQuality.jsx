@@ -30,12 +30,6 @@ function AllQuality() {
                 <div className="production-nav-cards">
                     <div
                         className="single-production-card"
-                        onClick={() => setActiveTab('AllQuality')}
-                    >
-                        <h3>All Quality</h3>
-                    </div>
-                    <div
-                        className="single-production-card"
                         onClick={() => setActiveTab('InwardQuality')}
                     >
                         <h3>Inward Quality</h3>
