@@ -49,7 +49,6 @@ function AllproductionMain() {
         fetchAssemblyData();
     }, []);
 
-    const tableInstance = useTable({ columns: assemblyColumns, data: machineData });
     return (
         <div className="productionPhases">
             <div className="phases">
@@ -65,38 +64,32 @@ function AllproductionMain() {
                     <h3>{activePhase.charAt(0).toUpperCase() + activePhase.slice(1)} Phase</h3>
                 </div>
                 <div className="phaseMachines">
-                {activePhase === 'assembly' && machineData.length > 0 && (
-                        <>
-                            {machineData.map((machine, index) => (
-                                <div key={index} className="machine">
-                                    <div className="machineBody">
-                                        <table {...tableInstance.getTableProps()}>
-                                            <thead>
-                                                {tableInstance.headerGroups.map(headerGroup => (
-                                                    <tr {...headerGroup.getHeaderGroupProps()}>
-                                                        {headerGroup.headers.map(column => (
-                                                            <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                                                        ))}
-                                                    </tr>
+                {activePhase === 'assembly' && (
+                        <div className="machineBody">
+                            <table {...assemblyTableInstance.getTableProps()}>
+                                <thead>
+                                    {assemblyTableInstance.headerGroups.map((headerGroup) => (
+                                        <tr {...headerGroup.getHeaderGroupProps()}>
+                                            {headerGroup.headers.map((column) => (
+                                                <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+                                            ))}
+                                        </tr>
+                                    ))}
+                                </thead>
+                                <tbody {...assemblyTableInstance.getTableBodyProps()}>
+                                    {assemblyTableInstance.rows.map((row) => {
+                                        assemblyTableInstance.prepareRow(row);
+                                        return (
+                                            <tr {...row.getRowProps()}>
+                                                {row.cells.map((cell) => (
+                                                    <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
                                                 ))}
-                                            </thead>
-                                            <tbody {...tableInstance.getTableBodyProps()}>
-                                                {tableInstance.rows.map(row => {
-                                                    tableInstance.prepareRow(row);
-                                                    return (
-                                                        <tr {...row.getRowProps()}>
-                                                            {row.cells.map(cell => (
-                                                                <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                                                            ))}
-                                                        </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            ))}
-                        </>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
                     )}
                 </div>
             </div>
