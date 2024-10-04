@@ -3,6 +3,7 @@ import './production.css';
 import OrderCreation from './productionComponents/orderCreation/OrderCreation';
 import MaterialAllocation from './productionComponents/materialAllocation/MaterialAllocation';
 import MachineAssignment from './productionComponents/machineAssignment/MachineAssignment';
+import ProductionExecution from './productionComponents/productionExecution/ProductionExecution';
 
 function AllProduction() {
     const [productionData, setProductionData] = useState([]);
@@ -42,8 +43,8 @@ function AllProduction() {
                     {currentStep === 'orderCreation' && <OrderCreation />}
                     {currentStep === 'materialAllocation' && <MaterialAllocation />}
                     {currentStep === 'workCenter' && <MachineAssignment />}
-                    {/* {currentStep === 'execution' && <ProductionExecution />}
-                    {currentStep === 'qualityControl' && <QualityControl />}
+                    {currentStep === 'execution' && <ProductionExecution />}
+                    {/* {currentStep === 'qualityControl' && <QualityControl />}
                     {currentStep === 'inventory' && <FinishedGoodsInventory />}
                     {currentStep === 'reporting' && <ProductionReporting />} */}
                 </div>
