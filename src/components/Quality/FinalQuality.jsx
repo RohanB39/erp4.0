@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTable } from 'react-table';
-import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { fireDB } from '../firebase/FirebaseConfig';
 import './quality.css';
 import GreenTickGif from '../../assets/approve.mp4';
@@ -24,7 +24,7 @@ function FinalQuality() {
 
         const querySnapshot = await getDocs(q);
         const fetchedData = querySnapshot.docs.map((doc) => ({
-          id: doc.id, // Optional: Keep track of the document ID if needed
+          id: doc.id,
           ...doc.data(),
         }));
 
@@ -50,25 +50,28 @@ function FinalQuality() {
         Header: 'Action',
         accessor: 'action',
         Cell: ({ row }) => {
-            const handleApprove = async () => {
-                try {
-                  const docRef = doc(fireDB, 'Production_Orders', row.original.id);
-                  await updateDoc(docRef, { progressStatus: 'Final Quality Approved' });
-                  alert('Approved:', row.original.productionOrderId);
-                } catch (error) {
-                  console.error('Error approving:', error);
-                }
-              };
+          const handleApprove = async () => {
+            try {
+              const docRef = doc(fireDB, 'Production_Orders', row.original.id);
+              await updateDoc(docRef, {
+                progressStatus: 'Final Quality Approved',
+                FinalQualityApprovalDate: Timestamp.now()
+              });
+              alert(`Approved: ${row.original.productionOrderId}`);
+            } catch (error) {
+              console.error('Error approving:', error);
+            }
+          };
 
-              const handleReject = async () => {  // Marked as async
-                try {
-                  const docRef = doc(fireDB, 'Production_Orders', row.original.id);
-                  await updateDoc(docRef, { progressStatus: 'Final Quality Rejected' });
-                  alert('Rejected:', row.original.productionOrderId);
-                } catch (error) {
-                  console.error('Error rejecting:', error); // Updated error message for clarity
-                }
-              };
+          const handleReject = async () => {  // Marked as async
+            try {
+              const docRef = doc(fireDB, 'Production_Orders', row.original.id);
+              await updateDoc(docRef, { progressStatus: 'Final Quality Rejected' });
+              alert('Rejected:', row.original.productionOrderId);
+            } catch (error) {
+              console.error('Error rejecting:', error); // Updated error message for clarity
+            }
+          };
 
           return (
             <div>

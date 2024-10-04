@@ -4,6 +4,8 @@ import OrderCreation from './productionComponents/orderCreation/OrderCreation';
 import MaterialAllocation from './productionComponents/materialAllocation/MaterialAllocation';
 import MachineAssignment from './productionComponents/machineAssignment/MachineAssignment';
 import ProductionExecution from './productionComponents/productionExecution/ProductionExecution';
+import QualityControl from './productionComponents/qualityControl/QualityControl';
+import Reporting from './productionComponents/reporting/Reporting';
 
 function AllProduction() {
     const [productionData, setProductionData] = useState([]);
@@ -30,9 +32,6 @@ function AllProduction() {
                             <h3><button onClick={() => setCurrentStep('qualityControl')}>Quality Control</button></h3>
                         </div>
                         <div className=" padd">
-                            <h3><button onClick={() => setCurrentStep('inventory')}>Finished Goods Inventory</button></h3>
-                        </div>
-                        <div className=" padd">
                             <h3><button onClick={() => setCurrentStep('reporting')}>Reporting</button></h3>
                         </div>
                     </div>
@@ -44,9 +43,8 @@ function AllProduction() {
                     {currentStep === 'materialAllocation' && <MaterialAllocation />}
                     {currentStep === 'workCenter' && <MachineAssignment />}
                     {currentStep === 'execution' && <ProductionExecution />}
-                    {/* {currentStep === 'qualityControl' && <QualityControl />}
-                    {currentStep === 'inventory' && <FinishedGoodsInventory />}
-                    {currentStep === 'reporting' && <ProductionReporting />} */}
+                    {currentStep === 'qualityControl' && <QualityControl />}
+                    {currentStep === 'reporting' && <Reporting />}
                 </div>
             </div>
         </div>

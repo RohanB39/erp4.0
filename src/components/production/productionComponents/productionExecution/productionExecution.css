@@ -1,0 +1,87 @@
+/* Search bar styling */
+.search-bar {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  /* Table styling */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  table th,
+  table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  
+  table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+  
+  table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  /* Expanded content styling */
+  .expanded-content {
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    margin-top: 10px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+  }
+
+  .expStrong {
+    display: flex;
+    flex-direction: column;
+    text-align: start;
+  }
+  
+  .expStrong div {
+    display: flex;
+  }
+
+  .expanded-content strong {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .expanded-content ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .expanded-content ul li {
+    margin: 5px 0;
+    padding: 5px;
+    background-color: #f4f4f4;
+    border-radius: 4px;
+  }
+  
+  /* Button styling */
+  .collExpBtn {
+    padding: 8px 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .collExpBtn:hover {
+    background-color: #45a049;
+  }
+  
