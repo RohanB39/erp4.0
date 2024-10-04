@@ -50,6 +50,7 @@ import PurchaseOrder from './components/purchase/PurchaseOrder';
 import DemandMaterial from './components/production/demandMaterial/DemandMaterial';
 import ProductionProcess from './components/production/productionProcess/ProductionProcess';
 import AddMachines from './components/production/addMachines/AddMachines';
+import Packging from './components/dispatch/packging/Packging';
 
 
 
@@ -120,6 +121,7 @@ function App() {
                             <Route path="/Store" element={<Store />} />
                             <Route path='/Dispach' element={<Dispach />} />
                             <Route path='/DispachInvoice' element={<DispachInvoice />} />
+                            <Route path='/Packging' element={<Packging />} />
 
                             <Route path="/AllQuality" element={<AllQuality />} />
 
