@@ -49,11 +49,16 @@ function Sidebar() {
               {activeSubmenu === "Store" && (
                 <div className="submenu show">
                   <ul>
-
                     <li>
                       <Link to="/Grn" className="nav-link" onClick={() => setActiveSubmenu(null)}>
                         <i className="bi bi-check-circle"></i>
                         <span>GRN</span>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/fgInventory" className="nav-link" onClick={() => setActiveSubmenu(null)}>
+                      <i className="bi bi-box"></i>
+                        <span>FG Inventory</span>
                       </Link>
                     </li>
                   </ul>

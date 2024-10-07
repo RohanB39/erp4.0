@@ -51,6 +51,7 @@ import DemandMaterial from './components/production/demandMaterial/DemandMateria
 import ProductionProcess from './components/production/productionProcess/ProductionProcess';
 import AddMachines from './components/production/addMachines/AddMachines';
 import Packging from './components/dispatch/packging/Packging';
+import FGInventory from './components/store/FGInventory/FGInventory';
 
 
 
@@ -127,6 +128,7 @@ function App() {
 
                             <Route path="/Store" element={<Store />} />
                             <Route path="/Grn" element={<Grn />} />
+                            <Route path="/fgInventory" element={<FGInventory />} />
                             <Route path="/DemandMaterial" element={<DemandMaterial />} />
                             <Route path="/ProductionProcess" element={<ProductionProcess />} />
                             <Route path="/addMachines" element={<AddMachines />} />

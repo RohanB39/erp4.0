@@ -6,11 +6,12 @@ import './packging.css';
 const Packging = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedOptions, setSelectedOptions] = useState({}); // Object to hold selected options
+  const [selectedOptions, setSelectedOptions] = useState({});
 
-  // Sample packaging types and dispatch options
+  // Sample packaging types, dispatch options, and material locations
   const packagingTypes = ['Box', 'Bag', 'Wrap'];
   const dispatchOptions = ['Dispatch', 'Inventory'];
+  const materialLocations = ['Rack 1', 'Rack 2', 'Rack 3'];
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -58,11 +59,27 @@ const Packging = () => {
     }));
   };
 
+  const handleMaterialLocationChange = (productId, value) => {
+    setSelectedOptions((prevOptions) => ({
+      ...prevOptions,
+      [productId]: {
+        ...prevOptions[productId],
+        materialLocation: value,
+      },
+    }));
+  };
+
   const handleActionClick = async (productId, product) => {
     const selectedProductId = product.selectedProductId; // Get the selected product ID
     const quantity = product.quantity; // Get the quantity
     const packagingType = selectedOptions[selectedProductId]?.packagingType; // Get the packaging type
     const dispatchOrInventory = selectedOptions[selectedProductId]?.dispatchOrInventory; // Get the dispatch/inventory option
+    const materialLocation = selectedOptions[selectedProductId]?.materialLocation; // Get the selected material location
+
+    if (!materialLocation) {
+      alert('Please select a material location');
+      return;
+    }
 
     try {
       // Step 1: Fetch the Finished_Goods document
@@ -75,10 +92,11 @@ const Packging = () => {
       if (!finishedGoodsSnapshot.empty) {
         const finishedGoodsDoc = finishedGoodsSnapshot.docs[0];
 
-        // Step 2: Update FGQuantity in Finished_Goods
+        // Step 2: Update FGQuantity, status, and materialLocation in Finished_Goods
         await updateDoc(doc(fireDB, 'Finished_Goods', finishedGoodsDoc.id), {
           FGQuantity: quantity,
-          status: 'Avialable',
+          status: 'Available',
+          materialLocation: materialLocation, // Update with selected material location
         });
         alert(`Updated Finished_Goods document: ${finishedGoodsDoc.id}`);
       } else {
@@ -97,7 +115,7 @@ const Packging = () => {
         // Assuming there's only one match
         const productionOrderDoc = productionOrdersSnapshot.docs[0];
 
-        // Step 4: Update Production_Orders with packaging type and status
+        // Step 4: Update Production_Orders with packaging type, dispatch/inventory, and status
         await updateDoc(doc(fireDB, 'Production_Orders', productionOrderDoc.id), {
           packagingType: packagingType,
           dispatchOrInventory: dispatchOrInventory,
@@ -130,6 +148,7 @@ const Packging = () => {
             <th>Quantity</th>
             <th>Packaging Type</th>
             <th>Dispatch/Inventory</th>
+            <th>Material Location</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -163,6 +182,19 @@ const Packging = () => {
                   {dispatchOptions.map((option) => (
                     <option key={option} value={option}>
                       {option}
+                    </option>
+                  ))}
+                </select>
+              </td>
+              <td>
+                <select
+                  value={selectedOptions[product.selectedProductId]?.materialLocation || ''}
+                  onChange={(e) => handleMaterialLocationChange(product.selectedProductId, e.target.value)}
+                >
+                  <option value="">Select Location</option>
+                  {materialLocations.map((location) => (
+                    <option key={location} value={location}>
+                      {location}
                     </option>
                   ))}
                 </select>

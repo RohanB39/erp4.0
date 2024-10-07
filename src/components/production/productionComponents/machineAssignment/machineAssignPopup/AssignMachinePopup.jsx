@@ -5,18 +5,9 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 const AssignMachinePopup = ({ material, isOpen, onClose }) => {
   const [productionQuantity, setProductionQuantity] = useState('');
-  const [isChoiceOpen, setIsChoiceOpen] = useState(false); // State to control the choice popup
-  const [userChoice, setUserChoice] = useState(''); // Store user choice (Assembly or Dispatch)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Open the choice popup to ask the user
-    setIsChoiceOpen(true);
-  };
-
-  const handleChoiceSubmit = async (choice) => {
-    setUserChoice(choice);
-    setIsChoiceOpen(false); // Close the choice popup
 
     if (material?.productionOrderId) {
       try {
@@ -27,30 +18,27 @@ const AssignMachinePopup = ({ material, isOpen, onClose }) => {
         const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {
-          // Prepare data to update based on user choice
+          // Prepare data to update the document
           const updateData = {
             productionQuantity: productionQuantity,
             stopTime: getCurrentTime(),
-            progressStatus: choice === 'Dispatch' 
-              ? 'Production Completed'
-              : 'Production Completed Delivered To Dispatch',
-            productionStatus: choice === 'Assembly' 
-              ? 'Production Phase 1 complete'
-              : 'Production Phase 1 complete ready to dispatch'
+            currentDate: getCurrentDate(),
+            progressStatus: 'Production Completed',
+            productionStatus: 'Production Phase 1 complete',
           };
 
           // Update the document
           await updateDoc(docRef, updateData);
-          alert(`Production Completed: ${choice}`);
+          alert('Production Completed');
           onClose();
         } else {
-          console.error("No such document!");
+          console.error('No such document!');
         }
       } catch (error) {
-        console.error("Error updating document: ", error);
+        console.error('Error updating document: ', error);
       }
     } else {
-      console.error("No productionOrderId available");
+      console.error('No productionOrderId available');
     }
   };
 
@@ -61,6 +49,10 @@ const AssignMachinePopup = ({ material, isOpen, onClose }) => {
   function getCurrentTime() {
     const now = new Date();
     return now.toLocaleTimeString('en-IN', { hour12: true, timeZone: 'Asia/Kolkata' });
+  }
+  function getCurrentDate() {
+    const now = new Date();
+    return now.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
   return isOpen ? (
@@ -124,16 +116,6 @@ const AssignMachinePopup = ({ material, isOpen, onClose }) => {
           <button type="button" onClick={onClose}>Close</button>
         </form>
       </div>
-
-      {isChoiceOpen && (
-        <div className="choice-popup-overlay">
-          <div className="choice-popup-content">
-            <h4>Select Process</h4>
-            <button onClick={() => handleChoiceSubmit('Assembly')}>Assembly</button>
-            <button onClick={() => handleChoiceSubmit('Dispatch')}>Dispatch</button>
-          </div>
-        </div>
-      )}
     </div>
   ) : null;
 };
