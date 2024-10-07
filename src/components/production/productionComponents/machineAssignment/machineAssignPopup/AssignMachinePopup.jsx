@@ -11,7 +11,6 @@ const AssignMachinePopup = ({ material, isOpen, onClose }) => {
 
     if (material?.productionOrderId) {
       try {
-        // Reference to the Firestore document
         const docRef = doc(fireDB, 'Production_Orders', material.productionOrderId);
         
         // Fetch the document
