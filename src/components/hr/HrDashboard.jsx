@@ -1,37 +1,35 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTable, useRowSelect, usePagination } from 'react-table';
 import { FiUsers } from 'react-icons/fi';
 import { IoIosPersonAdd } from "react-icons/io";
 import { MdModeEditOutline } from "react-icons/md";
 import { MdOutlineDelete } from "react-icons/md";
-import AddEmployee from './employee/addEmployee/AddEmployee';
+import { useNavigate } from 'react-router-dom'; // React Router hook for navigation
+import { fireDB } from '../firebase/FirebaseConfig';
+import { collection, getDocs } from 'firebase/firestore'; // Firestore methods
 import './hrDash.css';
 
-
 function HrDashboard() {
-    const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const [employees, setEmployees] = useState([
-        { id: '001', name: 'Rajesh Kumar', position: 'Software Engineer', status: 'Active' },
-        { id: '002', name: 'Priya Singh', position: 'Product Manager', status: 'On Leave' },
-        { id: '003', name: 'Amit Patel', position: 'Data Analyst', status: 'Active' },
-        { id: '004', name: 'Sunita Sharma', position: 'HR Manager', status: 'Active' },
-        { id: '005', name: 'Vikram Reddy', position: 'Software Engineer', status: 'On Leave' },
-        { id: '006', name: 'Neha Gupta', position: 'UX Designer', status: 'Active' },
-        { id: '007', name: 'Anil Mehta', position: 'Backend Developer', status: 'Active' },
-        { id: '008', name: 'Kavita Joshi', position: 'Frontend Developer', status: 'On Leave' },
-        { id: '009', name: 'Ravi Nair', position: 'DevOps Engineer', status: 'Active' },
-        { id: '010', name: 'Pooja Rao', position: 'Quality Assurance', status: 'Active' },
-        { id: '011', name: 'Sandeep Kaur', position: 'Project Manager', status: 'Active' },
-        { id: '012', name: 'Rahul Verma', position: 'System Administrator', status: 'On Leave' },
-    ]);
+    const [employees, setEmployees] = useState([]);
+    const navigate = useNavigate();
 
-    const openPopup = () => {
-        setIsPopupOpen(true);
-    };
-
-    const closePopup = () => {
-        setIsPopupOpen(false);
-    };
+    // Fetch employees from Firebase
+    useEffect(() => {
+        const fetchEmployees = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(fireDB, "employees")); // Ensure your collection is named correctly
+                const employeesData = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+                setEmployees(employeesData);
+            } catch (error) {
+                console.error("Error fetching employees: ", error);
+            }
+        };
+        
+        fetchEmployees();
+    }, []);
 
     const addEmployee = (employee) => {
         setEmployees([...employees, employee]);
@@ -60,15 +58,15 @@ function HrDashboard() {
             },
             {
                 Header: 'Name',
-                accessor: 'name',
+                accessor: 'personalInfo.firstName', // Accessing nested data from the employee object
             },
             {
                 Header: 'Position',
-                accessor: 'position',
+                accessor: 'companyDetails.position',
             },
             {
                 Header: 'Status',
-                accessor: 'status',
+                accessor: 'status', // Adjust if your employee object has a different structure
             },
             {
                 Header: 'Action',
@@ -108,20 +106,22 @@ function HrDashboard() {
         useRowSelect
     );
 
+    const handleAddEmployeeClick = () => {
+        navigate('/add-employee'); // Navigate to the AddEmployee page
+    };
+
     return (
         <>
-
             <main id='main' className='main'>
                 <div className="employee-heading">
                     <h3>Employee Details</h3>
                 </div>
 
-
                 <div className="employee-cards">
                     <div className="single-employee-card">
                         <div className="employee-detail">
                             <h3>Total Employee</h3>
-                            <p>1200</p>
+                            <p>{employees.length}</p> {/* Display total number of employees */}
                         </div>
                         <div className="employee-icon">
                             <FiUsers />
@@ -130,7 +130,7 @@ function HrDashboard() {
                     <div className="single-employee-card">
                         <div className="employee-detail">
                             <h3>On Leave</h3>
-                            <p>1200</p>
+                            <p>0</p> {/* Dummy data, replace with actual logic if available */}
                         </div>
                         <div className="employee-icon">
                             <FiUsers />
@@ -139,13 +139,14 @@ function HrDashboard() {
                     <div className="single-employee-card">
                         <div className="employee-detail">
                             <h3>Request Paid Leave</h3>
-                            <p>1200</p>
+                            <p>0</p> {/* Dummy data, replace with actual logic if available */}
                         </div>
                         <div className="employee-icon">
                             <FiUsers />
                         </div>
                     </div>
                 </div>
+
                 <div className="employee-table">
                     <div className="employee-profile">
                         <h3>Employee-Profile</h3>
@@ -153,7 +154,7 @@ function HrDashboard() {
                             <input type="text" placeholder='Search Employee' />
                         </div>
                         <div className="add-employee-btn">
-                            <button onClick={openPopup}> <IoIosPersonAdd className='add-icon' />Add Employee</button>
+                            <button onClick={handleAddEmployeeClick}> <IoIosPersonAdd className='add-icon' />Add Employee</button>
                         </div>
                     </div>
                     <div className="employee-list">
@@ -193,12 +194,8 @@ function HrDashboard() {
                         </div>
                     </div>
                 </div>
-                {isPopupOpen && (
-                    <AddEmployee onClose={closePopup} onAddEmployee={addEmployee} />
-                )}
-            </main >
+            </main>
         </>
     );
 }
-
-export default HrDashboard; 
+export default HrDashboard;
