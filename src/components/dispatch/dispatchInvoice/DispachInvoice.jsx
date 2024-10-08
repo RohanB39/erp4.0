@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fireDB, storage } from '../../firebase/FirebaseConfig';
-import { collection, getDocs, addDoc, doc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, setDoc, query, where } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import './dispachInvoice.css';
 // Dispatch_Invoices
@@ -10,15 +10,13 @@ function DispachInvoice() {
     const [customers, setCustomers] = useState([]);
     const [invoiceNo, setInvoiceNo] = useState('');
     const [orderNo, setOrderNo] = useState('');
+    const [orders, setOrders] = useState([]);
     const [invoiceDate, setInvoiceDate] = useState('');
     const [terms, setTerms] = useState('');
     const [dueDate, setDueDate] = useState('');
     const [salesperson, setSalesperson] = useState('');
     const [subject, setSubject] = useState('');
-    const [items, setItems] = useState([
-        { srNo: '001', details: 'Item 1', quantity: '1.00', rate: '0.00', amount: '0.00' },
-        { srNo: '002', details: 'Item 2', quantity: '1.00', rate: '0.00', amount: '0.00' }
-    ]);
+    const [items, setItems] = useState([]);
     const [discount, setDiscount] = useState('0');
     const [advance, setAdvance] = useState('0');
     const [subTotal, setSubTotal] = useState('0');
@@ -26,14 +24,18 @@ function DispachInvoice() {
     const [termsAndConditions, setTermsAndConditions] = useState('');
     const [file, setFile] = useState(null);
     const [invoiceNumber, setInvoiceNumber] = useState('');
+    const [customerID, setCustomerID] = useState('');
 
 
     useEffect(() => {
         const fetchCustomers = async () => {
             const customersCollection = collection(fireDB, 'customers');
             const customerDocs = await getDocs(customersCollection);
-            const customerNames = customerDocs.docs.map(doc => doc.data().name);
-            setCustomers(customerNames);
+            const customerData = customerDocs.docs.map(doc => ({
+                id: doc.id,
+                name: doc.data().name
+            }));
+            setCustomers(customerData);
         };
 
         fetchCustomers();
@@ -52,6 +54,26 @@ function DispachInvoice() {
         setTotal(calculatedTotal.toFixed(2));
     }, [subTotal, discount, advance]);
 
+    const fetchOrderItems = async (selectedOrderID) => {
+        const orderDocRef = doc(fireDB, 'Customer_Purchase_Orders', selectedOrderID);
+        const orderDoc = await getDoc(orderDocRef);
+        
+        if (orderDoc.exists()) {
+            const finishedGoods = orderDoc.data().finishedGood; // Array of items in finishedGood field
+            setItems(finishedGoods); // Populate the table with fetched items
+        } else {
+            console.log("No matching documents found");
+            setItems([]);
+        }
+    };
+
+    const handleOrderChange = (e) => {
+        const selectedOrderID = e.target.value;
+        setOrderNo(selectedOrderID);
+
+        // Fetch finished goods for the selected order
+        fetchOrderItems(selectedOrderID);
+    };
 
     const handleAddItem = () => {
         setItems([...items, { srNo: (items.length + 1).toString().padStart(3, '0'), details: '', quantity: '', rate: '', amount: '' }]);
@@ -121,18 +143,6 @@ function DispachInvoice() {
     };
 
 
-    const generateInvoiceNumber = () => {
-        const randomChars = Math.random().toString(36).substring(2, 6).toUpperCase();
-        const formattedNumber = String(Date.now()).slice(-4); // Unique number
-        return `INV-${randomChars}-${formattedNumber}`;
-    };
-
-    useEffect(() => {
-        const newInvoiceNumber = generateInvoiceNumber();
-        setInvoiceNo(newInvoiceNumber); // Set the generated invoice number
-    }, []);
-
-
     const termsData = [
         { value: 'term1', label: 'Term 1', rules: 'Term 1 rules' },
         { value: 'term2', label: 'Term 2', rules: 'Term 2 rules' },
@@ -160,19 +170,48 @@ function DispachInvoice() {
         setTermsAndConditions(termsMap[selectedTerm] || '');
     };
 
+    const handleCustomerChange = (e) => {
+        const selectedCustomerID = e.target.value;
+        const selectedCustomer = customers.find(c => c.id === selectedCustomerID);
+        setCustomer(selectedCustomer ? selectedCustomer.name : '');
+        setCustomerID(selectedCustomerID); 
+        fetchCustomerOrders(selectedCustomerID);
+    };
+
+    const fetchCustomerOrders = async (selectedCustomerID) => {
+        const ordersCollection = collection(fireDB, 'Customer_Purchase_Orders');
+        const q = query(ordersCollection, where('customerID', '==', selectedCustomerID));
+        const orderDocs = await getDocs(q);
+        const orderData = orderDocs.docs.map(doc => doc.id);
+        setOrders(orderData);
+    };
+
+    const generateInvoiceNumber = (currentInvoiceNo) => {
+        // Extract numeric part from the current invoice number
+        const numericPart = parseInt(currentInvoiceNo.replace('INV-', ''), 10);
+        // Increment the number
+        const nextNumber = numericPart + 1;
+        // Pad the number with leading zeros to maintain 5 digits
+        const paddedNumber = String(nextNumber).padStart(5, '0');
+        // Return the new invoice number with 'INV-' prefix
+        return `INV-${paddedNumber}`;
+    };
+
     return (
         <div className="invoice-container main" id='main'>
             <div className="invoice-header">
                 <h3>New Invoice</h3>
             </div>
             <div className="invoice-body">
-                <div className="top-section">
+            <div className="top-section">
                     <label htmlFor="">Create Customer</label>
                     <div>
-                        <select value={customer} onChange={(e) => setCustomer(e.target.value)}>
+                        <select value={customerID} onChange={handleCustomerChange}>
                             <option value="">Select Customer</option>
-                            {customers.map((name, index) => (
-                                <option key={index} value={name}>{name}</option>
+                            {customers.map((customer) => (
+                                <option key={customer.id} value={customer.id}>
+                                    {customer.name}
+                                </option>
                             ))}
                         </select>
                     </div>
@@ -190,7 +229,15 @@ function DispachInvoice() {
                         </div>
                         <div className='innerDiv'>
                             <label htmlFor="">Order No.</label>
-                            <input type="tel" placeholder='12121' value={orderNo} onChange={(e) => setOrderNo(e.target.value)} />
+                            {/* Order No. dropdown populated with orders related to selected customer */}
+                            <select value={orderNo} onChange={handleOrderChange}>
+                                <option value="">Select Order No</option>
+                                {orders.map((orderID) => (
+                                    <option key={orderID} value={orderID}>
+                                        {orderID}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
                     <div className='bottom-div'>
@@ -237,55 +284,27 @@ function DispachInvoice() {
                 </div>
                 <hr />
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Sr/No</th>
-                            <th>Item Details</th>
-                            <th>Quantity</th>
-                            <th>Rate</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {items.map((item, index) => (
-                            <tr key={item.srNo}>
-                                <td>{item.srNo}</td>
-                                <td>
-                                    <input
-                                        type="text"
-                                        name="details"
-                                        value={item.details}
-                                        onChange={(e) => handleInputChange(index, e)}
-                                    />
-                                </td>
-                                <td>
-                                    <input
-                                        type="text"
-                                        name="quantity"
-                                        value={item.quantity}
-                                        onChange={(e) => handleInputChange(index, e)}
-                                    />
-                                </td>
-                                <td>
-                                    <input
-                                        type="text"
-                                        name="rate"
-                                        value={item.rate}
-                                        onChange={(e) => handleInputChange(index, e)}
-                                    />
-                                </td>
-                                <td>
-                                    <input
-                                        type="text"
-                                        name="amount"
-                                        value={item.amount}
-                                        readOnly
-                                    />
-                                </td>
+                        <thead>
+                            <tr>
+                                <th>Sr/No</th>
+                                <th>Item Details</th>
+                                <th>Quantity</th>
+                                <th>Rate</th>
+                                <th>Amount</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {items.map((item, index) => (
+                                <tr key={index}>
+                                    <td>{index + 1}</td>
+                                    <td>{item.details}</td>
+                                    <td>{item.quantity}</td>
+                                    <td>{item.rate}</td>
+                                    <td>{item.amount}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
             </div>
             <div className="invoice-detail">
                 <div className="left-side">
