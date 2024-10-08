@@ -3,7 +3,7 @@ import { useTable, usePagination } from 'react-table';
 import { MdOutlineFileDownload } from "react-icons/md";
 import { IoAdd } from "react-icons/io5";
 import './salesPurchase.css';
-import InvoicePopup from './InvoicePopup';
+import InvoicePopup from '../purchase/invoicePopup/InvoicePopup';
 import 'jspdf-autotable'; // Table Sathi
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { fireDB } from '../firebase/FirebaseConfig';
@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import logo from '../../assets/Tectigon_logo.png';
 import * as XLSX from 'xlsx';
-import ExportModal from './ExportModal';
+import ExportModal from '../purchase/exportModel/ExportModal';
 
 function SalesPurchase() {
     // const [isPopupOpen, setPopupOpen] = useState(false);

@@ -36,9 +36,27 @@ function Sidebar() {
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/SalesPurchase" className="nav-link" onClick={() => setActiveSubmenu(null)}>
+            <Link to="/SalesPurchase" className="nav-link" onClick={() => setActiveSubmenu("SalesPurchase")}>
               <i className="bi bi-bag-check"></i>
               <span>Purchase</span>
+              <i id="chevron" className={`bi bi-chevron-${activeSubmenu === "SalesPurchase" ? "up" : "down"}`}></i>
+              {activeSubmenu === "SalesPurchase" && (
+                <div className="submenu show">
+                  <ul>
+                    <li>
+                      <Link to="/customerPO" className="nav-link" onClick={() => setActiveSubmenu(null)}>
+                      <i className="bi bi-file-earmark-text"></i>
+                        <span>Customer PO</span>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/fgInventory" className="nav-link" onClick={() => setActiveSubmenu(null)}>
+                      <i className="bi bi-cart"></i>
+                        <span>Vendor PO</span>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>)}
             </Link>
           </li>
           <li className="nav-item">

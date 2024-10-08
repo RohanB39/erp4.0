@@ -46,12 +46,13 @@ import DispachInvoice from './components/dispatch/dispatchInvoice/DispachInvoice
 
 import AllQuality from './components/Quality/AllQuality';
 import Grn from './components/store/grn/Grn';
-import PurchaseOrder from './components/purchase/PurchaseOrder';
+import PurchaseOrder from './components/purchase/purchaseOrder/PurchaseOrder';
 import DemandMaterial from './components/production/demandMaterial/DemandMaterial';
 import ProductionProcess from './components/production/productionProcess/ProductionProcess';
 import AddMachines from './components/production/addMachines/AddMachines';
 import Packging from './components/dispatch/packging/Packging';
 import FGInventory from './components/store/FGInventory/FGInventory';
+import CustomerPO from './components/purchase/customerPurchaseOrder/CustomerPO';
 
 
 
@@ -117,6 +118,7 @@ function App() {
                             <Route path="/FinancePage" element={<FinancePage />} />
                             <Route path='/SalesPurchase' element={<SalesPurchase />} />
                             <Route path="/purchase-order" element={<PurchaseOrder />} />
+                            <Route path="/customerPO" element={<CustomerPO />} />
                             <Route path='/MasterDash' element={<MasterDash />} />
 
                             <Route path="/Store" element={<Store />} />

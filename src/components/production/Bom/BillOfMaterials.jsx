@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import logo from '../../../assets/Tectigon_logo.png';
 import * as XLSX from 'xlsx';
-import ExportModal from '../../purchase/ExportModal';
+import ExportModal from '../../purchase/exportModel/ExportModal';
 import './bomModal.css';
 
 const BillOfMaterials = () => {
