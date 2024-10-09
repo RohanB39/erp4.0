@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { fireDB, storage } from '../../firebase/FirebaseConfig';
 import { collection, getDocs, getDoc, doc, setDoc, query, where } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import './dispachInvoice.css';
-// Dispatch_Invoices
 
 function DispachInvoice() {
     const [customer, setCustomer] = useState('');
@@ -23,8 +23,8 @@ function DispachInvoice() {
     const [total, setTotal] = useState('0');
     const [termsAndConditions, setTermsAndConditions] = useState('');
     const [file, setFile] = useState(null);
-    const [invoiceNumber, setInvoiceNumber] = useState('');
     const [customerID, setCustomerID] = useState('');
+    const navigate = useNavigate(); 
 
 
     useEffect(() => {
@@ -54,85 +54,33 @@ function DispachInvoice() {
         setTotal(calculatedTotal.toFixed(2));
     }, [subTotal, discount, advance]);
 
+    const fetchOrderItems = async (selectedOrderID) => {
+        const orderDocRef = doc(fireDB, 'Customer_Purchase_Orders', selectedOrderID);
+        const orderDoc = await getDoc(orderDocRef);
 
-    const fetchOpenOrders = async () => {
-        const ordersCollectionRef = collection(fireDB, 'Customer_Purchase_Orders');
-        const q = query(ordersCollectionRef, where("status", "==", "Open"));
-        const querySnapshot = await getDocs(q);
-        const fetchedItems = [];
-        querySnapshot.forEach((doc) => {
-            const orderData = doc.data();
-            const finishedGoods = orderData.finishedGood || [];
-            fetchedItems.push(...finishedGoods);
-        });
+        if (orderDoc.exists()) {
+            const orderData = orderDoc.data();
 
-        if (fetchedItems.length > 0) {
-            setItems(fetchedItems); // Populate the table with fetched items
+            // Create item details using the order data
+            const itemDetails = [{
+                details: orderData.finishedGood,
+                quantity: orderData.quantity,
+                rate: orderData.price,
+                amount: orderData.grandTotal,
+                id: orderDocRef.id,
+            }];
+
+            setItems(itemDetails);
         } else {
             console.log("No matching documents found");
             setItems([]);
         }
     };
 
-
     const handleOrderChange = (e) => {
         const selectedOrderID = e.target.value;
         setOrderNo(selectedOrderID);
-
-        // Fetch finished goods for the selected order
         fetchOrderItems(selectedOrderID);
-    };
-
-    const handleAddItem = () => {
-        setItems([...items, { srNo: (items.length + 1).toString().padStart(3, '0'), details: '', quantity: '', rate: '', amount: '' }]);
-    };
-
-    const handleInputChange = (index, event) => {
-        const { name, value } = event.target;
-        const newItems = items.slice();
-        newItems[index][name] = value;
-        if (name === 'quantity' || name === 'rate') {
-            const quantity = parseFloat(newItems[index].quantity) || 0;
-            const rate = parseFloat(newItems[index].rate) || 0;
-            newItems[index].amount = (quantity * rate).toFixed(2);
-        }
-
-        setItems(newItems);
-    };
-
-    const handleSave = async () => {
-        try {
-            const invoiceData = {
-                customer,
-                invoiceNo,
-                orderNo,
-                invoiceDate,
-                terms,
-                dueDate,
-                salesperson,
-                subject,
-                items,
-                discount,
-                advance: advance || '0',
-                total,
-                subTotal,
-                termsAndConditions,
-                file: null,
-            };
-
-            if (file) {
-                const storageRef = ref(storage, `invoices/${file.name}`);
-                await uploadBytes(storageRef, file);
-                const fileURL = await getDownloadURL(storageRef);
-                invoiceData.file = fileURL;
-            }
-
-            const dispatchInvoicesDocRef = doc(fireDB, 'Dispatch_Invoices', invoiceNo);
-            await setDoc(dispatchInvoicesDocRef, invoiceData);
-            console.log('Invoice saved successfully:', invoiceData);
-        } catch (error) {
-            console.error('Error saving invoice:', error);
-        }
     };
 
     const handleSalespersonChange = (e) => {
@@ -183,7 +131,11 @@ function DispachInvoice() {
 
     const fetchCustomerOrders = async (selectedCustomerID) => {
         const ordersCollection = collection(fireDB, 'Customer_Purchase_Orders');
-        const q = query(ordersCollection, where('customerID', '==', selectedCustomerID));
+        const q = query(
+            ordersCollection,
+            where('customerID', '==', selectedCustomerID),
+            where('status', '==', 'Open')
+        );
         const orderDocs = await getDocs(q);
         const orderData = orderDocs.docs.map(doc => doc.id);
         setOrders(orderData);
@@ -194,6 +146,92 @@ function DispachInvoice() {
         const nextNumber = numericPart + 1;
         const paddedNumber = String(nextNumber).padStart(5, '0');
         return `INV-${paddedNumber}`;
+    };
+
+    useEffect(() => {
+        const initialInvoiceNo = 'INV-0001';
+        setInvoiceNo(initialInvoiceNo);
+    }, []);
+
+    const handleGenerateNewInvoice = () => {
+        setInvoiceNo((prevInvoiceNo) => generateInvoiceNumber(prevInvoiceNo));
+    };
+
+
+    const handleQuantityChange = async (index, newQuantity) => {
+        const updatedItems = [...items];
+        const id = updatedItems[index].id;
+
+        try {
+            const orderDocRef = doc(fireDB, 'Customer_Purchase_Orders', id);
+            const orderDoc = await getDoc(orderDocRef);
+
+            if (orderDoc.exists()) {
+                const grandTotal = orderDoc.data().grandTotal;
+                const originalQty = orderDoc.data().quantity;
+                const initialAmount = grandTotal / originalQty;
+                const newAmount = initialAmount * newQuantity;
+                updatedItems[index].amount = newAmount;
+                const approvedQuantities = items.map(item => item.quantity);
+                console.log(approvedQuantities);
+            } else {
+                console.log("No matching document found for ID:", id);
+            }
+        } catch (error) {
+            console.error("Error fetching document:", error);
+        }
+        updatedItems[index].quantity = newQuantity;
+        setItems(updatedItems);
+    };
+
+    const handleSave = async () => {
+        try {
+            const invoiceData = {
+                customer,
+                invoiceNo,
+                orderNo,
+                invoiceDate,
+                terms,
+                dueDate,
+                salesperson,
+                subject,
+                FGItem: items.map(item => ({
+                    FGName: item.details,
+                    approvedQty: item.quantity,
+                    rate: item.rate,
+                    amount: item.amount,
+                })),
+                discount,
+                advance: advance || '0',
+                total,
+                subTotal,
+                termsAndConditions,
+                file: null,
+                invStatus : 'Active',
+            };
+
+            if (file) {
+                const storageRef = ref(storage, `invoices/${file.name}`);
+                await uploadBytes(storageRef, file);
+                const fileURL = await getDownloadURL(storageRef);
+                invoiceData.file = fileURL;
+            }
+
+            const dispatchInvoicesDocRef = doc(fireDB, 'Dispatch_Invoices', invoiceNo);
+            await setDoc(dispatchInvoicesDocRef, invoiceData);
+            alert('Invoice saved successfully');
+
+            const orderDocRef = doc(fireDB, 'Customer_Purchase_Orders', orderNo);
+            await setDoc(orderDocRef, { status: 'Closed' }, { merge: true });
+            alert('Order status updated to Closed');
+
+        } catch (error) {
+            console.error('Error saving invoice:', error);
+        }
+    };
+
+    const handleCancel = () => {
+        navigate('/Dispach');
     };
 
     return (
@@ -226,6 +264,7 @@ function DispachInvoice() {
                                 readOnly
                             />
                         </div>
+                        <button onClick={handleGenerateNewInvoice}>Generate New Invoice Number</button>
                         <div className='innerDiv'>
                             <label htmlFor="">Order No.</label>
                             {/* Order No. dropdown populated with orders related to selected customer */}
@@ -279,7 +318,6 @@ function DispachInvoice() {
             <div className="invoice-calci">
                 <div className="invoice-calci-header">
                     <h3>Item Table</h3>
-                    <button onClick={handleAddItem}>Add new Item</button>
                 </div>
                 <hr />
                 <table>
@@ -297,7 +335,14 @@ function DispachInvoice() {
                             <tr key={index}>
                                 <td>{index + 1}</td>
                                 <td>{item.details}</td>
-                                <td>{item.quantity}</td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        value={item.quantity} // `item` should correspond to the current item in your mapping
+                                        onChange={(e) => handleQuantityChange(index, e.target.value)}
+                                    />
+
+                                </td>
                                 <td>{item.rate}</td>
                                 <td>{item.amount}</td>
                             </tr>
@@ -369,7 +414,7 @@ function DispachInvoice() {
             </div>
             <div className="data-save-btn">
                 <button onClick={handleSave}>Save</button>
-                <button>Cancel</button>
+                <button onClick={handleCancel}>Cancel</button>
             </div>
         </div>
     );
