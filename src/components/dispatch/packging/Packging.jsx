@@ -190,7 +190,7 @@ const Packging = () => {
                 <select
                   value={selectedOptions[product.selectedProductId]?.materialLocation || ''}
                   onChange={(e) => handleMaterialLocationChange(product.selectedProductId, e.target.value)}
-                  disabled={selectedOptions[product.selectedProductId]?.dispatchOrInventory === 'Dispatch'} // Disable if 'Dispatch' is selected
+                  disabled={selectedOptions[product.selectedProductId]?.dispatchOrInventory === 'Dispatch'}
                 >
                   <option value="">Select Location</option>
                   {materialLocations.map((location) => (
