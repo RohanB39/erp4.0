@@ -57,13 +57,13 @@ function DispachInvoice() {
 
     const fetchOpenOrders = async () => {
         const ordersCollectionRef = collection(fireDB, 'Customer_Purchase_Orders');
-        const q = query(ordersCollectionRef, where("status", "==", "Open")); // Filter for 'Open' status
+        const q = query(ordersCollectionRef, where("status", "==", "Open"));
         const querySnapshot = await getDocs(q);
         const fetchedItems = [];
         querySnapshot.forEach((doc) => {
             const orderData = doc.data();
-            const finishedGoods = orderData.finishedGood || []; // Get finishedGood array if present
-            fetchedItems.push(...finishedGoods); // Add items to the fetchedItems array
+            const finishedGoods = orderData.finishedGood || [];
+            fetchedItems.push(...finishedGoods);
         });
 
         if (fetchedItems.length > 0) {
@@ -190,13 +190,9 @@ function DispachInvoice() {
     };
 
     const generateInvoiceNumber = (currentInvoiceNo) => {
-        // Extract numeric part from the current invoice number
         const numericPart = parseInt(currentInvoiceNo.replace('INV-', ''), 10);
-        // Increment the number
         const nextNumber = numericPart + 1;
-        // Pad the number with leading zeros to maintain 5 digits
         const paddedNumber = String(nextNumber).padStart(5, '0');
-        // Return the new invoice number with 'INV-' prefix
         return `INV-${paddedNumber}`;
     };
 
