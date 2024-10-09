@@ -54,18 +54,26 @@ function DispachInvoice() {
         setTotal(calculatedTotal.toFixed(2));
     }, [subTotal, discount, advance]);
 
-    const fetchOrderItems = async (selectedOrderID) => {
-        const orderDocRef = doc(fireDB, 'Customer_Purchase_Orders', selectedOrderID);
-        const orderDoc = await getDoc(orderDocRef);
-        
-        if (orderDoc.exists()) {
-            const finishedGoods = orderDoc.data().finishedGood; // Array of items in finishedGood field
-            setItems(finishedGoods); // Populate the table with fetched items
+
+    const fetchOpenOrders = async () => {
+        const ordersCollectionRef = collection(fireDB, 'Customer_Purchase_Orders');
+        const q = query(ordersCollectionRef, where("status", "==", "Open")); // Filter for 'Open' status
+        const querySnapshot = await getDocs(q);
+        const fetchedItems = [];
+        querySnapshot.forEach((doc) => {
+            const orderData = doc.data();
+            const finishedGoods = orderData.finishedGood || []; // Get finishedGood array if present
+            fetchedItems.push(...finishedGoods); // Add items to the fetchedItems array
+        });
+
+        if (fetchedItems.length > 0) {
+            setItems(fetchedItems); // Populate the table with fetched items
         } else {
             console.log("No matching documents found");
             setItems([]);
         }
     };
+
 
     const handleOrderChange = (e) => {
         const selectedOrderID = e.target.value;
@@ -132,11 +140,6 @@ function DispachInvoice() {
         setSalesperson(e.target.value);
     };
 
-
-
-
-
-
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
         setFile(selectedFile);
@@ -174,7 +177,7 @@ function DispachInvoice() {
         const selectedCustomerID = e.target.value;
         const selectedCustomer = customers.find(c => c.id === selectedCustomerID);
         setCustomer(selectedCustomer ? selectedCustomer.name : '');
-        setCustomerID(selectedCustomerID); 
+        setCustomerID(selectedCustomerID);
         fetchCustomerOrders(selectedCustomerID);
     };
 
@@ -203,7 +206,7 @@ function DispachInvoice() {
                 <h3>New Invoice</h3>
             </div>
             <div className="invoice-body">
-            <div className="top-section">
+                <div className="top-section">
                     <label htmlFor="">Create Customer</label>
                     <div>
                         <select value={customerID} onChange={handleCustomerChange}>
@@ -284,27 +287,27 @@ function DispachInvoice() {
                 </div>
                 <hr />
                 <table>
-                        <thead>
-                            <tr>
-                                <th>Sr/No</th>
-                                <th>Item Details</th>
-                                <th>Quantity</th>
-                                <th>Rate</th>
-                                <th>Amount</th>
+                    <thead>
+                        <tr>
+                            <th>Sr/No</th>
+                            <th>Item Details</th>
+                            <th>Quantity</th>
+                            <th>Rate</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {items.map((item, index) => (
+                            <tr key={index}>
+                                <td>{index + 1}</td>
+                                <td>{item.details}</td>
+                                <td>{item.quantity}</td>
+                                <td>{item.rate}</td>
+                                <td>{item.amount}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {items.map((item, index) => (
-                                <tr key={index}>
-                                    <td>{index + 1}</td>
-                                    <td>{item.details}</td>
-                                    <td>{item.quantity}</td>
-                                    <td>{item.rate}</td>
-                                    <td>{item.amount}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                        ))}
+                    </tbody>
+                </table>
             </div>
             <div className="invoice-detail">
                 <div className="left-side">
