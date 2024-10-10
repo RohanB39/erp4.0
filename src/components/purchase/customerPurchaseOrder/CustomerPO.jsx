@@ -6,17 +6,18 @@ const CustomerPO = () => {
   const [customers, setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState('');
   const [selectedCustomerID, setSelectedCustomerID] = useState('');
-  const [purchaseOrderID, setPurchaseOrderID] = useState(''); // State for PO ID
+  const [purchaseOrderID, setPurchaseOrderID] = useState('');
   const [finishedGoods, setFinishedGoods] = useState([]);
   const [selectedFinishedGood, setSelectedFinishedGood] = useState('');
   const [quantity, setQuantity] = useState('');
   const [orderType, setOrderType] = useState('');
   const [price, setPrice] = useState('');
   const [totalPrice, setTotalPrice] = useState('');
-  const [igst, setIGST] = useState('');
-  const [cgst, setCGST] = useState('');
-  const [sgst, setSGST] = useState('');
-  const [grandTotal, setGrandTotal] = useState('');
+  const [igst, setIGST] = useState(0);
+  const [cgst, setCGST] = useState(0);
+  const [sgst, setSGST] = useState(0);
+  const [grandTotal, setGrandTotal] = useState(0);
+  const [isIGSTChecked, setIsIGSTChecked] = useState(false);
 
   const fetchCustomers = async () => {
     try {
@@ -49,13 +50,8 @@ const CustomerPO = () => {
   };
 
   const generatePurchaseOrderID = (customerName) => {
-    // Get initials from the customer's name
     const initials = customerName.split(' ').map(word => word[0]).join('').toUpperCase();
-
-    // Generate a random 4-digit number
-    const randomNumber = Math.floor(1000 + Math.random() * 9000); // ensures a 4-digit number
-
-    // Create the Purchase Order ID
+    const randomNumber = Math.floor(1000 + Math.random() * 9000);
     return `${initials}@CUSPOID${randomNumber}`;
   };
 
@@ -64,11 +60,8 @@ const CustomerPO = () => {
     if (selectedCustomer) {
       setSelectedCustomer(selectedCustomer.name);
       setSelectedCustomerID(selectedCustomer.uniqueID);
-      
-      // Generate Purchase Order ID
       const poID = generatePurchaseOrderID(selectedCustomer.name);
       setPurchaseOrderID(poID);
-
       fetchFinishedGoods(selectedCustomer.uniqueID);
       setSelectedFinishedGood('');
       setQuantity('');
@@ -97,12 +90,17 @@ const CustomerPO = () => {
   const handlePriceChange = (e) => {
     const enteredPrice = e.target.value;
     setPrice(enteredPrice);
-
     const total = quantity * enteredPrice;
     setTotalPrice(total);
-
-    const calculatedIGST = (total * 28) / 100;
-    setIGST(calculatedIGST);
+    if (isIGSTChecked) {
+      const calculatedIGST = (total * 28) / 100;
+      setIGST(calculatedIGST);
+      setGrandTotal(total + calculatedIGST);
+    } else {
+      const calculatedCGST = (total * cgst) / 100;
+      const calculatedSGST = (total * sgst) / 100;
+      setGrandTotal(total + calculatedCGST + calculatedSGST);
+    }
   };
 
   const handleCGSTChange = (e) => {
@@ -125,10 +123,10 @@ const CustomerPO = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     // Check if purchaseOrderID is already used
     const docRef = doc(fireDB, 'Customer_Purchase_Orders', purchaseOrderID); // Create a document reference with the custom ID
-  
+
     // Prepare the data to be saved
     const purchaseOrderData = {
       customerID: selectedCustomerID,
@@ -143,7 +141,7 @@ const CustomerPO = () => {
       grandTotal: grandTotal,
       createdAt: new Date(), // Optional: add a timestamp
     };
-  
+
     try {
       await setDoc(docRef, purchaseOrderData); // This will set the data at the specified document ID
       alert(`Purchase Order submitted successfully! Document ID: ${purchaseOrderID}`); // Feedback message
@@ -157,6 +155,17 @@ const CustomerPO = () => {
   useEffect(() => {
     fetchCustomers();
   }, []);
+
+  const handleIGSTCheckboxChange = (event) => {
+    const checked = event.target.checked;
+    setIsIGSTChecked(checked);
+  
+    if (checked) {
+      setCGST(0);
+      setSGST(0);
+    }
+  };
+  
 
   return (
     <div className="main" id="main">
@@ -260,7 +269,15 @@ const CustomerPO = () => {
 
             {totalPrice && (
               <tr>
-                <td>IGST (28%):</td>
+                <td>
+                  <input
+                    type="checkbox"
+                    id="igst-checkbox"
+                    checked={isIGSTChecked}
+                    onChange={handleIGSTCheckboxChange}
+                  />
+                  <label htmlFor="igst-checkbox"> IGST (28%):</label>
+                </td>
                 <td>₹{igst}</td>
               </tr>
             )}
@@ -275,6 +292,7 @@ const CustomerPO = () => {
                     value={cgst}
                     onChange={handleCGSTChange}
                     placeholder="Enter CGST"
+                    disabled={isIGSTChecked}
                   />
                 </td>
               </tr>
@@ -290,6 +308,7 @@ const CustomerPO = () => {
                     value={sgst}
                     onChange={handleSGSTChange}
                     placeholder="Enter SGST"
+                    disabled={isIGSTChecked} 
                   />
                 </td>
               </tr>
