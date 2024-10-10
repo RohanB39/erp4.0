@@ -32,6 +32,22 @@ function Dispach() {
   }, []);
 
   useEffect(() => {
+    const fetchDispatchOrders = async () => {
+      try {
+        const productionOrdersCollection = collection(fireDB, 'Dispatch_Invoices');
+        const productionQuery = query(productionOrdersCollection, where('invStatus', '==', 'Dispatched'));
+        const querySnapshot = await getDocs(productionQuery);
+        const fetchedData = querySnapshot.docs.map(doc => doc.data());
+        setDispatchData(fetchedData);
+      } catch (error) {
+        console.error('Error fetching production orders: ', error);
+      }
+    };
+
+    fetchDispatchOrders();
+  }, []);
+
+  useEffect(() => {
     const fetchInvoices = async () => {
       try {
         const dispatchInvoices = collection(fireDB, 'Dispatch_Invoices');
@@ -65,15 +81,15 @@ function Dispach() {
       },
       {
         Header: 'Date of Dispatch',
-        accessor: 'date'
+        accessor: row => row.dispatchDetails.dispatchDate // Accessing dispatchDate from dispatchDetails
       },
       {
         Header: 'Time of Dispatch',
-        accessor: 'time'
+        accessor: row => row.dispatchDetails.dispatchTime // Accessing dispatchTime from dispatchDetails
       },
       {
         Header: 'Dispatch Vehicle',
-        accessor: 'vehicle'
+        accessor: row => row.dispatchDetails.dispatchVehicle // Accessing dispatchVehicle from dispatchDetails
       },
       {
         Header: 'Invoice No.',
@@ -81,7 +97,15 @@ function Dispach() {
       },
       {
         Header: 'Receipt No.',
-        accessor: 'receiptNo'
+        accessor: row => row.dispatchDetails.receiptNumber // Accessing receiptNumber from dispatchDetails
+      },
+      {
+        Header: 'Customer',
+        accessor: 'customer'
+      },
+      {
+        Header: 'Amount',
+        accessor: row => `${row.total} Rs`
       }
     ],
     []
