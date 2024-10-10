@@ -18,6 +18,7 @@ const CustomerPO = () => {
   const [sgst, setSGST] = useState(0);
   const [grandTotal, setGrandTotal] = useState(0);
   const [isIGSTChecked, setIsIGSTChecked] = useState(false);
+  const [isCGSTChecked, setIsCGSTChecked] = useState(false);
 
   const fetchCustomers = async () => {
     try {
@@ -108,8 +109,8 @@ const CustomerPO = () => {
     setCGST(enteredCGST);
 
     const calculatedCGST = (totalPrice * enteredCGST) / 100;
-    const grandTotal = totalPrice + igst + calculatedCGST + (sgst ? (totalPrice * sgst) / 100 : 0);
-    setGrandTotal(grandTotal);
+    const calculatedSGST = (totalPrice * sgst) / 100;
+    setGrandTotal(totalPrice + calculatedCGST + calculatedSGST);
   };
 
   const handleSGSTChange = (e) => {
@@ -117,8 +118,41 @@ const CustomerPO = () => {
     setSGST(enteredSGST);
 
     const calculatedSGST = (totalPrice * enteredSGST) / 100;
-    const grandTotal = totalPrice + igst + (cgst ? (totalPrice * cgst) / 100 : 0) + calculatedSGST;
-    setGrandTotal(grandTotal);
+    const calculatedCGST = (totalPrice * cgst) / 100;
+    setGrandTotal(totalPrice + calculatedCGST + calculatedSGST);
+  };
+
+  const handleIGSTCheckboxChange = (event) => {
+    const checked = event.target.checked;
+    setIsIGSTChecked(checked);
+
+    if (checked) {
+      setIsCGSTChecked(false);  // Uncheck CGST/SGST if IGST is selected
+      setCGST(0);
+      setSGST(0);
+
+      const calculatedIGST = (totalPrice * 28) / 100;
+      setIGST(calculatedIGST);
+      setGrandTotal(totalPrice + calculatedIGST);
+    } else {
+      setIGST(0);
+      setGrandTotal(totalPrice);
+    }
+  };
+
+  const handleCGSTCheckboxChange = (event) => {
+    const checked = event.target.checked;
+    setIsCGSTChecked(checked);
+
+    if (checked) {
+      setIsIGSTChecked(false);  // Uncheck IGST if CGST/SGST is selected
+      setIGST(0);
+      const calculatedCGST = (totalPrice * cgst) / 100;
+      const calculatedSGST = (totalPrice * sgst) / 100;
+      setGrandTotal(totalPrice + calculatedCGST + calculatedSGST);
+    } else {
+      setGrandTotal(totalPrice);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -155,17 +189,6 @@ const CustomerPO = () => {
   useEffect(() => {
     fetchCustomers();
   }, []);
-
-  const handleIGSTCheckboxChange = (event) => {
-    const checked = event.target.checked;
-    setIsIGSTChecked(checked);
-  
-    if (checked) {
-      setCGST(0);
-      setSGST(0);
-    }
-  };
-  
 
   return (
     <div className="main" id="main">
