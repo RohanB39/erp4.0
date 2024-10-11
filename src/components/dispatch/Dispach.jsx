@@ -81,15 +81,15 @@ function Dispach() {
       },
       {
         Header: 'Date of Dispatch',
-        accessor: row => row.dispatchDetails.dispatchDate // Accessing dispatchDate from dispatchDetails
+        accessor: row => row.dispatchDetails.dispatchDate
       },
       {
         Header: 'Time of Dispatch',
-        accessor: row => row.dispatchDetails.dispatchTime // Accessing dispatchTime from dispatchDetails
+        accessor: row => row.dispatchDetails.dispatchTime 
       },
       {
         Header: 'Dispatch Vehicle',
-        accessor: row => row.dispatchDetails.dispatchVehicle // Accessing dispatchVehicle from dispatchDetails
+        accessor: row => row.dispatchDetails.dispatchVehicle
       },
       {
         Header: 'Invoice No.',
@@ -97,7 +97,7 @@ function Dispach() {
       },
       {
         Header: 'Receipt No.',
-        accessor: row => row.dispatchDetails.receiptNumber // Accessing receiptNumber from dispatchDetails
+        accessor: row => row.dispatchDetails.receiptNumber
       },
       {
         Header: 'Customer',
