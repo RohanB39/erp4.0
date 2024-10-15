@@ -9,6 +9,7 @@ const CustomerPO = () => {
   const [purchaseOrderID, setPurchaseOrderID] = useState('');
   const [finishedGoods, setFinishedGoods] = useState([]);
   const [selectedFinishedGood, setSelectedFinishedGood] = useState('');
+  const [selectedFinishedGoodUniqueID, setSelectedFinishedGoodUniqueID] = useState('');
   const [quantity, setQuantity] = useState('');
   const [orderType, setOrderType] = useState('');
   const [price, setPrice] = useState('');
@@ -43,6 +44,7 @@ const CustomerPO = () => {
       const finishedGoodsList = finishedGoodsSnapshot.docs.map(doc => ({
         id: doc.id,
         FGname: doc.data().FGname,
+        uniqueID: doc.data().uniqueID,
       }));
       setFinishedGoods(finishedGoodsList);
     } catch (error) {
@@ -65,6 +67,7 @@ const CustomerPO = () => {
       setPurchaseOrderID(poID);
       fetchFinishedGoods(selectedCustomer.uniqueID);
       setSelectedFinishedGood('');
+      setSelectedFinishedGoodUniqueID('');
       setQuantity('');
       setOrderType('');
       setPrice('');
@@ -77,7 +80,11 @@ const CustomerPO = () => {
   };
 
   const handleFinishedGoodChange = (e) => {
-    setSelectedFinishedGood(e.target.value);
+    const selectedGood = finishedGoods.find(good => good.FGname === e.target.value);
+    if (selectedGood) {
+      setSelectedFinishedGood(selectedGood.FGname);
+      setSelectedFinishedGoodUniqueID(selectedGood.uniqueID); 
+    }
   };
 
   const handleQuantityChange = (e) => {
@@ -165,6 +172,7 @@ const CustomerPO = () => {
     const purchaseOrderData = {
       customerID: selectedCustomerID,
       finishedGood: selectedFinishedGood,
+      finishedGoodId: selectedFinishedGoodUniqueID,
       quantity: quantity,
       status: orderType,
       price: price,
@@ -238,6 +246,12 @@ const CustomerPO = () => {
                 </td>
               </tr>
             )}
+            <tr>
+              <td>Finished Good ID:</td>
+              <td>
+                {finishedGoods.find((good) => good.FGname === selectedFinishedGood)?.uniqueID || "N/A"}
+              </td>
+            </tr>
 
             {selectedFinishedGood && (
               <tr>
@@ -331,7 +345,7 @@ const CustomerPO = () => {
                     value={sgst}
                     onChange={handleSGSTChange}
                     placeholder="Enter SGST"
-                    disabled={isIGSTChecked} 
+                    disabled={isIGSTChecked}
                   />
                 </td>
               </tr>
