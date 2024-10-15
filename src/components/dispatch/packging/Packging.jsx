@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { fireDB } from '../../firebase/FirebaseConfig';
+import DispatchPopup from './dispatchPopup/DispatchPopup';
 import './packging.css';
 
 const Packging = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOptions, setSelectedOptions] = useState({});
+  const [isDispatchPopupOpen, setIsDispatchPopupOpen] = useState(false);
+  const [selectedProductForDispatch, setSelectedProductForDispatch] = useState(null);
 
   // Sample packaging types, dispatch options, and material locations
   const packagingTypes = ['Box', 'Bag', 'Wrap'];
@@ -57,6 +60,29 @@ const Packging = () => {
         dispatchOrInventory: value,
       },
     }));
+
+    // Open DispatchPopup if "Dispatch" is selected
+    if (value === 'Dispatch') {
+      const selectedProduct = products.find((product) => product.selectedProductId === productId);
+      const productDetails = {
+        selectedProductionId: selectedProduct.productionOrderId,
+        selectedProductId: selectedProduct.selectedProductId,
+        selectedMachine: selectedProduct.selectedMachine,
+        packagingType: selectedOptions[productId]?.packagingType,
+        quantity: selectedProduct.quantity,
+        dispatchOrInventory: value,
+      };
+      setSelectedProductForDispatch(productDetails);
+      setIsDispatchPopupOpen(true);
+    }
+  };
+
+  const closeDispatchPopup = () => {
+    setIsDispatchPopupOpen(false);
+  }
+
+  const handleCloseDispatchPopup = () => {
+    setIsDispatchPopupOpen(false);
   };
 
   const handleMaterialLocationChange = (productId, value) => {
@@ -82,28 +108,6 @@ const Packging = () => {
     }
 
     try {
-      // Step 1: Fetch the Finished_Goods document
-      const finishedGoodsQuery = query(
-        collection(fireDB, 'Finished_Goods'),
-        where('uniqueID', '==', selectedProductId)
-      );
-
-      const finishedGoodsSnapshot = await getDocs(finishedGoodsQuery);
-      if (!finishedGoodsSnapshot.empty) {
-        const finishedGoodsDoc = finishedGoodsSnapshot.docs[0];
-
-        // Step 2: Update FGQuantity, status, and materialLocation in Finished_Goods
-        await updateDoc(doc(fireDB, 'Finished_Goods', finishedGoodsDoc.id), {
-          FGQuantity: quantity,
-          status: 'Available',
-          materialLocation: materialLocation, // Update with selected material location
-        });
-        alert(`Updated Finished_Goods document: ${finishedGoodsDoc.id}`);
-      } else {
-        console.error('No matching Finished_Goods found for uniqueID:', selectedProductId);
-        return; // Exit if no match found
-      }
-
       // Step 3: Fetch the Production_Orders document
       const productionOrdersQuery = query(
         collection(fireDB, 'Production_Orders'),
@@ -119,6 +123,9 @@ const Packging = () => {
         await updateDoc(doc(fireDB, 'Production_Orders', productionOrderDoc.id), {
           packagingType: packagingType,
           dispatchOrInventory: dispatchOrInventory,
+          FGQuantity: quantity,
+          FGstatus: 'Available',
+          materialLocation: materialLocation,
           productionStatus: 'Packaging done, added to inventory',
           progressStatus: 'Production, Assembly, Packaging done, added to inventory',
         });
@@ -207,6 +214,12 @@ const Packging = () => {
           ))}
         </tbody>
       </table>
+      {isDispatchPopupOpen && selectedProductForDispatch && (
+        <DispatchPopup
+          product={selectedProductForDispatch}
+          onClose={closeDispatchPopup}
+        />
+      )}
     </div>
   );
 };
