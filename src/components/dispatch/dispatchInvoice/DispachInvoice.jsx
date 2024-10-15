@@ -24,8 +24,11 @@ function DispachInvoice() {
     const [termsAndConditions, setTermsAndConditions] = useState('');
     const [file, setFile] = useState(null);
     const [customerID, setCustomerID] = useState('');
-    const navigate = useNavigate(); 
-
+    const navigate = useNavigate();
+    const [tdsChecked, setTdsChecked] = useState(false);
+    const [vatChecked, setVatChecked] = useState(false);
+    const [tdsValue, setTdsValue] = useState('');
+    const [vatValue, setVatValue] = useState('');
 
     useEffect(() => {
         const fetchCustomers = async () => {
@@ -50,9 +53,11 @@ function DispachInvoice() {
         const discountValue = parseFloat(discount) || 0;
         const advanceValue = parseFloat(advance) || 0;
         const discountAmount = (subTotal * (discountValue / 100)).toFixed(2);
-        const calculatedTotal = subTotal - discountAmount - advanceValue;
+        const tdsAmount = tdsChecked ? (subTotal * (parseFloat(tdsValue) / 100)).toFixed(2) : 0;
+        const vatAmount = vatChecked ? (subTotal * (parseFloat(vatValue) / 100)).toFixed(2) : 0;
+        const calculatedTotal = subTotal - discountAmount + parseFloat(vatAmount) + parseFloat(tdsAmount) - advanceValue;
         setTotal(calculatedTotal.toFixed(2));
-    }, [subTotal, discount, advance]);
+    }, [subTotal, discount, advance, tdsChecked, vatChecked, tdsValue, vatValue]);
 
     const fetchOrderItems = async (selectedOrderID) => {
         const orderDocRef = doc(fireDB, 'Customer_Purchase_Orders', selectedOrderID);
@@ -147,14 +152,35 @@ function DispachInvoice() {
     };
 
     useEffect(() => {
-        const initialInvoiceNo = 'INV-0001';
-        setInvoiceNo(initialInvoiceNo);
+        const fetchLatestInvoiceNo = async () => {
+            try {
+                // Fetching the invoices collection
+                const invoicesRef = collection(fireDB, 'Dispatch_Invoices'); // Your Firestore collection name
+                const invoiceSnapshot = await getDocs(invoicesRef);
+                const invoiceList = invoiceSnapshot.docs.map(doc => doc.id); // Assuming doc.id is the invoice number
+
+                console.log("Fetched Invoice IDs:", invoiceList); // Debugging: Check if the invoice IDs are being fetched
+
+                // Sorting the invoice numbers and getting the latest one
+                if (invoiceList.length > 0) {
+                    const latestInvoiceNo = invoiceList.sort().pop(); // Sorts and picks the last one
+                    console.log("Latest Invoice Number:", latestInvoiceNo); // Debugging: Check the latest invoice number
+
+                    const newInvoiceNo = generateInvoiceNumber(latestInvoiceNo);
+                    console.log("Generated New Invoice Number:", newInvoiceNo); // Debugging: Check the generated invoice number
+                    setInvoiceNo(newInvoiceNo); // Setting the new invoice number
+                } else {
+                    // If no invoices are found, start with "INV-00001"
+                    console.log("No invoices found, starting with INV-00001"); // Debugging: Case when no invoices exist
+                    setInvoiceNo('INV-00001');
+                }
+            } catch (error) {
+                console.error("Error fetching invoice numbers: ", error);
+            }
+        };
+
+        fetchLatestInvoiceNo(); // Call the function to fetch and set the new invoice number
     }, []);
-
-    const handleGenerateNewInvoice = () => {
-        setInvoiceNo((prevInvoiceNo) => generateInvoiceNumber(prevInvoiceNo));
-    };
-
 
     const handleQuantityChange = async (index, newQuantity) => {
         const updatedItems = [...items];
@@ -201,12 +227,14 @@ function DispachInvoice() {
                     amount: item.amount,
                 })),
                 discount,
+                tdsValue,
+                vatValue,
                 advance: advance || '0',
                 total,
                 subTotal,
                 termsAndConditions,
                 file: null,
-                invStatus : 'Active',
+                invStatus: 'Active',
             };
 
             if (file) {
@@ -231,6 +259,24 @@ function DispachInvoice() {
 
     const handleCancel = () => {
         navigate('/Dispach');
+    };
+
+    const handleTdsChange = (e) => {
+        setTdsChecked(e.target.checked);
+        setVatChecked(false); // Uncheck VAT and disable it when TDS is checked
+    };
+
+    const handleVatChange = (e) => {
+        setVatChecked(e.target.checked);
+        setTdsChecked(false); // Uncheck TDS and disable it when VAT is checked
+    };
+
+    const handleTdsValueChange = (e) => {
+        setTdsValue(e.target.value);
+    };
+
+    const handleVatValueChange = (e) => {
+        setVatValue(e.target.value);
     };
 
     return (
@@ -258,12 +304,11 @@ function DispachInvoice() {
                             <label htmlFor="">Invoice No.</label>
                             <input
                                 type="text"
-                                placeholder='INV-00012'
+                                placeholder="INV-00012"
                                 value={invoiceNo}
-                                readOnly
+                                onChange={(e) => setInvoiceNo(e.target.value)} 
                             />
                         </div>
-                        <button onClick={handleGenerateNewInvoice}>Generate New Invoice Number</button>
                         <div className='innerDiv'>
                             <label htmlFor="">Order No.</label>
                             {/* Order No. dropdown populated with orders related to selected customer */}
@@ -380,22 +425,41 @@ function DispachInvoice() {
                                 <div className='tally-inner-body'>
                                     <div className='check'>
                                         <span>
-                                            <input type="checkbox" />
+                                            <input
+                                                type="checkbox"
+                                                checked={tdsChecked}
+                                                onChange={handleTdsChange}
+                                                disabled={vatChecked} // Disable TDS checkbox if VAT is checked
+                                            />
                                             TDS
                                         </span>
                                         <span>
-                                            <input type="checkbox" />
-                                            TCS
+                                            <input
+                                                type="checkbox"
+                                                checked={vatChecked}
+                                                onChange={handleVatChange}
+                                                disabled={tdsChecked} // Disable VAT checkbox if TDS is checked
+                                            />
+                                            VAT
                                         </span>
                                     </div>
-                                    <div>
-                                        <select>
-                                            <option value="old one">old one</option>
-                                            <option value="new one">new one</option>
-                                        </select>
-                                    </div>
+                                    {tdsChecked && (
+                                        <input
+                                            type="number"
+                                            value={tdsValue}
+                                            onChange={handleTdsValueChange}
+                                            placeholder="Enter TDS value"
+                                        />
+                                    )}
+                                    {vatChecked && (
+                                        <input
+                                            type="number"
+                                            value={vatValue}
+                                            onChange={handleVatValueChange}
+                                            placeholder="Enter VAT value"
+                                        />
+                                    )}
                                 </div>
-
                             </div>
                             <div className='tally-outer-body'>
                                 <div className='tally-inner-body advance'>
