@@ -16,65 +16,74 @@ const EditInvoicePopup = ({ invoice, onClose }) => {
 
   const handleSave = async () => {
     const updatedData = {
-        asnNumber,
-        ewayBillNumber,
-        dispatchDate,
-        dispatchTime,
-        receiptNumber,
-        dispatchVehicle,
+      asnNumber,
+      ewayBillNumber,
+      dispatchDate,
+      dispatchTime,
+      receiptNumber,
+      dispatchVehicle,
     };
-
+  
     try {
-        // Step 1: Check Production Orders for FG ID
-        const productionOrdersRef = collection(fireDB, 'Production_Orders');
-        const productionQuery = query(productionOrdersRef, where('selectedProductId', '==', fgID));
-        const productionSnapshot = await getDocs(productionQuery);
-
-        if (!productionSnapshot.empty) {
-            productionSnapshot.forEach(async (docSnap) => {
-                const productionData = docSnap.data();
-                const currentQuantity = productionData.quantity;
-
-                // Step 2: Check if approvedQuantity is greater than available quantity
-                if (approvedQuantity > currentQuantity) {
-                    alert('Stock not available: Approved quantity exceeds available stock.');
-                    return;
-                }
-
-                // Step 3: If stock is available, calculate the updated quantity
-                const updatedQuantity = currentQuantity - approvedQuantity;
-
-                // Step 4: Update the quantity in the production order
-                let updatedFields = {
-                    quantity: updatedQuantity,
-                    progressStatus: 'PO Close', // Assume this status needs to be updated regardless of the remaining quantity
-                };
-
-                // Step 5: Only update productionStatus to "PO Close" if the remaining quantity is 0
-                if (updatedQuantity === 0) {
-                    updatedFields.productionStatus = 'PO Close';
-                }
-
-                await updateDoc(doc(fireDB, 'Production_Orders', docSnap.id), updatedFields);
-
-                // Step 6: After updating the production order, update the dispatch invoice
-                const invoiceRef = doc(fireDB, 'Dispatch_Invoices', invoice.invoiceNo);
-                await updateDoc(invoiceRef, {
-                    dispatchDetails: updatedData,
-                    invStatus: 'Dispatched',
-                });
-
-                alert('Invoice and Production Order updated successfully!');
-                onClose();
-            });
-        } else {
-            console.log("No matching production order found for FG ID:", fgID);
+      // Step 1: Check Production Orders for FG ID
+      const productionOrdersRef = collection(fireDB, 'Production_Orders');
+      const productionQuery = query(productionOrdersRef, where('selectedProductId', '==', fgID));
+      const productionSnapshot = await getDocs(productionQuery);
+  
+      if (!productionSnapshot.empty) {
+        let successFlag = false; // To trigger the alert only once
+  
+        productionSnapshot.forEach(async (docSnap) => {
+          const productionData = docSnap.data();
+          const currentQuantity = parseFloat(productionData.FGQuantity) || 0; // Ensure this is a number
+  
+          // Step 2: Check if approvedQuantity is greater than available quantity
+          if (approvedQuantity > currentQuantity) {
+            alert('Stock not available: Approved quantity exceeds available stock.');
+            return; // Skip the update if stock is not available
+          }
+  
+          // Step 3: If stock is available, calculate the updated quantity
+          const updatedQuantity = currentQuantity - approvedQuantity;
+          console.log('Updated Quantity:', updatedQuantity);
+  
+          // Step 4: Update the quantity in the production order
+          let updatedFields = {
+            FGQuantity: updatedQuantity,
+            progressStatus: 'PO Close', // Default to "PO Close" unless remaining quantity is non-zero
+          };
+  
+          // Step 5: Only update productionStatus to "PO Close" if the remaining quantity is 0
+          if (updatedQuantity === 0) {
+            updatedFields.productionStatus = 'PO Close';
+          }
+  
+          // Step 6: Update the production order if stock is available
+          await updateDoc(doc(fireDB, 'Production_Orders', docSnap.id), updatedFields);
+  
+          // Step 7: After updating the production order, update the dispatch invoice
+          const invoiceRef = doc(fireDB, 'Dispatch_Invoices', invoice.invoiceNo);
+          await updateDoc(invoiceRef, {
+            dispatchDetails: updatedData,
+            invStatus: 'Dispatched',
+          });
+  
+          successFlag = true; // Mark the update as successful
+        });
+  
+        // Step 8: Trigger the alert once, after all production orders are updated
+        if (successFlag) {
+          alert('Invoice and Production Order updated successfully!');
+          onClose(); // Close the popup after saving
         }
+      } else {
+        console.log('No matching production order found for FG ID:', fgID);
+      }
     } catch (error) {
-        console.error('Error updating invoice or production order:', error);
+      console.error('Error updating invoice or production order:', error);
     }
-};
-
+  };
+  
   return (
       <div className="popup">
           <h2>Edit Invoice</h2>
@@ -144,4 +153,3 @@ const EditInvoicePopup = ({ invoice, onClose }) => {
 };
 
 export default EditInvoicePopup;
-
