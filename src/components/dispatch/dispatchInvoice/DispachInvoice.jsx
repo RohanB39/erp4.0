@@ -60,16 +60,14 @@ function DispachInvoice() {
 
         if (orderDoc.exists()) {
             const orderData = orderDoc.data();
-
-            // Create item details using the order data
             const itemDetails = [{
                 details: orderData.finishedGood,
                 quantity: orderData.quantity,
                 rate: orderData.price,
                 amount: orderData.grandTotal,
                 id: orderDocRef.id,
+                fgID: orderData.finishedGoodId,
             }];
-
             setItems(itemDetails);
         } else {
             console.log("No matching documents found");
@@ -197,6 +195,7 @@ function DispachInvoice() {
                 subject,
                 FGItem: items.map(item => ({
                     FGName: item.details,
+                    FGID: item.fgID,
                     approvedQty: item.quantity,
                     rate: item.rate,
                     amount: item.amount,
@@ -325,6 +324,7 @@ function DispachInvoice() {
                         <tr>
                             <th>Sr/No</th>
                             <th>Item Details</th>
+                            <th>Item ID</th>
                             <th>Quantity</th>
                             <th>Rate</th>
                             <th>Amount</th>
@@ -335,10 +335,11 @@ function DispachInvoice() {
                             <tr key={index}>
                                 <td>{index + 1}</td>
                                 <td>{item.details}</td>
+                                <td>{item.fgID}</td>
                                 <td>
                                     <input
                                         type="number"
-                                        value={item.quantity} // `item` should correspond to the current item in your mapping
+                                        value={item.quantity}
                                         onChange={(e) => handleQuantityChange(index, e.target.value)}
                                     />
 
