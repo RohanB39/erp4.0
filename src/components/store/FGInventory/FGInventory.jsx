@@ -20,8 +20,9 @@ const FGInventory = () => {
           srNo: index + 1,
           productionOrderId: doc.data().productionOrderId,
           selectedProductId: doc.data().selectedProductId,
-          quantity:doc.data().quantity,
+          quantity:doc.data().FGQuantity,
           status:doc.data().dispatchOrInventory,
+          ml:doc.data().materialLocation,
         }));
         setInventoryData(data);
       } catch (error) {
@@ -41,6 +42,7 @@ const FGInventory = () => {
             <th>Production Order Id</th>
             <th>Product ID</th>
             <th>Quantity</th>
+            <th>Location</th>
             <th>Status</th>
           </tr>
         </thead>
@@ -52,6 +54,7 @@ const FGInventory = () => {
                 <td>{item.productionOrderId}</td>
                 <td>{item.selectedProductId}</td>
                 <td>{item.quantity}</td>
+                <td>{item.ml}</td>
                 <td>{item.status}</td>
               </tr>
             ))
