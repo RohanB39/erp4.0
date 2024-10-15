@@ -157,6 +157,10 @@ function Dispach() {
         accessor: (row) => row.FGItem.map(item => item.FGName).join(', '),
       },
       {
+        Header: 'FG ID',
+        accessor: (row) => row.FGItem.map(item => item.FGID).join(', '),
+      },
+      {
         Header: 'Approved Quantity',
         accessor: (row) => row.FGItem.map(item => item.approvedQty).join(', '),
       },
