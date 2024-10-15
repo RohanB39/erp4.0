@@ -21,15 +21,23 @@ function Dispach() {
         const productionOrdersCollection = collection(fireDB, 'Production_Orders');
         const productionQuery = query(productionOrdersCollection, where('dispatchOrInventory', '==', 'Dispatch'));
         const querySnapshot = await getDocs(productionQuery);
-        const fetchedData = querySnapshot.docs.map(doc => doc.data());
+  
+        const fetchedData = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          const dispatchData = data.dispatchData || [];
+          return {
+            ...data,
+          };
+        });
         setProductionOrdersData(fetchedData);
       } catch (error) {
         console.error('Error fetching production orders: ', error);
       }
     };
-
+  
     fetchProductionOrders();
   }, []);
+  
 
   useEffect(() => {
     const fetchDispatchOrders = async () => {
@@ -127,12 +135,33 @@ function Dispach() {
         accessor: 'selectedProductId'
       },
       {
+        Header: 'Purchase Order ID',
+        // Display Purchase Order IDs (comma-separated) for each dispatch entry
+        Cell: ({ row }) => {
+          const dispatchDetails = row.original.dispatchDetails || [];
+          const purchaseOrderIds = dispatchDetails.map(detail => detail.purchaseOrders).join(', ');
+          return <span>{purchaseOrderIds || 'Not Available'}</span>;
+        }
+      },
+      {
+        Header: 'Customer Name',
+        // Display Customer Name for each dispatch entry
+        Cell: ({ row }) => {
+          const dispatchDetails = row.original.dispatchDetails || [];
+          const customerNames = dispatchDetails.map(detail => detail.customerName).join(', ');
+          return <span>{customerNames || 'Not Available'}</span>;
+        }
+      },
+      {
         Header: 'Quantity',
         accessor: 'quantity'
       },
       {
         Header: 'Status',
         accessor: 'dispatchOrInventory'
+      },
+      {
+        Header: 'Action',
       },
     ],
     []
