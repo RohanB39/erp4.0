@@ -19,6 +19,9 @@ const Grn = () => {
   const [items, setItems] = useState([]);
   const [purchaseOrderId, setPurchaseOrderId] = useState('');
   const [vendorInvoice, setVendorInvoice] = useState('');
+  const [purchaseOrders, setPurchaseOrders] = useState([]);
+  const [existingPurchaseOrderPrice, setExistingPurchaseOrderPrice] = useState('');
+  const [purchaseOrderIds, setPurchaseOrderIds] = useState('');
 
   // Generate GRN number when the component mounts
   useEffect(() => {
@@ -72,6 +75,27 @@ const Grn = () => {
     }
   }, [vendorId]);
 
+  // Fetch purchase orders based on vendorId
+  useEffect(() => {
+    if (vendorId) {
+      const fetchPurchaseOrders = async () => {
+        try {
+          const querySnapshot = await getDocs(collection(fireDB, "Purchase_Orders"));
+          const purchaseOrderList = querySnapshot.docs
+            .filter(doc => doc.data().vendorId === vendorId) // Compare vendorId
+            .map(doc => ({
+              id: doc.id,
+              materialName: doc.data().materialName,  // Fetch materialName field
+            }));
+          setPurchaseOrders(purchaseOrderList);
+        } catch (error) {
+          console.error("Error fetching purchase orders: ", error);
+        }
+      };
+      fetchPurchaseOrders();
+    }
+  }, [vendorId]);
+
   // Filter vendors based on search term
   const filteredVendors = vendors.filter(vendor =>
     vendor.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -94,6 +118,17 @@ const Grn = () => {
     setMaterialDescription(item.specifications);
     setBatchNumber(item.batchNumber);
     setMaterialId(item.id);
+  };
+
+  const handleOrderSelect = (selectedPurchaseOrderId) => {
+    const selectedOrder = purchaseOrders.find(
+      (order) => order.id === selectedPurchaseOrderId
+    );
+
+    if (selectedOrder) {
+      setPurchaseOrderIds(selectedOrder.purchaseOrderId)
+      setExistingPurchaseOrderPrice(selectedOrder.price);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -238,6 +273,21 @@ const Grn = () => {
                 onChange={handleVendorInvoice}
               />
             </div>
+            <div>
+              <label htmlFor="materialId">Existing Material Purchase Order:</label>
+              <select
+                id="materialId"
+                value={purchaseOrderIds}
+                onChange={(e) => handleOrderSelect(e.target.value)}
+              >
+                <option value="">Select Purchase Order</option>
+                {purchaseOrders.map(purchaseOrder => (
+                  <option key={purchaseOrder.id} value={purchaseOrder.id}>
+                    {purchaseOrder.id}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <div>
               <label htmlFor='materialId'>Material:</label>
@@ -247,7 +297,6 @@ const Grn = () => {
                 onChange={(e) => handleItemSelect(
                   items.find(item => item.id === e.target.value)
                 )}
-                required
               >
                 <option value=''>Select Material</option>
                 {items.map(item => (
