@@ -29,16 +29,6 @@ const dataSavings = [
     { name: 'Jul', savings: 1600 },
 ];
 
-const dataInvestment = [
-    { name: 'Jan', investment: 3000 },
-    { name: 'Feb', investment: 3200 },
-    { name: 'Mar', investment: 2800 },
-    { name: 'Apr', investment: 3100 },
-    { name: 'May', investment: 2900 },
-    { name: 'Jun', investment: 3300 },
-    { name: 'Jul', investment: 3700 },
-];
-
 const dataMoneyFlow = [
     { name: 'Jan', Internet: 164, Health: 128, Food: 210, Shopping: 180, Vacation: 300 },
     { name: 'Feb', Internet: 200, Health: 150, Food: 220, Shopping: 190, Vacation: 320 },
@@ -55,6 +45,11 @@ function FinancePage() {
     const [totalIncome, setTotalIncome] = useState(0);
     let newArray = Object.values(dataIncome);
     newArray.unshift({ name: 'dummy', income: 0 });
+
+    const [dataAssets, setDataAssets] = useState([]);
+    const [totalAssets, setTotalAssets] = useState(0);
+    let newAssetsArray = Object.values(dataAssets);
+    newAssetsArray.unshift({ name: 'dummy', expence: 0 });
 
     useEffect(() => {
         // Function to fetch the income data
@@ -102,6 +97,56 @@ function FinancePage() {
         };
         fetchIncomeData();
     }, []);
+
+    useEffect(() => {
+        // Function to fetch the machine data
+        const fetchMachineData = async () => {
+            try {
+                const dispatchInvoicesRef = collection(fireDB, 'Machines');
+                const dispatchQuery = query(dispatchInvoicesRef, where('machineStatus', '==', 'Active'));
+                const dispatchSnapshot = await getDocs(dispatchQuery);
+
+                // Temporary object to store the sum of income per month
+                const incomeByMonth = {
+                    '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0, '10': 0,
+                    '11': 0, '12': 0
+                };
+
+                dispatchSnapshot.forEach(doc => {
+                    const invoiceData = doc.data();
+                    const invoiceDate = invoiceData.installationDate;
+                    const total = parseFloat(invoiceData.machinePrice);
+
+                    let month = invoiceDate.split('-')[1];
+                    month = (parseInt(month, 10)).toString();
+
+                    // Add the total to the corresponding month in the incomeByMonth object
+                    if (incomeByMonth[month] !== undefined) {
+                        incomeByMonth[month] += total;
+                    }
+                });
+
+                // Update dataIncome based on the fetched data
+                const updatedDataIncome = Object.keys(incomeByMonth).map(month => ({
+                    name: month,
+                    expance: incomeByMonth[month],
+                }));
+
+                setDataAssets(updatedDataIncome);
+
+                // Calculate total income from all months
+                const total = Object.values(incomeByMonth).reduce((acc, curr) => acc + curr, 0);
+                setTotalAssets(total);
+
+            } catch (error) {
+                console.error('Error calculating income:', error);
+            }
+        };
+        fetchMachineData();
+    }, []);
+
+    console.log(newAssetsArray);
+
 
     return (
         <>
@@ -192,16 +237,16 @@ function FinancePage() {
                 <div className="single-card">
                     <div className="icon">
                         <div>
-                            <h3>$4323</h3>
-                            <p>Total Investment</p>
+                            <h3>Rs. {totalAssets}</h3>
+                            <p>Total Assets</p>
                         </div>
                         <FaMoneyBillAlt className='icons' />
                     </div>
                     <div className='graph'>
                         <ResponsiveContainer width="100%" height={30}>
-                            <AreaChart data={dataInvestment}>
+                            <AreaChart data={newAssetsArray}>
                                 <Tooltip />
-                                <Area type="monotone" dataKey="investment" stroke="#ff7300" fill="#ff7300" />
+                                <Area type="monotone" dataKey="expance" stroke="#ff7300" fill="#ff7300" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
