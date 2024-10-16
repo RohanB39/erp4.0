@@ -16,6 +16,7 @@ const AddMachines = () => {
   const [installationDate, setInstallationDate] = useState('');
   const [operatingLocation, setOperatingLocation] = useState('');
   const [machineStatus, setMachineStatus] = useState('');
+  const [machinePrice, setMachinePrice] = useState('');
 
   const machineTypes = [
     "Lathe Machine",
@@ -151,6 +152,7 @@ const AddMachines = () => {
   const handleInstallationDateChange = (e) => setInstallationDate(e.target.value);
   const handleoperationLocationChange = (e) => setOperatingLocation(e.target.value);
   const handleMachineStatus = (e) => setMachineStatus(e.target.value);
+  const handleMachinePriceChange = (e) => setMachinePrice(e.target.value);
 
   const handleSaveMachine = async () => {
     const db = getFirestore(app);
@@ -165,6 +167,7 @@ const AddMachines = () => {
       purchaseDate,
       installationDate,
       operatingLocation,
+      machinePrice,
       machineStatus,
     };
 
@@ -321,6 +324,19 @@ const AddMachines = () => {
               value={operatingLocation}
               onChange={handleoperationLocationChange}
               placeholder="Enter Operating Location"
+              style={{ marginRight: '10px' }}
+              required
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="ManufacturerName">Machine Price:</label>
+            <input
+              type="number"
+              id="machineprice"
+              value={machinePrice}
+              onChange={handleMachinePriceChange}
+              placeholder="Enter Machine Price"
               style={{ marginRight: '10px' }}
               required
             />
