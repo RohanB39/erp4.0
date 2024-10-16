@@ -1,28 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './financePage.css';
-
-
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
-
 import { GiReceiveMoney } from "react-icons/gi";
 import { BsCurrencyRupee } from "react-icons/bs";
 import { FaMoneyBillAlt } from "react-icons/fa";
 import { AiOutlineCalendar } from 'react-icons/ai';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-
-
-
-// Sample data for the charts
-const dataIncome = [
-    { name: 'Jan', income: 4000 },
-    { name: 'Feb', income: 3000 },
-    { name: 'Mar', income: 2000 },
-    { name: 'Apr', income: 2780 },
-    { name: 'May', income: 1890 },
-    { name: 'Jun', income: 2390 },
-    { name: 'Jul', income: 3490 },
-];
+import { fireDB, collection, query, where, getDocs } from '../firebase/FirebaseConfig';
 
 const dataExpend = [
     { name: 'Jan', expend: 2000 },
@@ -66,6 +51,58 @@ const dataMoneyFlow = [
 
 function FinancePage() {
     const [startDate, setStartDate] = useState(new Date());
+    const [dataIncome, setDataIncome] = useState([]);
+    const [totalIncome, setTotalIncome] = useState(0);
+    let newArray = Object.values(dataIncome);
+    newArray.unshift({ name: 'dummy', income: 0 });
+
+    useEffect(() => {
+        // Function to fetch the income data
+        const fetchIncomeData = async () => {
+            try {
+                const dispatchInvoicesRef = collection(fireDB, 'Dispatch_Invoices');
+                const dispatchQuery = query(dispatchInvoicesRef, where('invStatus', '==', 'Dispatched'));
+                const dispatchSnapshot = await getDocs(dispatchQuery);
+
+                // Temporary object to store the sum of income per month
+                const incomeByMonth = {
+                    '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0, '10': 0,
+                    '11': 0, '12': 0
+                };
+
+                dispatchSnapshot.forEach(doc => {
+                    const invoiceData = doc.data();
+                    const invoiceDate = invoiceData.invoiceDate;
+                    const total = parseFloat(invoiceData.total);
+
+                    let month = invoiceDate.split('-')[1];
+                    month = (parseInt(month, 10)).toString();
+
+                    // Add the total to the corresponding month in the incomeByMonth object
+                    if (incomeByMonth[month] !== undefined) {
+                        incomeByMonth[month] += total;
+                    }
+                });
+
+                // Update dataIncome based on the fetched data
+                const updatedDataIncome = Object.keys(incomeByMonth).map(month => ({
+                    name: month,
+                    income: incomeByMonth[month],
+                }));
+
+                setDataIncome(updatedDataIncome);
+
+                // Calculate total income from all months
+                const total = Object.values(incomeByMonth).reduce((acc, curr) => acc + curr, 0);
+                setTotalIncome(total);
+
+            } catch (error) {
+                console.error('Error calculating income:', error);
+            }
+        };
+        fetchIncomeData();
+    }, []);
+
     return (
         <>
             <div className="finance-container">
@@ -104,14 +141,14 @@ function FinancePage() {
                 <div className="single-card">
                     <div className="icon">
                         <div>
-                            <h3>$2323</h3>
+                            <h3>Rs. {totalIncome}</h3>
                             <p>Total Income</p>
                         </div>
-                        <FaMoneyBillAlt className='icons' />
+                        <FaMoneyBillAlt className="icons" />
                     </div>
-                    <div className='graph'>
+                    <div className="graph">
                         <ResponsiveContainer width="100%" height={30}>
-                            <AreaChart data={dataIncome}>
+                            <AreaChart data={newArray}>
                                 <Tooltip />
                                 <Area type="monotone" dataKey="income" stroke="#8884d8" fill="#8884d8" />
                             </AreaChart>
