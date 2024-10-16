@@ -5,14 +5,16 @@ import { collection, getDocs, query, where, getFirestore } from 'firebase/firest
 import { fireDB } from '../firebase/FirebaseConfig';
 import './dispach.css';
 import EditInvoicePopup from './editDispatchInvoicePopup/EditInvoicePopup';
-
+import EditDirectdispatchPopup from './editDirectDispatchPopup/EditDirectdispatchPopup';
 function Dispach() {
   const [dispatchData, setDispatchData] = useState([]);
   const [productionOrdersData, setProductionOrdersData] = useState([]);
   const [dispatchInvoicedata, setDispatchInvoicedata] = useState([]);
   const [productionOrders, setProductionOrders] = useState([]);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isDDPopup, setisDDPopup] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null); 
+  const [selectedDD, setselectedDD] = useState(null); 
   const db = getFirestore();
 
   useEffect(() => {
@@ -24,11 +26,18 @@ function Dispach() {
   
         const fetchedData = querySnapshot.docs.map(doc => {
           const data = doc.data();
-          const dispatchData = data.dispatchData || [];
+          const dispatchData = data.dispatchData || []; // Default to empty array if not present
+  
+          // Ensure dispatchData has elements before accessing the first element
+          const dispatchInfo = dispatchData.length > 0 ? dispatchData[0] : {};
+  
           return {
             ...data,
+            dispatchInvoiceNo: dispatchInfo.invoiceNo, // Set invoiceNo from the first dispatchData
+            dispatchCustomerName: dispatchInfo.customerName, // Set customerName from the first dispatchData
           };
         });
+  
         setProductionOrdersData(fetchedData);
       } catch (error) {
         console.error('Error fetching production orders: ', error);
@@ -76,9 +85,19 @@ function Dispach() {
     setIsPopupOpen(true);
   };
 
+  const DD = (row) => {
+    setselectedDD(row);
+    setisDDPopup(true);
+  };
+
   const closePopup = () => {
     setIsPopupOpen(false);
     setSelectedInvoice(null);
+  };
+
+  const closeDD = () => {
+    setisDDPopup(false);
+    setisDDPopup(null);
   };
 
   const dispatchColumns = useMemo(
@@ -135,22 +154,12 @@ function Dispach() {
         accessor: 'selectedProductId'
       },
       {
-        Header: 'Purchase Order ID',
-        // Display Purchase Order IDs (comma-separated) for each dispatch entry
-        Cell: ({ row }) => {
-          const dispatchDetails = row.original.dispatchDetails || [];
-          const purchaseOrderIds = dispatchDetails.map(detail => detail.purchaseOrders).join(', ');
-          return <span>{purchaseOrderIds || 'Not Available'}</span>;
-        }
+        Header: 'Invoice Number',
+        accessor: 'dispatchInvoiceNo', // Access the invoice number from the fetched data
       },
       {
         Header: 'Customer Name',
-        // Display Customer Name for each dispatch entry
-        Cell: ({ row }) => {
-          const dispatchDetails = row.original.dispatchDetails || [];
-          const customerNames = dispatchDetails.map(detail => detail.customerName).join(', ');
-          return <span>{customerNames || 'Not Available'}</span>;
-        }
+        accessor: 'dispatchCustomerName', // Access the customer name from the fetched data
       },
       {
         Header: 'Quantity',
@@ -162,6 +171,9 @@ function Dispach() {
       },
       {
         Header: 'Action',
+        accessor: (row) => (
+          <button onClick={() => DD(row)}>Edit</button>
+        ),
       },
     ],
     []
@@ -424,6 +436,12 @@ function Dispach() {
           <EditInvoicePopup
             invoice={selectedInvoice}
             onClose={closePopup}
+          />
+        )}
+        {isDDPopup && (
+          <EditDirectdispatchPopup
+            invoice={selectedInvoice}
+            onClose={closeDD}
           />
         )}
       </div>
