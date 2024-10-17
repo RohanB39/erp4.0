@@ -70,7 +70,7 @@ function SalesPurchase() {
             { Header: 'Invoice Details', accessor: 'vendorInvoice' },
             { Header: 'Status', accessor: 'status' },
             { Header: 'Vendor & Details', accessor: 'vendorName' },
-            { Header: 'Amount', accessor: 'price' },
+            { Header: 'Amount', accessor: 'GrnInvoicePrice' },
         ],
         []
     );
