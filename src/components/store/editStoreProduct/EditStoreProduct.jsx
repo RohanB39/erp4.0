@@ -7,7 +7,7 @@ const EditStoreProduct = ({ item, onClose, onSave }) => {
     const [rackOptions, setRackOptions] = useState([]);
     const [selectedRack, setSelectedRack] = useState(null);
     const [rackInput, setRackInput] = useState('');
-    const [quantity, setQuantity] = useState('Loading...');  // Loading state for quantity
+    const [quantity, setQuantity] = useState('Loading...'); 
 
     const fetchRacks = async () => {
         const db = getFirestore();
@@ -26,20 +26,16 @@ const EditStoreProduct = ({ item, onClose, onSave }) => {
 
     const fetchQuantity = async () => {
         const db = getFirestore();
-        const purchaseOrdersRef = collection(db, 'Purchase_Orders');
+        const purchaseOrdersRef = collection(db, 'Items');
 
         try {
-            console.log("Fetching quantity for material ID:", item.id);
-
             const snapshot = await getDocs(purchaseOrdersRef);
             const matchingDoc = snapshot.docs.find(doc => doc.data().materialId === item.id);
 
             if (matchingDoc) {
                 const orderData = matchingDoc.data();
-                console.log("Matching document found:", orderData);
-
-                if (orderData.quantity !== undefined) {
-                    setQuantity(orderData.quantity);
+                if (orderData.quantityReceived !== undefined) {
+                    setQuantity(orderData.quantityReceived);
                 } else {
                     console.error("No 'quantity' field found in the matching document");
                     setQuantity('Not Available');
