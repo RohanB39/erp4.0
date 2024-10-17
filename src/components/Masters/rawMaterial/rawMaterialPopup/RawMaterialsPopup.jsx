@@ -18,7 +18,6 @@ const RawMaterialsPopup = ({ onClose }) => {
     const [hsnCode, setHsnCode] = useState("");
     const [batchNumber, setBatchNumber] = useState("");
     const [batchDate, setBatchDate] = useState(new Date());
-    const [materialLocation, setMaterialLocation] = useState("");
     const [qty, setQty] = useState("");
     const [status] = useState("QC Pending");
 
@@ -84,7 +83,6 @@ const RawMaterialsPopup = ({ onClose }) => {
                 hsnCode,
                 batchNumber,
                 batchDate: batchDate.toISOString(),
-                materialLocation,
                 qty,
                 status,
                 materialId: uniqueID
@@ -210,13 +208,6 @@ const RawMaterialsPopup = ({ onClose }) => {
                         />
                     </div>
                     <div className="selectForminput">
-                        <input
-                            type="text"
-                            placeholder="Material Location"
-                            value={materialLocation}
-                            onChange={(e) => setMaterialLocation(e.target.value)}
-                            required
-                        />
                         <input
                             type="text"
                             placeholder="Material Id"
