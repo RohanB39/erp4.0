@@ -246,7 +246,6 @@ const ItemsPopup = ({ onClose }) => {
 
 
                         <DatePicker
-
                             selected={batchDate}
                             onChange={date => setBatchDate(date)}
                             dateFormat="dd/MM/yyyy"
