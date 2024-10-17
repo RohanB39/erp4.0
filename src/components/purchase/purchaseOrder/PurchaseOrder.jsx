@@ -27,7 +27,6 @@ const PurchaseOrder = () => {
   const [materials, setMaterials] = useState([]);
   const [selectedMaterial, setSelectedMaterial] = useState('');
   const [error, setError] = useState(null);
-  const [calculatedPrice, setCalculatedPrice] = useState(0);
   const [materialDetails, setMaterialDetails] = useState({
     materialName: '',
     materialId: '',
@@ -226,13 +225,6 @@ const PurchaseOrder = () => {
     fetchMaterialDetails();
   }, [selectedMaterial]);
 
-  useEffect(() => {
-    if (quantity && materialDetails.materialPrice) {
-      const totalPrice = materialDetails.materialPrice * quantity;
-      setCalculatedPrice(totalPrice);
-    }
-  }, [quantity, materialDetails.materialPrice]);
-
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -260,7 +252,6 @@ const PurchaseOrder = () => {
         materialName: materialDetails.materialName,
         materialId: materialDetails.materialId,
         quantity,
-        price: calculatedPrice,
         unit: selectedUnit,
         status: 'Not Assigned'
       });
@@ -453,15 +444,6 @@ const PurchaseOrder = () => {
                       </option>
                     ))}
                   </select>
-                </div>
-
-                <div>
-                  <label>Total Price:</label>
-                  <input
-                    type="number"
-                    value={calculatedPrice}
-                    readOnly
-                  />
                 </div>
               </>
             )}
