@@ -53,6 +53,7 @@ import AddMachines from './components/production/addMachines/AddMachines';
 import Packging from './components/dispatch/packging/Packging';
 import FGInventory from './components/store/FGInventory/FGInventory';
 import CustomerPO from './components/purchase/customerPurchaseOrder/CustomerPO';
+import ExistingMaterialGrn from './components/store/grn/existingMaterialGrn/ExistingMaterialGrn';
 
 
 
@@ -134,6 +135,7 @@ function App() {
                             <Route path="/DemandMaterial" element={<DemandMaterial />} />
                             <Route path="/ProductionProcess" element={<ProductionProcess />} />
                             <Route path="/addMachines" element={<AddMachines />} />
+                            <Route path="/existing-material-grn" element={<ExistingMaterialGrn />} />
                         </Routes>
                     </div>
                 </>
