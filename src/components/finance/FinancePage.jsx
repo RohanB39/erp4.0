@@ -9,16 +9,6 @@ import { AiOutlineCalendar } from 'react-icons/ai';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { fireDB, collection, query, where, getDocs } from '../firebase/FirebaseConfig';
 
-const dataExpend = [
-    { name: 'Jan', expend: 2000 },
-    { name: 'Feb', expend: 2500 },
-    { name: 'Mar', expend: 1800 },
-    { name: 'Apr', expend: 1900 },
-    { name: 'May', expend: 2100 },
-    { name: 'Jun', expend: 1700 },
-    { name: 'Jul', expend: 2200 },
-];
-
 const dataSavings = [
     { name: 'Jan', savings: 1000 },
     { name: 'Feb', savings: 1500 },
@@ -41,6 +31,7 @@ const dataMoneyFlow = [
 
 function FinancePage() {
     const [startDate, setStartDate] = useState(new Date());
+
     const [dataIncome, setDataIncome] = useState([]);
     const [totalIncome, setTotalIncome] = useState(0);
     let newArray = Object.values(dataIncome);
@@ -50,6 +41,12 @@ function FinancePage() {
     const [totalAssets, setTotalAssets] = useState(0);
     let newAssetsArray = Object.values(dataAssets);
     newAssetsArray.unshift({ name: 'dummy', expence: 0 });
+
+    const [dataExpence, setDataExpence] = useState([]);
+    const [totalExpance, setTotalExpance] = useState(0);
+    let newExpanceArray = Object.values(dataExpence);
+    newExpanceArray.unshift({ name: 'dummy', expence: 0 });
+    console.log(totalExpance)
 
     useEffect(() => {
         // Function to fetch the income data
@@ -145,7 +142,55 @@ function FinancePage() {
         fetchMachineData();
     }, []);
 
-    console.log(newAssetsArray);
+    useEffect(() => {
+        // Function to fetch the Material Expences
+        const fetchMaterialExpences = async () => {
+            try {
+                const dispatchInvoicesRef = collection(fireDB, 'Items');
+                const querySnapshot = await getDocs(dispatchInvoicesRef);
+                const dispatchSnapshot = querySnapshot.docs.filter(doc =>
+                    doc.data().status.includes('Stored')
+                );
+
+                // Temporary object to store the sum of expence per month
+                const incomeByMonth = {
+                    '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0, '10': 0,
+                    '11': 0, '12': 0
+                };
+
+                dispatchSnapshot.forEach(doc => {
+                    const invoiceData = doc.data();
+                    const invoiceDate = invoiceData.GRNDate;
+                    const total = parseFloats(invoiceData.GrnInvoicePrice);
+                    
+
+                    let month = invoiceDate.split('-')[1];
+                    month = (parseInt(month, 10)).toString();
+
+                    // Add the total to the corresponding month in the incomeByMonth object
+                    if (incomeByMonth[month] !== undefined) {
+                        incomeByMonth[month] += total;
+                    }
+                });
+
+                // Update dataIncome based on the fetched data
+                const updatedDataIncome = Object.keys(incomeByMonth).map(month => ({
+                    name: month,
+                    expenc: incomeByMonth[month],
+                }));
+
+                setDataExpence(updatedDataIncome);
+
+                // Calculate total income from all months
+                const total = Object.values(incomeByMonth).reduce((acc, curr) => acc + curr, 0);
+                setTotalExpance(total);
+
+            } catch (error) {
+                console.error('Error calculating income:', error);
+            }
+        };
+        fetchMaterialExpences();
+    }, []);
 
 
     return (
@@ -203,16 +248,16 @@ function FinancePage() {
                 <div className="single-card">
                     <div className="icon">
                         <div>
-                            <h3>$1243</h3>
+                            <h3>Rs. {totalExpance}</h3>
                             <p>Total Expend</p>
                         </div>
                         <FaMoneyBillAlt className='icons' />
                     </div>
                     <div className='graph'>
                         <ResponsiveContainer width="100%" height={30}>
-                            <AreaChart data={dataExpend}>
+                            <AreaChart data={dataExpence}>
                                 <Tooltip />
-                                <Area type="monotone" dataKey="expend" stroke="#82ca9d" fill="#82ca9d" />
+                                <Area type="monotone" dataKey="expenc" stroke="#82ca9d" fill="#82ca9d" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
