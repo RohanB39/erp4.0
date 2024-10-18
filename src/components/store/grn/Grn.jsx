@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { fireDB } from "../../firebase/FirebaseConfig";
 import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
+import { useNavigate } from 'react-router-dom';
 import './grn.css';
 
 const Grn = () => {
@@ -19,6 +20,7 @@ const Grn = () => {
   const [items, setItems] = useState([]);
   const [vendorInvoice, setVendorInvoice] = useState('');
   const [GrnInvoicePrice, setGrnInvoicePrice] = useState('');
+  const navigate = useNavigate();
 
   // Generate GRN number when the component mounts
   useEffect(() => {
@@ -136,10 +138,17 @@ const Grn = () => {
     setGrnInvoicePrice(e.target.value);
   };
 
+  const handleButtonClick = () => {
+    navigate('/existing-material-grn');
+  };
+
   return (
     <div className='main' id='main'>
       <div className='grn-page'>
         <h4>GRN Form</h4>
+        <div>
+          <button onClick={handleButtonClick}>Existing</button>
+        </div>
         <form onSubmit={handleSubmit} className='grnForm'>
           <div className='grnSerch'>
             <div className='grnNum'>
@@ -226,7 +235,7 @@ const Grn = () => {
                 value={materialId}
                 onChange={(e) => handleItemSelect(
                   items.find(item => item.id === e.target.value)
-                )} 
+                )}
               >
                 <option value=''>Select Material</option>
                 {items.map(item => (
