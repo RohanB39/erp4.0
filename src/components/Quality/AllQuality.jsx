@@ -3,6 +3,7 @@ import InProcessQuality from './InProcessQuality';
 import FinalQuality from './FinalQuality';
 import InwardQuality from './InwardQuality';
 import AllQualityContent from './AllQualityContent';
+import ExistingMaterialInward from './ExistingMaterialInward';
 
 function AllQuality() {
     const [activeTab, setActiveTab] = useState('AllQuality');
@@ -18,6 +19,8 @@ function AllQuality() {
                 return <FinalQuality />;
             case 'InwardQuality':
                 return <InwardQuality />;
+            case 'existing-material-Inward':
+                return <ExistingMaterialInward />;
             default:
                 return <AllQualityContent />;
         }
@@ -33,6 +36,12 @@ function AllQuality() {
                         onClick={() => setActiveTab('InwardQuality')}
                     >
                         <h3>Inward Quality</h3>
+                    </div>
+                    <div
+                        className="single-production-card"
+                        onClick={() => setActiveTab('existing-material-Inward')}
+                    >
+                        <h3>Existing Material Inward Quality</h3>
                     </div>
                     <div
                         className="single-production-card"
