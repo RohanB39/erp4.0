@@ -307,6 +307,7 @@ const Store = () => {
     const handleEdittt = (rowData) => {
         setEditRowData(rowData);
         setExistingIncomingPopupOpen(true);
+        console.log(rowData);
     };
 
     // Demand Material
