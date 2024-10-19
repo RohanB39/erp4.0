@@ -30,7 +30,6 @@ const dataMoneyFlow = [
 ];
 
 function FinancePage() {
-    const [startDate, setStartDate] = useState(new Date());
 
     const [dataIncome, setDataIncome] = useState([]);
     const [totalIncome, setTotalIncome] = useState(0);
@@ -46,7 +45,6 @@ function FinancePage() {
     const [totalExpance, setTotalExpance] = useState(0);
     let newExpanceArray = Object.values(dataExpence);
     newExpanceArray.unshift({ name: 'dummy', expence: 0 });
-    console.log(totalExpance)
 
     useEffect(() => {
         // Function to fetch the income data
@@ -94,6 +92,14 @@ function FinancePage() {
         };
         fetchIncomeData();
     }, []);
+
+    const currentMonth = new Date().getMonth() + 1;
+    const previousMonth = currentMonth - 1;
+    const currentMonthIncome = newArray.find(item => parseInt(item.name) === currentMonth)?.income || 0;
+    const previousMonthIncome = newArray.find(item => parseInt(item.name) === previousMonth)?.income || 0;
+    const incomeDifference = currentMonthIncome - previousMonthIncome;
+    const incomePercentageChange = previousMonthIncome > 0 ? ((incomeDifference / previousMonthIncome) * 100).toFixed(2) : 0;
+    const incomeChangeIndicator = incomeDifference >= 0 ? `(+${incomePercentageChange}%)` : `(${incomePercentageChange}%)`;
 
     useEffect(() => {
         // Function to fetch the machine data
@@ -161,8 +167,8 @@ function FinancePage() {
                 dispatchSnapshot.forEach(doc => {
                     const invoiceData = doc.data();
                     const invoiceDate = invoiceData.GRNDate;
-                    const total = parseFloats(invoiceData.GrnInvoicePrice);
-                    
+                    const total = parseFloat(invoiceData.GrnInvoicePrice);
+
 
                     let month = invoiceDate.split('-')[1];
                     month = (parseInt(month, 10)).toString();
@@ -192,6 +198,69 @@ function FinancePage() {
         fetchMaterialExpences();
     }, []);
 
+    const [paymentData, setPaymentData] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredPayments, setFilteredPayments] = useState([]);
+
+    useEffect(() => {
+        const fetchPayments = async () => {
+            try {
+                const combinedData = [];
+
+                // Fetching Purchase Orders with status "Stored"
+                const purchaseOrdersRef = collection(fireDB, 'Purchase_Orders');
+                const poQuery = query(purchaseOrdersRef, where('status', '==', 'Stored'));
+                const poSnapshot = await getDocs(poQuery);
+
+                poSnapshot.forEach(doc => {
+                    const poData = doc.data();
+                    combinedData.push({
+                        type: 'purchase_order',
+                        materialName: poData.materialName,
+                        date: poData.poDate,
+                        price: poData.GrnInvoicePrice,
+                    });
+                });
+
+                // Fetching Dispatch Invoices with invStatus "Dispatched"
+                const dispatchInvoicesRef = collection(fireDB, 'Dispatch_Invoices');
+                const dispatchQuery = query(dispatchInvoicesRef, where('invStatus', '==', 'Dispatched'));
+                const dispatchSnapshot = await getDocs(dispatchQuery);
+
+                dispatchSnapshot.forEach(doc => {
+                    const dispatchData = doc.data();
+                    combinedData.push({
+                        type: 'dispatch_invoice',
+                        customer: dispatchData.customer,
+                        date: dispatchData.invoiceDate,
+                        total: dispatchData.total,
+                    });
+                });
+
+                // Sorting the data by date in descending order (most recent first)
+                combinedData.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                setPaymentData(combinedData);
+                setFilteredPayments(combinedData);
+            } catch (error) {
+                console.error('Error fetching payments:', error);
+            }
+        };
+
+        fetchPayments();
+    }, []);
+
+    useEffect(() => {
+        // Filter payments based on search query
+        const filtered = paymentData.filter(payment =>
+            (payment.customer && payment.customer.toLowerCase().includes(searchQuery.toLowerCase())) ||
+            (payment.materialName && payment.materialName.toLowerCase().includes(searchQuery.toLowerCase()))
+        );
+
+        setFilteredPayments(filtered); // Update filteredPayments state
+    }, [searchQuery, paymentData]);
+
+
 
     return (
         <>
@@ -204,14 +273,14 @@ function FinancePage() {
                         </div>
                         <div className='finance-stats'>
                             <div className='left-stats'>
-                                <h3>$4343</h3>
-                                <span>$23232(+2.5%)</span>
+                                <h3>Rs. {currentMonthIncome.toLocaleString()}</h3>
+                                <span>Rs. {Math.abs(incomeDifference).toLocaleString()} {incomeChangeIndicator}</span>
                             </div>
                             <div className='stats'>
                                 {/* <GiReceiveMoney className='icon' /> */}
                                 <div>
-                                    <h2>$3232</h2>
-                                    <span>Income from Investment</span>
+                                    <h2>Rs. {totalAssets}</h2>
+                                    <span>Total Investment</span>
                                 </div>
                             </div>
                             <div className='stats'>
@@ -325,71 +394,29 @@ function FinancePage() {
                         <h3>Recent Payment</h3>
                     </div>
                     <div className="payment-serch">
-                        <input type="text" placeholder='Search Payment' />
-                        <div className="calendar">
-                            {/* <AiOutlineCalendar /> */}
-                            <DatePicker
-                                selected={startDate}
-                                onChange={(date) => setStartDate(date)}
-                                customInput={<AiOutlineCalendar className='icon' />}
-                            />
-                        </div>
+                        <input
+                            type="text"
+                            placeholder='Search Payment'
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
                     </div>
                     <div className="payment-list">
-
-                        <div className='single-payment'>
-                            <div>
-                                <h3>Internet Payment</h3>
-                                <p>07/02/2014</p>
+                        {filteredPayments.map((payment, index) => (
+                            <div className='single-payment' key={index}>
+                                <div>
+                                    <h3>
+                                        {payment.type === 'purchase_order' ? payment.materialName : payment.customer}
+                                    </h3>
+                                    <p>{payment.date}</p>
+                                </div>
+                                <div>
+                                    <h5 style={{ color: payment.type === 'purchase_order' ? 'red' : 'green' }}>
+                                        {payment.type === 'purchase_order' ? `- Rs. ${payment.price}` : `+ Rs. ${payment.total}`}
+                                    </h5>
+                                </div>
                             </div>
-                            <div>
-                                <h5>+$24</h5>
-                                <p>21:43pm</p>
-                            </div>
-                        </div>
-
-
-                        <div className='single-payment'>
-                            <div>
-                                <h3>Internet Payment</h3>
-                                <p>07/02/2014</p>
-                            </div>
-                            <div>
-                                <h5>+$24</h5>
-                                <p>21:43pm</p>
-                            </div>
-                        </div>
-                        <div className='single-payment'>
-                            <div>
-                                <h3>Internet Payment</h3>
-                                <p>07/02/2014</p>
-                            </div>
-                            <div>
-                                <h5>+$24</h5>
-                                <p>21:43pm</p>
-                            </div>
-                        </div>
-                        <div className='single-payment'>
-                            <div>
-                                <h3>Internet Payment</h3>
-                                <p>07/02/2014</p>
-                            </div>
-                            <div>
-                                <h5>+$24</h5>
-                                <p>21:43pm</p>
-                            </div>
-                        </div>
-                        <div className='single-payment'>
-                            <div>
-                                <h3>Internet Payment</h3>
-                                <p>07/02/2014</p>
-                            </div>
-                            <div>
-                                <h5>+$24</h5>
-                                <p>21:43pm</p>
-                            </div>
-                        </div>
-
+                        ))}
                     </div>
                 </div>
             </div>
