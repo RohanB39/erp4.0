@@ -88,9 +88,9 @@ const EditExistingPopup = ({ rowData, onClose }) => {
             });
 
             // 3) Update the "Purchase_Orders" status
-            const purchaseOrderDocRef = doc(db, 'Purchase_Orders', rowData.id); // Find by Purchase Order ID
+            const purchaseOrderDocRef = doc(db, 'Purchase_Orders', rowData.id); 
             await updateDoc(purchaseOrderDocRef, {
-                status: 'Stored', // Update status to Stored
+                status: 'Stored', 
             });
 
             alert('Save successful!');
