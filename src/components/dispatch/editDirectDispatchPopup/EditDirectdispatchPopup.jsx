@@ -88,10 +88,9 @@ const EditDirectdispatchPopup = ({ invoice, onClose }) => {
         <div className="popup">
             <h2>Edit Dispatch Orders</h2>
             <div>
-                <p>Invoice Number: {invoice.invoiceNo}</p>
-                <p>FG Name: {fgNames}</p>
-                <p>FG ID: {fgID}</p>
-                <p>Quantity: {approvedQuantity}</p>
+                <p>Invoice Number: {invoice.dispatchInvoiceNo}</p>
+                <p>FG ID: {invoice.selectedProductId}</p>
+                <p>Quantity: {invoice.quantity}</p>
                 <label>
                     ASN Number:
                     <input
