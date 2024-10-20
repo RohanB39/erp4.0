@@ -45,13 +45,13 @@ function Sidebar() {
                   <ul>
                     <li>
                       <Link to="/customerPO" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                      <i className="bi bi-file-earmark-text"></i>
+                        <i className="bi bi-file-earmark-text"></i>
                         <span>Customer PO</span>
                       </Link>
                     </li>
                     <li>
                       <Link to="/fgInventory" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                      <i className="bi bi-cart"></i>
+                        <i className="bi bi-cart"></i>
                         <span>Vendor PO</span>
                       </Link>
                     </li>
@@ -75,7 +75,7 @@ function Sidebar() {
                     </li>
                     <li>
                       <Link to="/fgInventory" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                      <i className="bi bi-box"></i>
+                        <i className="bi bi-box"></i>
                         <span>FG Inventory</span>
                       </Link>
                     </li>
@@ -118,7 +118,7 @@ function Sidebar() {
                   </li>
                   <li>
                     <Link to="/addMachines" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                    <i class="bi bi-tools"></i>
+                      <i class="bi bi-tools"></i>
                       <span>Add Machines</span>
                     </Link>
                   </li>
@@ -127,16 +127,39 @@ function Sidebar() {
             )}
           </li>
 
-          <li className="nav-item">
-            <Link to="/FinancePage" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-              <i className="bi bi-cash"></i>
-              <span>Finance</span>
-            </Link>
-          </li>
+          
+            <li className="nav-item">
+              <Link to="/FinancePage" className="nav-link" onClick={() => handleToggleSubmenu("finance")}>
+                <i className="bi bi-cash"></i>
+                <span>Finance</span>
+                <i id="chevron" className={`bi bi-chevron-${activeSubmenu === "finance" ? "up" : "down"}`}></i>
+              </Link>
+              {activeSubmenu === "finance" && ( 
+                <div className="submenu show">
+                <ul>
+                  <li>
+                    <Link to="./receivable" className="nav-link" onClick={() => setActiveSubmenu(null)}>
+                      Receivable
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="./payables" className="nav-link" onClick={() => setActiveSubmenu(null)}>
+                      Payable
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/Company-Legder" className="nav-link" onClick={() => setActiveSubmenu(null)}>
+                      Company Leadger
+                    </Link>
+                  </li>
+                </ul>
+                </div>
+              )}
+            </li>
 
           <li className="nav-item">
             <Link to="/Dispach" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-            <i className="bi bi-truck"></i>
+              <i className="bi bi-truck"></i>
               <span>Dispatch</span>
             </Link>
           </li>
@@ -187,7 +210,7 @@ function Sidebar() {
           <hr />
           <li className="nav-item signout">
             <Link to="#" className="nav-link" onClick={handleSignOut}>
-              <i className="bi bi-box-arrow-left"></i> 
+              <i className="bi bi-box-arrow-left"></i>
               <span>Sign Out</span>
             </Link>
           </li>
