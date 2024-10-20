@@ -55,6 +55,9 @@ import FGInventory from './components/store/FGInventory/FGInventory';
 import CustomerPO from './components/purchase/customerPurchaseOrder/CustomerPO';
 import ExistingMaterialGrn from './components/store/grn/existingMaterialGrn/ExistingMaterialGrn';
 import ExistingMaterialInward from './components/Quality/ExistingMaterialInward';
+import Receivables from './components/finance/receivables/Receivables';
+import Payables from './components/finance/payables/Payables';
+import CompanyLegder from './components/finance/companyLegder/CompanyLegder';
 
 
 
@@ -138,6 +141,9 @@ function App() {
                             <Route path="/addMachines" element={<AddMachines />} />
                             <Route path="/existing-material-grn" element={<ExistingMaterialGrn />} />
                             <Route path="/existing-material-Inward" element={<ExistingMaterialInward />} />
+                            <Route path="/receivable" element={<Receivables />} />
+                            <Route path="/payables" element={<Payables />} />
+                            <Route path="/Company-Legder" element={<CompanyLegder />} />
                         </Routes>
                     </div>
                 </>
