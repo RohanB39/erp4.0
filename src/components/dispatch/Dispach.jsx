@@ -16,6 +16,7 @@ function Dispach() {
   const [selectedInvoice, setSelectedInvoice] = useState(null); 
   const [selectedDD, setselectedDD] = useState(null); 
   const db = getFirestore();
+  console.log(selectedDD);
 
   useEffect(() => {
     const fetchProductionOrders = async () => {
@@ -85,7 +86,7 @@ function Dispach() {
     setIsPopupOpen(true);
   };
 
-  const DD = (row) => {
+  const DirectDispatchEditHandle = (row) => {
     setselectedDD(row);
     setisDDPopup(true);
   };
@@ -172,7 +173,7 @@ function Dispach() {
       {
         Header: 'Action',
         accessor: (row) => (
-          <button onClick={() => DD(row)}>Edit</button>
+          <button onClick={() => DirectDispatchEditHandle(row)}>Edit</button>
         ),
       },
     ],
@@ -440,7 +441,7 @@ function Dispach() {
         )}
         {isDDPopup && (
           <EditDirectdispatchPopup
-            invoice={selectedInvoice}
+            invoice={selectedDD}
             onClose={closeDD}
           />
         )}
