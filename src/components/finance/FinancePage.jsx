@@ -9,16 +9,6 @@ import { AiOutlineCalendar } from 'react-icons/ai';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { fireDB, collection, query, where, getDocs } from '../firebase/FirebaseConfig';
 
-const dataSavings = [
-    { name: 'Jan', savings: 1000 },
-    { name: 'Feb', savings: 1500 },
-    { name: 'Mar', savings: 1200 },
-    { name: 'Apr', savings: 1400 },
-    { name: 'May', savings: 1100 },
-    { name: 'Jun', savings: 1300 },
-    { name: 'Jul', savings: 1600 },
-];
-
 const dataMoneyFlow = [
     { name: 'Jan', Internet: 164, Health: 128, Food: 210, Shopping: 180, Vacation: 300 },
     { name: 'Feb', Internet: 200, Health: 150, Food: 220, Shopping: 190, Vacation: 320 },
@@ -334,14 +324,14 @@ function FinancePage() {
                 <div className="single-card">
                     <div className="icon">
                         <div>
-                            <h3>$223</h3>
-                            <p>Total Savings</p>
+                            <h3>Rs. {{totalIncome} - {totalExpance}}</h3>
+                            <p>Total Profit</p>
                         </div>
                         <FaMoneyBillAlt className='icons' />
                     </div>
                     <div className='graph'>
                         <ResponsiveContainer width="100%" height={30}>
-                            <AreaChart data={dataSavings}>
+                            <AreaChart>
                                 <Tooltip />
                                 <Area type="monotone" dataKey="savings" stroke="#ffc658" fill="#ffc658" />
                             </AreaChart>
