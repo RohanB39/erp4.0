@@ -3,10 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { auth, fireDB } from '../firebase/FirebaseConfig.js';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import './loginpage.css';
 import axios from 'axios';
 import stateCityData from '../../cityStateJson/states-and-districts.json';
-
+import style from './login.module.css'
 const countryCodes = [
     { code: '+1', name: 'USA' },
     { code: '+91', name: 'India' },
@@ -209,46 +208,53 @@ function LoginPage({ onLogin }) {
     };
 
     return (
-        <div className='loginpage'>
-            <div className="top-logo">
-                <div className="container">
-                    <h3>ERP</h3>
-                </div>
-            </div>
-            <div className="container">
-                <div className="row login-form">
-                    <div className="col-md-6"></div>
-                    <div className="col-md-5 form-container">
-                        {error && <div className="alert alert-danger">{error}</div>}
-                        {isSignUp ? (
-                            <>
-                                <h3>Create an Account</h3>
-                                <form onSubmit={handleSignUp}>
-                                    <input type="text" name="companyName" required placeholder='Company Name' onChange={handleChange} />
-                                    <input type="email" name="email" placeholder='Email' required onChange={handleChange} />
-                                    {!otpSent && !otpVerified && (
-                                        <button type="button" onClick={sendOtp}>Send OTP</button>
-                                    )}
-                                    {otpSent && !otpVerified && (
-                                        <>
-                                            <input type="text" name="otp" placeholder='Enter OTP' onChange={handleChange} />
-                                            <p className='greenOTPSendText'>OTP Send Successfully...</p>
-                                            {isOtpInvalid && (
-                                                <p className='invalidOTPAleart'>Invalid OTP. Please Try Again.</p>
-                                            )}
-                                            <p
-                                                className='resendButton'
-                                                onClick={sendOtp}
-                                                style={{ pointerEvents: timerActive ? 'none' : 'auto', opacity: timerActive ? 0.5 : 1 }}
-                                            >
-                                                Resend OTP {timeLeft > 0 && `(${formatTime(timeLeft)})`}
-                                            </p>
+        <div className={style.loginpage}>
 
-                                            <button type="button" onClick={verifyOtp}>Verify OTP</button>
-                                        </>
-                                    )}
-                                    {otpVerified && (
-                                        <>
+            <div className={style.loginForm}>
+
+                <div className={style.leftSide}>
+                    <div className={style.logo}>
+                        <h3 className={style.title}>InduFlow</h3>
+                        <p className={style.text}>Empowering Manufacturers with Seamless Process Automation and Control.</p>
+                    </div>
+
+                </div>
+                <div className={style.formContainer}>
+                    {error && <div className="alert alert-danger">{error}</div>}
+                    {isSignUp ? (
+                        <>
+                            <h3 className={style.heading}>Create an Account</h3>
+                            <p className={style.subText}>
+                                Join us today! Fill in your details below to get started and enjoy exclusive benefits.
+                            </p>
+
+                            <form onSubmit={handleSignUp}>
+                                <input type="text" name="companyName" required placeholder='Company Name' onChange={handleChange} />
+                                <input type="email" name="email" placeholder='Email' required onChange={handleChange} />
+                                {!otpSent && !otpVerified && (
+                                    <button type="button" onClick={sendOtp}>Send OTP</button>
+                                )}
+                                {otpSent && !otpVerified && (
+                                    <>
+                                        <input type="text" name="otp" placeholder='Enter OTP' onChange={handleChange} />
+                                        <p className={style.successOtp}>OTP Send Successfully...</p>
+                                        {isOtpInvalid && (
+                                            <p className='invalidOTPAleart'>Invalid OTP. Please Try Again.</p>
+                                        )}
+                                        <p
+                                            className={style.resendOtp}
+                                            onClick={sendOtp}
+                                            style={{ pointerEvents: timerActive ? 'none' : 'auto', opacity: timerActive ? 0.5 : 1 }}
+                                        >
+                                            Resend OTP {timeLeft > 0 && `(${formatTime(timeLeft)})`}
+                                        </p>
+
+                                        <button type="button" onClick={verifyOtp}>Verify OTP</button>
+                                    </>
+                                )}
+                                {otpVerified && (
+                                    <>
+                                        <div className={style.select}>
                                             <select name="country" required onChange={handleChange}>
                                                 <option value="" disabled selected>Select a country</option>
                                                 <option value="India">India</option>
@@ -266,9 +272,13 @@ function LoginPage({ onLogin }) {
                                                 ))}
                                             </select>
                                             <input type="text" name="taluka" required placeholder='Taluka' onChange={handleChange} />
-                                            <input type="text" name="gstNumber" placeholder='GST Number (optional)' onChange={handleChange} />
+                                        </div>
+                                        <input type="text" name="gstNumber" placeholder='GST Number (optional)' onChange={handleChange} />
+                                        <div className={style.subdiv}>
+
+
                                             <select name="countryCode" required onChange={handleChange}>
-                                                <option value="" disabled selected>Select Country Code</option>
+                                                <option value="" disabled selected>+ 91</option>
                                                 {countryCodes.map((country) => (
                                                     <option key={country.code} value={country.code}>
                                                         {country.name} ({country.code})
@@ -276,51 +286,64 @@ function LoginPage({ onLogin }) {
                                                 ))}
                                             </select>
                                             <input type="text" name="contactNumber" required placeholder='Contact Number' onChange={handleChange} />
-                                            <input type="text" name="fax" placeholder='Fax' onChange={handleChange} />
-                                            <input type="password" name="password" required placeholder='Password' onChange={handleChange} />
-                                            <input type="password" name="rePassword" required placeholder='Re-enter Password' onChange={handleChange} />
-                                            <button type='submit'>Sign Up</button>
-                                        </>
-                                    )}
-                                </form>
-                                <div className="form-bottom">
-                                    <p>Already have an account? <span onClick={toggleSignUp}>Sign In</span></p>
+
+                                        </div>
+                                        <input type="text" name="fax" placeholder='Fax' onChange={handleChange} />
+                                        <input type="password" name="password" required placeholder='Password' onChange={handleChange} />
+                                        <input type="password" name="rePassword" required placeholder='Re-enter Password' onChange={handleChange} />
+                                        <button type='submit'>Sign Up</button>
+                                    </>
+                                )}
+                            </form>
+                            <div className={style.bottomFormContent}>
+                                <p>Already have an account? <span onClick={toggleSignUp}>Sign In</span></p>
+                            </div>
+                        </>
+                    ) : isPasswordChange ? (
+                        <>
+                            <h3 className={style.heading}>Change Password</h3>
+                            <p className={style.subText}>
+                                Update your password to keep your account secure. Please enter a new password below.
+                            </p>
+
+                            <form onSubmit={handlePasswordReset}>
+                                <input type="email" name="email" required placeholder='Email' onChange={handleChange} />
+                                <button type='submit'>Change Password</button>
+                            </form>
+                            <div className={style.bottomFormContent}>
+                                <p>Remember your password? <span onClick={togglePasswordChange}>Sign In</span></p>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <h3 className={style.heading}>Hello There</h3>
+                            <p className={style.subText}>
+                                Welcome! Please sign in to continue or create a new account to get started.
+                            </p>
+
+                            <form onSubmit={handleSignIn}>
+                                <input type="email" name="email" required placeholder='Email' onChange={handleChange} />
+                                <input type="password" name="signInPassword" required placeholder='Password' onChange={handleChange} />
+                                <Link
+                                    to=""
+                                    onClick={togglePasswordChange}
+                                    className={style.forgotPasswordLink}
+                                >
+                                    <h6 className={style.forgotPasswordHeading}>Forgot Password?</h6>
+                                </Link>
+                                <button type='submit' >Sign In</button>
+                                <div className={style.bottomFormContent}>
+                                    <p>
+                                        Don't have an account ? <span onClick={toggleSignUp}>Sign Up</span>
+                                    </p>
                                 </div>
-                            </>
-                        ) : isPasswordChange ? (
-                            <>
-                                <h3>Change Password</h3>
-                                <form onSubmit={handlePasswordReset}>
-                                    <input type="email" name="email" required placeholder='Email' onChange={handleChange} />
-                                    <button type='submit'>Change Password</button>
-                                </form>
-                                <div className="form-bottom">
-                                    <p>Remember your password? <span onClick={togglePasswordChange}>Sign In</span></p>
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <h3>Hello There</h3>
-                                <form onSubmit={handleSignIn}>
-                                    <input type="email" name="email" required placeholder='Email' onChange={handleChange} />
-                                    <input type="password" name="signInPassword" required placeholder='Password' onChange={handleChange} />
-                                    <Link to="" onClick={togglePasswordChange}><h6>Forgot Password?</h6></Link>
-                                    <button type='submit'>Sign In</button>
-                                    <div className="form-bottom">
-                                        <p>Don't have an account? <span onClick={toggleSignUp}>Sign Up</span></p>
-                                    </div>
-                                </form>
-                            </>
-                        )}
-                    </div>
+                            </form>
+                        </>
+                    )}
                 </div>
+
             </div>
-            <div className="extra-info">
-                <ul>
-                    <li><a href="">Privacy Policy</a></li>
-                    <li><a href="">Terms & Conditions</a></li>
-                </ul>
-            </div>
+
         </div>
     );
 }
