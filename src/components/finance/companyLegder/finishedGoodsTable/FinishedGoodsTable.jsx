@@ -50,8 +50,6 @@ const FinishedGoodsTable = () => {
             <th>Production Order Id</th>
             <th>Product ID</th>
             <th>Quantity</th>
-            <th>Location</th>
-            <th>Status</th>
           </tr>
         </thead>
         <tbody>
@@ -66,8 +64,6 @@ const FinishedGoodsTable = () => {
                 <td>{item.productionOrderId}</td>
                 <td>{item.selectedProductId}</td>
                 <td>{item.quantity}</td>
-                <td>{item.ml}</td>
-                <td>{item.status}</td>
               </tr>
             ))
           ) : (
