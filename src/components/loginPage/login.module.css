@@ -118,6 +118,7 @@
   display: flex;
   gap: 3.6rem;
   height: 100vh;
+  background: var(--tertiary-dark-bg);
 }
 
 .leftSide {
