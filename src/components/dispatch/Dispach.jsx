@@ -6,6 +6,7 @@ import { fireDB } from '../firebase/FirebaseConfig';
 import './dispach.css';
 import EditInvoicePopup from './editDispatchInvoicePopup/EditInvoicePopup';
 import EditDirectdispatchPopup from './editDirectDispatchPopup/EditDirectdispatchPopup';
+import PaymentUpdatePopup from './paymentUpdatePopup/PaymentUpdatePopup';
 function Dispach() {
   const [dispatchData, setDispatchData] = useState([]);
   const [productionOrdersData, setProductionOrdersData] = useState([]);
@@ -16,7 +17,8 @@ function Dispach() {
   const [selectedInvoice, setSelectedInvoice] = useState(null); 
   const [selectedDD, setselectedDD] = useState(null); 
   const db = getFirestore();
-  console.log(selectedDD);
+  const [isPaymentPopupOpen, setIsPaymentPopupOpen] = useState(false);
+  const [selectedRowData, setSelectedRowData] = useState(null);
 
   useEffect(() => {
     const fetchProductionOrders = async () => {
@@ -101,6 +103,15 @@ function Dispach() {
     setisDDPopup(null);
   };
 
+  const handlePaymentUpdate = (rowData) => {
+    setSelectedRowData(rowData);
+    setIsPaymentPopupOpen(true);
+  };
+
+  const handleClosePopup = () => {
+    setIsPaymentPopupOpen(false);
+  };
+
   const dispatchColumns = useMemo(
     () => [
       {
@@ -134,6 +145,16 @@ function Dispach() {
       {
         Header: 'Amount',
         accessor: row => `${row.total} Rs`
+      },
+      {
+        Header: 'Payment',
+        Cell: ({ row }) => (
+          <button
+            onClick={() => handlePaymentUpdate(row.original)} 
+          >
+            Update Payment Status
+          </button>
+        )
       }
     ],
     []
@@ -445,6 +466,12 @@ function Dispach() {
             onClose={closeDD}
           />
         )}
+        {isPaymentPopupOpen && (
+        <PaymentUpdatePopup
+          rowData={selectedRowData}
+          onClose={handleClosePopup}
+        />
+      )}
       </div>
     </>
   );
