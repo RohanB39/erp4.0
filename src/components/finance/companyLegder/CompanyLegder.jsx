@@ -1,17 +1,22 @@
 import React, { useState } from 'react';
 import './companyLedger.css'; // Import custom CSS file for styling
-import Receivables from '../receivables/Receivables'; // Import the Receivables component
-import Payable from '../payables/Payables'; // Import the Receivables component
 import RawMaterialTable from './rawMaterialTable/RawMaterialTable';
-import FGInventory from '../../store/FGInventory/FGInventory';
 import FinishedGoodsTable from './finishedGoodsTable/FinishedGoodsTable';
 import SalaryTable from './salaryTable/SalarayTable';
+import RecivableTable from '../receivables/recivableTable/RecivableTable';
+import OnlineRecivable from '../receivables/recivableTable/OnlineRecivable';
+import CashRecivable from '../receivables/recivableTable/CashRecivable';
+import PayableTable from '../payables/payableTable/PayableTable';
+import CashPayable from '../payables/payableTable/CashPayable';
+import OnlinePayable from '../payables/payableTable/OnlinePayable';
 
 const CompanyLedger = () => {
   // Set 'salaryPayroll' as the default selected option
   const [selectedOption, setSelectedOption] = useState('salaryPayroll');
-  const [paymentOption, setPaymentOption] = useState(''); 
+  const [paymentOption, setPaymentOption] = useState('');
   const [inventoryOption, setInventoryOption] = useState('');
+  const [documentType, setDocumentType] = useState('');
+  const [payableType, setPayableType] = useState('');
 
   const handleDropdownChange = (event) => {
     setSelectedOption(event.target.value);
@@ -28,6 +33,14 @@ const CompanyLedger = () => {
     setPaymentOption(event.target.value);
   };
 
+  const handleDocumentType = (event) => {
+    setDocumentType(event.target.value);
+  };
+
+  const handlePayableChange = (event) => {
+    setPayableType(event.target.value);
+};
+
   const handleInventoryOptionChange = (event) => {
     setInventoryOption(event.target.value);
   };
@@ -35,56 +48,98 @@ const CompanyLedger = () => {
   return (
     <div id='main'>
       <h1>Company Ledger</h1>
+      <div className='ddContainer'>
+        <div className="dropdown-container">
+          <select
+            id="ledgerOptions"
+            value={selectedOption}
+            onChange={handleDropdownChange}
+            className="custom-dropdown"
+          >
+            <option value="" disabled>Category</option>
+            <option value="payments">Payments</option>
+            <option value="inventoryLedger">Inventory</option>
+            <option value="salaryPayroll">Salary & Payroll</option>
+            <option value="genral">General</option>
+            <option value="sale">Sales</option>
+            <option value="purchase">Purchase</option>
+            <option value="cash">Cash</option>
+            <option value="asset">Asset</option>
+            <option value="project">Project</option>
+          </select>
+        </div>
 
-      <div className="dropdown-container">
-        <select
-          id="ledgerOptions"
-          value={selectedOption}
-          onChange={handleDropdownChange}
-          className="custom-dropdown" // Apply custom styling
-        >
-          <option value="" disabled>Category</option>
-          <option value="payments">Payments</option>
-          <option value="inventoryLedger">Inventory Ledger</option>
-          <option value="salaryPayroll">Salary & Payroll</option>
-        </select>
+        {selectedOption === 'payments' && (
+          <div className="dropdown-container">
+            <select
+              id="paymentOptions"
+              value={paymentOption}
+              onChange={handlePaymentOptionChange}
+              className="custom-dropdown"
+            >
+              <option value="" disabled>Select a payment type</option>
+              <option value="receivable">Receivable</option>
+              <option value="payable">Payable</option>
+            </select>
+          </div>
+        )}
+
+        {/* Conditionally render the "Online or Cash" dropdown when 'receivable' is selected under payments */}
+        {paymentOption === 'receivable' && (
+          <div className="dropdown-container">
+            <select
+              id="Category"
+              value={documentType}
+              onChange={handleDocumentType}
+              className="custom-dropdown"
+            >
+              <option value="" disabled>Select Type</option>
+              <option value="online">Online</option>
+              <option value="cash">Cash</option>
+            </select>
+          </div>
+        )}
+
+        {paymentOption === 'payable' && (
+          <div className="dropdown-container">
+            <select
+              id="category"
+              value={payableType}
+              onChange={handlePayableChange}
+              className="custom-dropdown"
+            >
+              <option value="" disabled>Select Type</option>
+              <option value="online">Online</option>
+              <option value="cash">Cash</option>
+            </select>
+          </div>
+        )}
+
+        {selectedOption === 'inventoryLedger' && (
+          <div className="dropdown-container">
+            <select
+              id="inventoryLedgerOption"
+              value={inventoryOption}
+              onChange={handleInventoryOptionChange}
+              className="custom-dropdown"
+            >
+              <option value="" disabled>Select Material type</option>
+              <option value="rawMaterial">Raw Material</option>
+              <option value="finishedGoods">Finished Goods</option>
+            </select>
+          </div>
+        )}
       </div>
+      {paymentOption === 'receivable' && <RecivableTable />}
+      {paymentOption === 'receivable' && documentType === 'cash' && <CashRecivable />}
+      {paymentOption === 'receivable' && documentType === 'online' && <OnlineRecivable />}
 
-      {selectedOption === 'payments' && (
-        <div className="dropdown-container2">
-          <select
-            id="paymentOptions"
-            value={paymentOption}
-            onChange={handlePaymentOptionChange}
-            className="custom-dropdown"
-          >
-            <option value="" disabled>Select a payment type</option>
-            <option value="receivable">Receivable</option>
-            <option value="payable">Payable</option>
-          </select>
-        </div>
-      )}
-      
-      {paymentOption === 'receivable' && <Receivables />}
-      {paymentOption === 'payable' && <Payable />}
+      {paymentOption === 'payable' && <PayableTable />}
+      {paymentOption === 'payable' && payableType === 'cash' && <CashPayable />}
+      {paymentOption === 'payable' && payableType === 'online' && <OnlinePayable />}
 
-      {selectedOption === 'inventoryLedger' && (
-        <div className="dropdown-container2">
-          <select
-            id="inventoryLedgerOption"
-            value={inventoryOption}
-            onChange={handleInventoryOptionChange}
-            className="custom-dropdown"
-          >
-            <option value="" disabled>Select Material type</option>
-            <option value="rawMaterial">Raw Material</option>
-            <option value="finishedGoods">Finished Goods</option>
-          </select>
-        </div>
-      )}
       {inventoryOption === 'rawMaterial' && <RawMaterialTable />}
       {inventoryOption === 'finishedGoods' && <FinishedGoodsTable />}
-
       {selectedOption === 'salaryPayroll' && <SalaryTable />}
     </div>
   );
