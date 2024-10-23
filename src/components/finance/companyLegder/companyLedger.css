@@ -1,6 +1,10 @@
+.ddContainer {
+  display: flex;
+}
+
 .dropdown-container {
     position: relative;
-    width: 650px;
+    width: auto;
     display: flex;
     align-items: center;
     justify-content: center;
