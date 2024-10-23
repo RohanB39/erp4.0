@@ -7,6 +7,7 @@ import DemandMaterialEdit from '../production/demandMaterial/DemandMaterialEdit'
 import EditDemandMaterialPopup from '../store/editDemandMaterialPopup/EditDemandMaterialPopup';
 import { fireDB } from '../firebase/FirebaseConfig';
 import EditExistingPopup from './editExistingPopup/EditExistingPopup';
+import UpdateExistingPaymentPopup from './updateExistingorderPayment/UpdateExistingPaymentPopup';
 
 
 const Store = () => {
@@ -23,6 +24,8 @@ const Store = () => {
     const [incomingExistingStock, setIncomingExistingStock] = useState([]);
     const [isExistingIncomingPopupOpen, setExistingIncomingPopupOpen] = useState(false);
     const [editRowData, setEditRowData] = useState(null);
+    const [isPaymentStatusPopupOpen, setIsPaymentStatusPopupOpen] = useState(false);
+    const [selectedRowData, setSelectedRowData] = useState(null);
 
 
     const fetchData = async () => {
@@ -269,6 +272,14 @@ const Store = () => {
                 accessor: 'materialName',
             },
             {
+                Header: 'Payments',
+                Cell: ({ row }) => (
+                    <div>
+                        <button onClick={() => handleUpdatePaymentStatus(row.original)}>Payment Status</button>
+                    </div>
+                ),
+            },
+            {
                 Header: 'Actions',
                 Cell: ({ row }) => (
                     <div>
@@ -308,6 +319,17 @@ const Store = () => {
         setEditRowData(rowData);
         setExistingIncomingPopupOpen(true);
         console.log(rowData);
+    };
+
+    const handleUpdatePaymentStatus = (rowData) => {
+        setSelectedRowData(rowData); 
+        setIsPaymentStatusPopupOpen(true);
+    };
+
+    // Function to close the popup
+    const closePaymentPopup = () => {
+        setIsPaymentStatusPopupOpen(false);
+        setSelectedRowData(null);
     };
 
     // Demand Material
@@ -926,6 +948,12 @@ const Store = () => {
                 <EditExistingPopup
                     rowData={editRowData}
                     onClose={() => setExistingIncomingPopupOpen(false)}
+                />
+            )}
+            {isPaymentStatusPopupOpen && (
+                <UpdateExistingPaymentPopup 
+                    rowData={selectedRowData}
+                    onClose={closePaymentPopup}
                 />
             )}
         </>
