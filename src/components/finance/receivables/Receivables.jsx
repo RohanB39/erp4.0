@@ -10,7 +10,7 @@ const Receivables = () => {
       try {
         const q = query(
           collection(fireDB, "Dispatch_Invoices"), 
-          where("invStatus", "==", "Dispatched")
+          where("invStatus", "==", "Payment successful")
         );
         const querySnapshot = await getDocs(q);
         const invoicesData = [];
