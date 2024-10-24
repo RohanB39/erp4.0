@@ -9,6 +9,8 @@ import CashRecivable from '../receivables/recivableTable/CashRecivable';
 import PayableTable from '../payables/payableTable/PayableTable';
 import CashPayable from '../payables/payableTable/CashPayable';
 import OnlinePayable from '../payables/payableTable/OnlinePayable';
+import CashFlow from './cash/CashFlow';
+import AssetsTable from './assetsTable/AssetsTable';
 
 const CompanyLedger = () => {
   // Set 'salaryPayroll' as the default selected option
@@ -17,6 +19,7 @@ const CompanyLedger = () => {
   const [inventoryOption, setInventoryOption] = useState('');
   const [documentType, setDocumentType] = useState('');
   const [payableType, setPayableType] = useState('');
+  const [assetsOption, setAssetsOption] = useState('');
 
   const handleDropdownChange = (event) => {
     setSelectedOption(event.target.value);
@@ -45,6 +48,10 @@ const CompanyLedger = () => {
     setInventoryOption(event.target.value);
   };
 
+  const handleIAssetsptionChange = (event) => {
+    setAssetsOption(event.target.value);
+  };
+
   return (
     <div id='main'>
       <h1>Company Ledger</h1>
@@ -61,8 +68,6 @@ const CompanyLedger = () => {
             <option value="inventoryLedger">Inventory</option>
             <option value="salaryPayroll">Salary & Payroll</option>
             <option value="genral">General</option>
-            <option value="sale">Sales</option>
-            <option value="purchase">Purchase</option>
             <option value="cash">Cash</option>
             <option value="asset">Asset</option>
             <option value="project">Project</option>
@@ -129,7 +134,25 @@ const CompanyLedger = () => {
             </select>
           </div>
         )}
+
+        {selectedOption === 'asset' && (
+          <div className="dropdown-container">
+            <select
+              id="assetsledgeroption"
+              value={assetsOption}
+              onChange={handleIAssetsptionChange}
+              className="custom-dropdown"
+            >
+              <option value="" disabled>Select Assets type</option>
+              <option value="active">Active</option>
+              <option value="inActive">Inactive</option>
+              <option value="um">Under Maintainance</option>
+            </select>
+          </div>
+        )}
       </div>
+
+
       {paymentOption === 'receivable' && <RecivableTable />}
       {paymentOption === 'receivable' && documentType === 'cash' && <CashRecivable />}
       {paymentOption === 'receivable' && documentType === 'online' && <OnlineRecivable />}
@@ -141,6 +164,11 @@ const CompanyLedger = () => {
       {inventoryOption === 'rawMaterial' && <RawMaterialTable />}
       {inventoryOption === 'finishedGoods' && <FinishedGoodsTable />}
       {selectedOption === 'salaryPayroll' && <SalaryTable />}
+      {selectedOption === 'cash' && <CashFlow />}
+
+      {selectedOption === 'assets' && <AssetsTable />}
+
+
     </div>
   );
 };
