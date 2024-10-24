@@ -11,6 +11,9 @@ import CashPayable from '../payables/payableTable/CashPayable';
 import OnlinePayable from '../payables/payableTable/OnlinePayable';
 import CashFlow from './cash/CashFlow';
 import AssetsTable from './assetsTable/AssetsTable';
+import ActiveAssets from './assetsTable/AssetsOptions/ActiveAssets';
+import InactiveAssets from './assetsTable/AssetsOptions/InactiveAssets';
+import UnderMaintainanceAssets from './assetsTable/AssetsOptions/UnderMaintainanceAssets';
 
 const CompanyLedger = () => {
   // Set 'salaryPayroll' as the default selected option
@@ -70,7 +73,6 @@ const CompanyLedger = () => {
             <option value="genral">General</option>
             <option value="cash">Cash</option>
             <option value="asset">Asset</option>
-            <option value="project">Project</option>
           </select>
         </div>
 
@@ -166,9 +168,10 @@ const CompanyLedger = () => {
       {selectedOption === 'salaryPayroll' && <SalaryTable />}
       {selectedOption === 'cash' && <CashFlow />}
 
-      {selectedOption === 'assets' && <AssetsTable />}
-
-
+      {selectedOption === 'asset' && <AssetsTable />}
+      {selectedOption === 'asset' && assetsOption === 'active' && <ActiveAssets />}
+      {selectedOption === 'asset' && assetsOption === 'inActive' && <InactiveAssets />}
+      {selectedOption === 'asset' && assetsOption === 'um' && <UnderMaintainanceAssets />}
     </div>
   );
 };
