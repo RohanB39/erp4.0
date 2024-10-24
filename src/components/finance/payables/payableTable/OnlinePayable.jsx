@@ -5,6 +5,7 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 const OnlinePayable = () => {
     const [receivables, setReceivables] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [totalAmount, setTotalAmount] = useState(0);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -25,6 +26,13 @@ const OnlinePayable = () => {
                     );
 
                 setReceivables(receivablesData);
+                const total = receivablesData.reduce((acc, receivable) => {
+                    // Parse amount as a float and handle cases where amount might not be a number
+                    const amount = parseFloat(receivable.GrnInvoicePrice);
+                    return acc + (isNaN(amount) ? 0 : amount); // Only add if it's a valid number
+                }, 0);
+    
+                setTotalAmount(total);
             } catch (error) {
                 console.error("Error fetching receivables: ", error);
             } finally {
@@ -42,6 +50,22 @@ const OnlinePayable = () => {
   return (
     <div>
             <h2>Online Payment</h2>
+            <div style={{
+                padding: '20px',
+                margin: '20px 0',
+                backgroundColor: '#f9f9f9',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+                textAlign: 'center',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                color: '#333',
+                width: '30%',
+                color: 'red',
+            }}>
+                Total Online Debit : {totalAmount.toFixed(2)} Rs
+            </div>
             <table>
                 <thead>
                     <tr>
