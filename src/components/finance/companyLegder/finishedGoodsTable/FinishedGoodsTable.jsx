@@ -5,17 +5,19 @@ const FinishedGoodsTable = () => {
   const [inventoryData, setInventoryData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [totalItemsCount, setTotalItemsCount] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const productionOrdersRef = collection(fireDB, 'Production_Orders');
         const q = query(
-          productionOrdersRef, 
+          productionOrdersRef,
           where('productionStatus', '==', 'Packaging done, added to inventory'),
           where('dispatchOrInventory', '==', 'Inventory')
         );
         const querySnapshot = await getDocs(q);
+        setTotalItemsCount(querySnapshot.size);
         const data = querySnapshot.docs.map((doc, index) => ({
           id: doc.id,
           srNo: index + 1,
@@ -43,6 +45,26 @@ const FinishedGoodsTable = () => {
 
   return (
     <div className='main'>
+      <div style={{
+        display: 'flex',
+      }}>
+        <div style={{
+          padding: '20px',
+          margin: '20px 0px',
+          marginRight: '10px',
+          backgroundColor: '#f9f9f9',
+          border: '1px solid #ddd',
+          borderRadius: '8px',
+          boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+          textAlign: 'center',
+          fontSize: '18px',
+          fontWeight: 'bold',
+          color: '#333',
+          width: '30%',
+        }}>
+          Total Finished Goods : {totalItemsCount}
+        </div>
+      </div>
       <table className="inventory-table">
         <thead>
           <tr>
