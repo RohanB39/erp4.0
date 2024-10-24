@@ -136,6 +136,7 @@ const RawMaterialTable = () => {
                     fontWeight: 'bold',
                     color: '#333',
                     width: '35%',
+                    color: 'red',
                 }}>
                     Raw Material Expenses : {totalAmount.toFixed(2)} Rs
                 </div>
