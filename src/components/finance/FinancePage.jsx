@@ -40,8 +40,8 @@ function FinancePage() {
         // Function to fetch the income data
         const fetchIncomeData = async () => {
             try {
-                const dispatchInvoicesRef = collection(fireDB, 'Dispatch_Invoices');
-                const dispatchQuery = query(dispatchInvoicesRef, where('invStatus', '==', 'Dispatched'));
+                const dispatchInvoicesRef = collection(fireDB, 'Receivable_Ledger');
+                const dispatchQuery = query(dispatchInvoicesRef, where('receivableLedgerstatus', '==', 'Payment Done'));
                 const dispatchSnapshot = await getDocs(dispatchQuery);
 
                 // Temporary object to store the sum of income per month
@@ -52,8 +52,8 @@ function FinancePage() {
 
                 dispatchSnapshot.forEach(doc => {
                     const invoiceData = doc.data();
-                    const invoiceDate = invoiceData.invoiceDate;
-                    const total = parseFloat(invoiceData.total);
+                    const invoiceDate = invoiceData.dispatchDate;
+                    const total = parseFloat(invoiceData.amount);
 
                     let month = invoiceDate.split('-')[1];
                     month = (parseInt(month, 10)).toString();
@@ -251,6 +251,7 @@ function FinancePage() {
     }, [searchQuery, paymentData]);
 
 
+    const profitOrLoss = totalIncome - totalExpance;
 
     return (
         <>
@@ -308,7 +309,7 @@ function FinancePage() {
                     <div className="icon">
                         <div>
                             <h3>Rs. {totalExpance}</h3>
-                            <p>Total Expend</p>
+                            <p>Total Expence</p>
                         </div>
                         <FaMoneyBillAlt className='icons' />
                     </div>
@@ -324,14 +325,16 @@ function FinancePage() {
                 <div className="single-card">
                     <div className="icon">
                         <div>
-                            <h3>Rs. {{totalIncome} - {totalExpance}}</h3>
-                            <p>Total Profit</p>
+                            <h3 style={{ color: profitOrLoss >= 0 ? 'green' : 'red' }}>
+                                {profitOrLoss >= 0 ? '+' : '-'} Rs. {Math.abs(profitOrLoss)}
+                            </h3>
+                            <p>Total Profit/Loss</p>
                         </div>
                         <FaMoneyBillAlt className='icons' />
                     </div>
                     <div className='graph'>
                         <ResponsiveContainer width="100%" height={30}>
-                            <AreaChart>
+                            <AreaChart data={[{ savings: profitOrLoss }]}>
                                 <Tooltip />
                                 <Area type="monotone" dataKey="savings" stroke="#ffc658" fill="#ffc658" />
                             </AreaChart>
