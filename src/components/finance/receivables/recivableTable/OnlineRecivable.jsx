@@ -62,8 +62,9 @@ const OnlineRecivable = () => {
                 fontWeight: 'bold',
                 color: '#333',
                 width: '30%',
+                color: 'green',
             }}>
-                Total Credit : {totalAmount.toFixed(2)} Rs
+                Total Online Credit : {totalAmount.toFixed(2)} Rs
             </div>
             <table>
                 <thead>
