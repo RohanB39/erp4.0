@@ -17,6 +17,8 @@ const AddMachines = () => {
   const [operatingLocation, setOperatingLocation] = useState('');
   const [machineStatus, setMachineStatus] = useState('');
   const [machinePrice, setMachinePrice] = useState('');
+  const [vendorInvoice, setVendorInvoice] = useState('');
+  const [paymentStatus, setPaymentStatus] = useState('');
 
   const machineTypes = [
     "Lathe Machine",
@@ -153,6 +155,8 @@ const AddMachines = () => {
   const handleoperationLocationChange = (e) => setOperatingLocation(e.target.value);
   const handleMachineStatus = (e) => setMachineStatus(e.target.value);
   const handleMachinePriceChange = (e) => setMachinePrice(e.target.value);
+  const handleVendorInvoiceChange = (e) => setVendorInvoice(e.target.value);
+  const handlePaymentStatus = (e) => setPaymentStatus(e.target.value);
 
   const handleSaveMachine = async () => {
     const db = getFirestore(app);
@@ -167,7 +171,9 @@ const AddMachines = () => {
       purchaseDate,
       installationDate,
       operatingLocation,
+      vendorInvoice,
       machinePrice,
+      paymentStatus,
       machineStatus,
     };
 
@@ -328,7 +334,20 @@ const AddMachines = () => {
               required
             />
           </div>
-          
+
+          <div>
+            <label htmlFor="vendorInvoice">Vendor Invoice:</label>
+            <input
+              type="text"
+              id="vendorInvoice"
+              value={vendorInvoice}
+              onChange={handleVendorInvoiceChange}
+              placeholder="Enter Invoice Number"
+              style={{ marginRight: '10px' }}
+              required
+            />
+          </div>
+
           <div>
             <label htmlFor="ManufacturerName">Machine Price:</label>
             <input
@@ -341,6 +360,23 @@ const AddMachines = () => {
               required
             />
           </div>
+
+          <div>
+            <label htmlFor="paymentStatus">Payment Status:</label>
+            <select
+              id="payment"
+              value={paymentStatus}
+              onChange={handlePaymentStatus}
+            >
+              <option value="" disabled>Select Payment Status</option>
+              <option value="cash" >Cash</option>
+              <option value="internetBanking">Internet Banking</option>
+              <option value="upi">UPI</option>
+              <option value="creditCard">Credit Card</option>
+              <option value="debitCard">Debit Card</option>
+            </select>
+          </div>
+
           <div>
             <label htmlFor="machineName">Machine Status:</label>
             <select
