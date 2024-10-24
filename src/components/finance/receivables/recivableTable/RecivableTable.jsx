@@ -43,7 +43,7 @@ const RecivableTable = () => {
 
     return (
         <div>
-            <h2>Receivable Ledger</h2>
+            <h2>Receivable</h2>
             <div style={{
                 padding: '20px',
                 margin: '20px 0',
@@ -56,6 +56,7 @@ const RecivableTable = () => {
                 fontWeight: 'bold',
                 color: '#333',
                 width: '30%',
+                color: 'green',
             }}>
                 Total Credit : {totalAmount.toFixed(2)} Rs
             </div>
