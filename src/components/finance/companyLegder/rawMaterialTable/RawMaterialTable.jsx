@@ -6,11 +6,13 @@ import { fireDB } from '../../../firebase/FirebaseConfig';
 import { useNavigate } from 'react-router-dom';
 
 const RawMaterialTable = () => {
-    const [data, setData] = useState([]);
-    const [purchaseStock, setPurchaseStock] = useState([]); // Corrected variable name
+    const [purchaseStock, setPurchaseStock] = useState([]);
     const navigate = useNavigate();
     const [totalItemsCount, setTotalItemsCount] = useState(0);
     const [hold, setHold] = useState(0);
+    const [totalAmount, setTotalAmount] = useState(0);
+    const [filteredData, setFilteredData] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -34,6 +36,13 @@ const RawMaterialTable = () => {
                 const purchaseSnapshot = await getDocs(purchaseQuery);
                 const purchaseMaterial = purchaseSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 setPurchaseStock(purchaseMaterial); // Setting data for the table
+                setFilteredData(purchaseMaterial);
+                const total = purchaseMaterial.reduce((acc, material) => {
+                    const amount = parseFloat(material.GrnInvoicePrice);
+                    return acc + (isNaN(amount) ? 0 : amount); // Only add if it's a valid number
+                }, 0);
+
+                setTotalAmount(total);
             } catch (error) {
                 console.error("Error fetching data: ", error);
             }
@@ -42,6 +51,20 @@ const RawMaterialTable = () => {
         fetchData();
     }, []);
 
+    const handleSearch = (e) => {
+        const query = e.target.value.toLowerCase();
+        setSearchQuery(query);
+
+        // Filter based on vendorName or materialName
+        const filtered = purchaseStock.filter(item => {
+            const vendorName = item.vendorName?.toLowerCase() || "";
+            const materialName = item.materialName?.toLowerCase() || "";
+            return vendorName.includes(query) || materialName.includes(query);
+        });
+
+        setFilteredData(filtered);
+    };
+
     // Define columns for the table
     const purchasecolumns = useMemo(
         () => [
@@ -49,7 +72,6 @@ const RawMaterialTable = () => {
             { Header: 'MID', accessor: 'materialId' },
             { Header: 'Name', accessor: 'materialName' },
             { Header: 'Invoice Details', accessor: 'vendorInvoice' },
-            { Header: 'Status', accessor: 'status' },
             { Header: 'Vendor & Details', accessor: 'vendorName' },
             { Header: 'Amount', accessor: 'GrnInvoicePrice' },
         ],
@@ -74,7 +96,7 @@ const RawMaterialTable = () => {
     } = useTable(
         {
             columns: purchasecolumns,
-            data: purchaseStock, // Corrected data source
+            data: filteredData,
             initialState: { pageIndex: 0 },
         },
         usePagination
@@ -82,6 +104,58 @@ const RawMaterialTable = () => {
 
     return (
         <div className='main'>
+            <div style={{
+                display: 'flex',
+            }}>
+                <div style={{
+                    padding: '20px',
+                    margin: '20px 0px',
+                    marginRight: '10px',
+                    backgroundColor: '#f9f9f9',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+                    textAlign: 'center',
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    color: '#333',
+                    width: '30%',
+                }}>
+                    Total Items Present : {totalItemsCount}
+                </div>
+
+                <div style={{
+                    padding: '20px',
+                    margin: '20px 0',
+                    backgroundColor: '#f9f9f9',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+                    textAlign: 'center',
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    color: '#333',
+                    width: '35%',
+                }}>
+                    Raw Material Expenses : {totalAmount.toFixed(2)} Rs
+                </div>
+
+                <div style={{
+                    margin: '20px 10px',
+                    width: '25%',
+                }}>
+                    <input
+                        type='text'
+                        placeholder='Search By Vendor & Material'
+                        value={searchQuery}
+                        onChange={handleSearch}
+                        style={{
+                            width: '100%',
+                            height: '70%',
+                        }}
+                    />
+                </div>
+            </div>
             <div className="process-item-list">
                 <table {...getPurchaseTableProps()}>
                     <thead>
