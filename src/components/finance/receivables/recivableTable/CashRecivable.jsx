@@ -60,8 +60,9 @@ const CashRecivable = () => {
                 fontWeight: 'bold',
                 color: '#333',
                 width: '30%',
+                color: 'green',
             }}>
-                Total Cash : {totalAmount.toFixed(2)} Rs
+                Total Cash Credit : {totalAmount.toFixed(2)} Rs
             </div>
             <table>
                 <thead>
