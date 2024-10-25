@@ -74,9 +74,6 @@ const Store = () => {
             console.error("Error fetching materials: ", error);
         }
     };
-
-
-
     useEffect(() => {
         fetchData();
     }, []);
