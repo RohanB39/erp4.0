@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, fireDB } from '../../../firebase/FirebaseConfig'; // Make sure to adjust the import path
+import { collection, getDocs, fireDB } from '../../../firebase/FirebaseConfig';
 
 const AssetsTable = () => {
   const [machines, setMachines] = useState([]);
