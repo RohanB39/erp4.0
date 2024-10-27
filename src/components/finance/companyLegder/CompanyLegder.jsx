@@ -1,5 +1,5 @@
-// import React, { useState } from 'react';
-import './companyLedger.css'; // Import custom CSS file for styling
+import React, { useState } from 'react';
+import './companyLedger.css';
 import RawMaterialTable from './rawMaterialTable/RawMaterialTable';
 import FinishedGoodsTable from './finishedGoodsTable/FinishedGoodsTable';
 import SalaryTable from './salaryTable/SalarayTable';
@@ -14,10 +14,13 @@ import AssetsTable from './assetsTable/AssetsTable';
 import ActiveAssets from './assetsTable/AssetsOptions/ActiveAssets';
 import InactiveAssets from './assetsTable/AssetsOptions/InactiveAssets';
 import UnderMaintainanceAssets from './assetsTable/AssetsOptions/UnderMaintainanceAssets';
+import GenralLegder from './GenralLegder/GenralLegder';
+import SaleTable from './SaleTable/SaleTable';
+import PurchaseTable from './PurchaseTable/PurchaseTable';
 
 const CompanyLedger = () => {
   // Set 'salaryPayroll' as the default selected option
-  const [selectedOption, setSelectedOption] = useState('salaryPayroll');
+  const [selectedOption, setSelectedOption] = useState('genral');
   const [paymentOption, setPaymentOption] = useState('');
   const [inventoryOption, setInventoryOption] = useState('');
   const [documentType, setDocumentType] = useState('');
@@ -72,6 +75,8 @@ const CompanyLedger = () => {
             <option value="salaryPayroll">Salary & Payroll</option>
             <option value="genral">General</option>
             <option value="cash">Cash</option>
+            <option value="sale">Sale</option>
+            <option value="purchase">Purchase</option>
             <option value="asset">Asset</option>
           </select>
         </div>
@@ -172,6 +177,11 @@ const CompanyLedger = () => {
       {selectedOption === 'asset' && assetsOption === 'active' && <ActiveAssets />}
       {selectedOption === 'asset' && assetsOption === 'inActive' && <InactiveAssets />}
       {selectedOption === 'asset' && assetsOption === 'um' && <UnderMaintainanceAssets />}
+
+      {selectedOption === 'genral' && <GenralLegder />}
+      {selectedOption === 'sale' && <SaleTable />}
+      {selectedOption === 'purchase' && <PurchaseTable />}
+
     </div>
   );
 };
