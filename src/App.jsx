@@ -58,6 +58,7 @@ import ExistingMaterialInward from './components/Quality/ExistingMaterialInward'
 import Receivables from './components/finance/receivables/Receivables';
 import Payables from './components/finance/payables/Payables';
 import CompanyLegder from './components/finance/companyLegder/CompanyLegder';
+import EmployeeLogin from './components/hr/EmployeeLogin/EmployeeLogin';
 
 
 
@@ -144,6 +145,7 @@ function App() {
                             <Route path="/receivable" element={<Receivables />} />
                             <Route path="/payables" element={<Payables />} />
                             <Route path="/Company-Legder" element={<CompanyLegder />} />
+                            <Route path="/EmployeeLogin" element={<EmployeeLogin />} />
                         </Routes>
                     </div>
                 </>
