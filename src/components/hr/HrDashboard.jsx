@@ -17,7 +17,7 @@ function HrDashboard() {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const querySnapshot = await getDocs(collection(fireDB, "employees")); // Ensure your collection is named correctly
+                const querySnapshot = await getDocs(collection(fireDB, "employees")); 
                 const employeesData = querySnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data(),
@@ -58,15 +58,15 @@ function HrDashboard() {
             },
             {
                 Header: 'Name',
-                accessor: 'personalInfo.firstName', // Accessing nested data from the employee object
+                accessor: 'personalInfo.firstName',
             },
             {
-                Header: 'Position',
-                accessor: 'companyDetails.position',
+                Header: 'Email',
+                accessor: 'personalInfo.personalEmail',
             },
             {
                 Header: 'Status',
-                accessor: 'status', // Adjust if your employee object has a different structure
+                accessor: 'Status', 
             },
             {
                 Header: 'Action',
@@ -107,7 +107,11 @@ function HrDashboard() {
     );
 
     const handleAddEmployeeClick = () => {
-        navigate('/add-employee'); // Navigate to the AddEmployee page
+        navigate('/add-employee'); 
+    };
+
+    const handleEmployeeLoginClick = () => {
+        navigate('/EmployeeLogin'); 
     };
 
     return (
@@ -154,7 +158,8 @@ function HrDashboard() {
                             <input type="text" placeholder='Search Employee' />
                         </div>
                         <div className="add-employee-btn">
-                            <button onClick={handleAddEmployeeClick}> <IoIosPersonAdd className='add-icon' />Add Employee</button>
+                            {/* <button onClick={handleAddEmployeeClick}> <IoIosPersonAdd className='add-icon' />Add Employee</button> */}
+                            <button onClick={handleEmployeeLoginClick}> <IoIosPersonAdd className='add-icon' />Create Employee Login</button>
                         </div>
                     </div>
                     <div className="employee-list">
