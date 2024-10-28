@@ -102,6 +102,10 @@ body {
   width: 360px;
 }
 
+.add-employee-btn {
+  display: flex;
+}
+
 .employee-profile .add-employee-btn button {
   background-color: var(--btn-bg2);
   color: black;
