@@ -1,0 +1,28 @@
+.salary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+.salary-table th,
+.salary-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.salary-table th {
+  background-color: #f2f2f2;
+  text-align: center;
+}
+
+.add-salary-btn {
+  padding: 5px 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.add-salary-btn:hover {
+  background-color: #45a049;
+}
