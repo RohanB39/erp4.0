@@ -105,7 +105,7 @@ const EmployeeLogin = () => {
           />
         </div>
 
-        <button type="submit" className="submit-btn">Save</button>
+        <button type="submit" className="submit-btn">Create</button>
       </form>
     </div>
   );
