@@ -25,11 +25,14 @@ function DispachInvoice() {
     const [file, setFile] = useState(null);
     const [customerID, setCustomerID] = useState('');
     const navigate = useNavigate();
-    const [tdsChecked, setTdsChecked] = useState(false);
     const [vatChecked, setVatChecked] = useState(false);
-    const [tdsValue, setTdsValue] = useState('');
     const [vatValue, setVatValue] = useState('');
-
+    const [isIgstChecked, setIsIgstChecked] = useState(false);
+    const [isCgstChecked, setIsCgstChecked] = useState(false);
+    const [isSgstChecked, setIsSgstChecked] = useState(false);
+    const [cgstValue, setCgstValue] = useState('');
+    const [sgstValue, setSgstValue] = useState('');
+    const [igstValue, setIgstValue] = useState('');
     useEffect(() => {
         const fetchCustomers = async () => {
             const customersCollection = collection(fireDB, 'customers');
@@ -53,11 +56,22 @@ function DispachInvoice() {
         const discountValue = parseFloat(discount) || 0;
         const advanceValue = parseFloat(advance) || 0;
         const discountAmount = (subTotal * (discountValue / 100)).toFixed(2);
-        const tdsAmount = tdsChecked ? (subTotal * (parseFloat(tdsValue) / 100)).toFixed(2) : 0;
-        const vatAmount = vatChecked ? (subTotal * (parseFloat(vatValue) / 100)).toFixed(2) : 0;
-        const calculatedTotal = subTotal - discountAmount + parseFloat(vatAmount) + parseFloat(tdsAmount) - advanceValue;
-        setTotal(calculatedTotal.toFixed(2));
-    }, [subTotal, discount, advance, tdsChecked, vatChecked, tdsValue, vatValue]);
+        const vatAmount = vatChecked ? ((subTotal / 100) * parseFloat(vatValue || 0)).toFixed(2) : 0;
+        const igstAmount = isIgstChecked ? (subTotal * 0.28).toFixed(2) : 0; // Calculate IGST based on subtotal
+        const cgstAmount = isCgstChecked ? ((subTotal / 100) * parseFloat(cgstValue || 0)).toFixed(2) : 0; // Calculate CGST
+        const sgstAmount = isSgstChecked ? ((subTotal / 100) * parseFloat(sgstValue || 0)).toFixed(2) : 0;
+        // Calculate total, including all components
+        const calculatedTotal = (subTotal 
+            - discountAmount 
+            + parseFloat(vatAmount) 
+            + parseFloat(igstAmount) 
+            + parseFloat(cgstAmount)
+            + parseFloat(sgstAmount)
+            - advanceValue
+        ).toFixed(2);
+    
+        setTotal(calculatedTotal);
+    }, [subTotal, discount, advance, vatChecked, vatValue, isIgstChecked, cgstValue, isCgstChecked, sgstValue, isSgstChecked]);
 
     const fetchOrderItems = async (selectedOrderID) => {
         const orderDocRef = doc(fireDB, 'Customer_Purchase_Orders', selectedOrderID);
@@ -87,7 +101,6 @@ function DispachInvoice() {
     };
 
     const handleSalespersonChange = (e) => {
-        console.log("Selected salesperson:", e.target.value);
         setSalesperson(e.target.value);
     };
 
@@ -155,23 +168,16 @@ function DispachInvoice() {
         const fetchLatestInvoiceNo = async () => {
             try {
                 // Fetching the invoices collection
-                const invoicesRef = collection(fireDB, 'Dispatch_Invoices'); // Your Firestore collection name
+                const invoicesRef = collection(fireDB, 'Dispatch_Invoices');
                 const invoiceSnapshot = await getDocs(invoicesRef);
-                const invoiceList = invoiceSnapshot.docs.map(doc => doc.id); // Assuming doc.id is the invoice number
-
-                console.log("Fetched Invoice IDs:", invoiceList); // Debugging: Check if the invoice IDs are being fetched
-
+                const invoiceList = invoiceSnapshot.docs.map(doc => doc.id);
                 // Sorting the invoice numbers and getting the latest one
                 if (invoiceList.length > 0) {
-                    const latestInvoiceNo = invoiceList.sort().pop(); // Sorts and picks the last one
-                    console.log("Latest Invoice Number:", latestInvoiceNo); // Debugging: Check the latest invoice number
-
+                    const latestInvoiceNo = invoiceList.sort().pop();
                     const newInvoiceNo = generateInvoiceNumber(latestInvoiceNo);
-                    console.log("Generated New Invoice Number:", newInvoiceNo); // Debugging: Check the generated invoice number
-                    setInvoiceNo(newInvoiceNo); // Setting the new invoice number
+                    setInvoiceNo(newInvoiceNo);
                 } else {
-                    // If no invoices are found, start with "INV-00001"
-                    console.log("No invoices found, starting with INV-00001"); // Debugging: Case when no invoices exist
+                    console.log("No invoices found, starting with INV-00001");
                     setInvoiceNo('INV-00001');
                 }
             } catch (error) {
@@ -179,33 +185,26 @@ function DispachInvoice() {
             }
         };
 
-        fetchLatestInvoiceNo(); // Call the function to fetch and set the new invoice number
+        fetchLatestInvoiceNo();
     }, []);
 
-    const handleQuantityChange = async (index, newQuantity) => {
-        const updatedItems = [...items];
-        const id = updatedItems[index].id;
+    const handleQuantityChange = (index, newQuantity) => {
+        setItems(prevItems => {
+            return prevItems.map((item, i) => {
+                if (i === index) {
+                    // Update the quantity and recalculate the amount
+                    const updatedQuantity = Number(newQuantity);
+                    const updatedAmount = updatedQuantity * item.rate;
 
-        try {
-            const orderDocRef = doc(fireDB, 'Customer_Purchase_Orders', id);
-            const orderDoc = await getDoc(orderDocRef);
-
-            if (orderDoc.exists()) {
-                const grandTotal = orderDoc.data().grandTotal;
-                const originalQty = orderDoc.data().quantity;
-                const initialAmount = grandTotal / originalQty;
-                const newAmount = initialAmount * newQuantity;
-                updatedItems[index].amount = newAmount;
-                const approvedQuantities = items.map(item => item.quantity);
-                console.log(approvedQuantities);
-            } else {
-                console.log("No matching document found for ID:", id);
-            }
-        } catch (error) {
-            console.error("Error fetching document:", error);
-        }
-        updatedItems[index].quantity = newQuantity;
-        setItems(updatedItems);
+                    return {
+                        ...item,
+                        quantity: updatedQuantity,
+                        amount: updatedAmount,
+                    };
+                }
+                return item;
+            });
+        });
     };
 
     const handleSave = async () => {
@@ -227,8 +226,10 @@ function DispachInvoice() {
                     amount: item.amount,
                 })),
                 discount,
-                tdsValue,
                 vatValue,
+                cgstValue,
+                sgstValue,
+                igstValue,
                 advance: advance || '0',
                 total,
                 subTotal,
@@ -261,22 +262,35 @@ function DispachInvoice() {
         navigate('/Dispach');
     };
 
-    const handleTdsChange = (e) => {
-        setTdsChecked(e.target.checked);
-        setVatChecked(false); // Uncheck VAT and disable it when TDS is checked
-    };
-
     const handleVatChange = (e) => {
         setVatChecked(e.target.checked);
-        setTdsChecked(false); // Uncheck TDS and disable it when VAT is checked
-    };
-
-    const handleTdsValueChange = (e) => {
-        setTdsValue(e.target.value);
     };
 
     const handleVatValueChange = (e) => {
         setVatValue(e.target.value);
+    };
+
+    const handleIgstChange = (event) => {
+        const checked = event.target.checked;
+        setIsIgstChecked(checked);
+        // The total will automatically update due to the effect above
+    };
+    
+
+    const handleCgstChange = (event) => {
+       setIsCgstChecked(event.target.checked);
+    };
+
+    const handleCgstInputChange = (event) => {
+        setCgstValue(event.target.value);
+    };
+
+    const handleSgstChange = (event) => {
+        setIsSgstChecked(event.target.checked);
+    };
+
+    const handleSgstInputChange = (event) => {
+        setSgstValue(event.target.value);
     };
 
     return (
@@ -306,7 +320,7 @@ function DispachInvoice() {
                                 type="text"
                                 placeholder="INV-00012"
                                 value={invoiceNo}
-                                onChange={(e) => setInvoiceNo(e.target.value)} 
+                                onChange={(e) => setInvoiceNo(e.target.value)}
                             />
                         </div>
                         <div className='innerDiv'>
@@ -427,40 +441,92 @@ function DispachInvoice() {
                                         <span>
                                             <input
                                                 type="checkbox"
-                                                checked={tdsChecked}
-                                                onChange={handleTdsChange}
-                                                disabled={vatChecked} // Disable TDS checkbox if VAT is checked
-                                            />
-                                            TDS
-                                        </span>
-                                        <span>
-                                            <input
-                                                type="checkbox"
-                                                checked={vatChecked}
+                                                // checked={vatChecked}
                                                 onChange={handleVatChange}
-                                                disabled={tdsChecked} // Disable VAT checkbox if TDS is checked
                                             />
                                             VAT
                                         </span>
                                     </div>
-                                    {tdsChecked && (
-                                        <input
-                                            type="number"
-                                            value={tdsValue}
-                                            onChange={handleTdsValueChange}
-                                            placeholder="Enter TDS value"
-                                        />
-                                    )}
+                                </div>
+                                <div className='check'>
                                     {vatChecked && (
                                         <input
                                             type="number"
                                             value={vatValue}
                                             onChange={handleVatValueChange}
-                                            placeholder="Enter VAT value"
+                                            placeholder="Enter VAT %"
                                         />
                                     )}
                                 </div>
                             </div>
+
+                            <div className='tally-outer-body'>
+                                <div className='tally-inner-body'>
+                                    <div className='check'>
+                                        <span>
+                                            <input
+                                                type="checkbox"
+                                                checked={isIgstChecked}
+                                                onChange={handleIgstChange}
+                                            />
+                                            IGST (28%)
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className='tally-outer-body'>
+                                <div className='tally-inner-body'>
+                                    <div className='check'>
+                                        <span>
+                                            <input
+                                                type="checkbox"
+                                                checked={isCgstChecked}
+                                                onChange={handleCgstChange}
+                                                disabled={isIgstChecked}
+                                            />
+                                            CGST
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className='check'>
+                                    {isCgstChecked && (
+                                        <input
+                                            type="number"
+                                            placeholder="Enter CGST value"
+                                            value={cgstValue}
+                                            onChange={handleCgstInputChange}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className='tally-outer-body'>
+                                <div className='tally-inner-body'>
+                                    <div className='check'>
+                                        <span>
+                                            <input
+                                                type="checkbox"
+                                                checked={isSgstChecked}
+                                                onChange={handleSgstChange}
+                                                disabled={isIgstChecked}
+                                            />
+                                            SGST
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className='check'>
+                                    {isSgstChecked && (
+                                        <input
+                                            type="number"
+                                            placeholder="Enter SGST value"
+                                            value={sgstValue}
+                                            onChange={handleSgstInputChange}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+
                             <div className='tally-outer-body'>
                                 <div className='tally-inner-body advance'>
                                     <input type="text" placeholder='Advance Given' readOnly />
