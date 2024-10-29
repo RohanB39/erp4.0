@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import "./sidebar.css";
-import { auth } from '../firebase/FirebaseConfig.js';
+import { auth, fireDB } from '../firebase/FirebaseConfig.js';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
 function Sidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -24,6 +25,35 @@ function Sidebar() {
       console.error("Error signing out: ", error);
     }
   };
+
+  const [count, setCount] = useState(0); // Set initial state as 0
+  // Fetch employees from Firebase
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        // Create a query to fetch employees with Status 'Active'
+        const employeesQuery = query(
+          collection(fireDB, "employees"),
+          where("Status", "==", "Active")
+        );
+
+        const querySnapshot = await getDocs(employeesQuery);
+        const employeesData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCount(querySnapshot.size); // Set the count to the number of documents
+      } catch (error) {
+        console.error("Error fetching employees: ", error);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
+
+  console.log("Count is: "+count);
+
+
 
   return (
     <div className={`sideNav ${sidebarOpen ? "" : "sidebar-closed"}`}>
@@ -127,15 +157,15 @@ function Sidebar() {
             )}
           </li>
 
-          
-            <li className="nav-item">
-              <Link to="/FinancePage" className="nav-link" onClick={() => handleToggleSubmenu("finance")}>
-                <i className="bi bi-cash"></i>
-                <span>Finance</span>
-                <i id="chevron" className={`bi bi-chevron-${activeSubmenu === "finance" ? "up" : "down"}`}></i>
-              </Link>
-              {activeSubmenu === "finance" && ( 
-                <div className="submenu show">
+
+          <li className="nav-item">
+            <Link to="/FinancePage" className="nav-link" onClick={() => handleToggleSubmenu("finance")}>
+              <i className="bi bi-cash"></i>
+              <span>Finance</span>
+              <i id="chevron" className={`bi bi-chevron-${activeSubmenu === "finance" ? "up" : "down"}`}></i>
+            </Link>
+            {activeSubmenu === "finance" && (
+              <div className="submenu show">
                 <ul>
                   <li>
                     <Link to="./receivable" className="nav-link" onClick={() => setActiveSubmenu(null)}>
@@ -153,9 +183,9 @@ function Sidebar() {
                     </Link>
                   </li>
                 </ul>
-                </div>
-              )}
-            </li>
+              </div>
+            )}
+          </li>
 
           <li className="nav-item">
             <Link to="/Dispach" className="nav-link" onClick={() => setActiveSubmenu(null)}>
@@ -164,18 +194,26 @@ function Sidebar() {
             </Link>
           </li>
 
+
+
           <li className="nav-item">
             <Link
               to="/HrDashboard"
               className="nav-link"
               onClick={() => handleToggleSubmenu("hr")}>
               <i className="bi bi-card-list"></i>
-              <span>HR</span>
-              <i id="chevron" className={`bi bi-chevron-${activeSubmenu === "hr" ? "up" : "down"}`}></i>
+              <span className="HR">HR</span>
+              <div className="dot">{count}</div>
+              {/* <i id="chevron" className={`bi bi-chevron-${activeSubmenu === "hr" ? "up" : "down"}`}></i> */}
             </Link>
             {activeSubmenu === "hr" && (
               <div className="submenu show">
                 <ul>
+                <li>
+                    <Link to="./salaryDetails" className="nav-link" onClick={() => setActiveSubmenu(null)}>
+                      Add Salary
+                    </Link>
+                  </li>
                   <li>
                     <Link to="./LeavePage" className="nav-link" onClick={() => setActiveSubmenu(null)}>
                       Leave
