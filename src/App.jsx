@@ -23,7 +23,6 @@ import SemiFinished from './components/Masters/semiFinished/SemiFinished';
 import Finished from './components/Masters/finished/Finished';
 import Master from './components/analysis/MasterCard';
 import HrDashboard from './components/hr/HrDashboard';
-import AddEmployee from './components/hr/employee/addEmployee/AddEmployee';
 import ViewEmployees from './components/hr/employee/viewEmployee/ViewEmployees';
 import UpdateEmployee from './components/hr/employee/updateEmployee/UpdateEmployee';
 import AddLeave from './components/hr/leave/AddLeave';
@@ -59,35 +58,15 @@ import Receivables from './components/finance/receivables/Receivables';
 import Payables from './components/finance/payables/Payables';
 import CompanyLegder from './components/finance/companyLegder/CompanyLegder';
 import EmployeeLogin from './components/hr/EmployeeLogin/EmployeeLogin';
-
-
-
-
+import OnboardEmployee from './components/hr/OnboardEmployee/OnboardEmployee';
+import SalaryDetails from './components/hr/SalaryDetails/SalaryDetails';
+import { useAuth } from './AuthContext';
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false); // Set initial state to false
-    const [employees, setEmployees] = useState([]);
-
     const handleLogin = () => {
         setIsLoggedIn(true);
     };
-
-    const handleAddEmployee = (employee) => {
-        setEmployees([...employees, employee]);
-    };
-
-    const handleUpdateEmployee = (updatedEmployee) => {
-        setEmployees(employees.map(emp => emp.id === updatedEmployee.id ? updatedEmployee : emp));
-    };
-
-    const handleSubmit = (leaveData) => {
-        console.log('Leave Data:', leaveData);
-    };
-
-    const handleDeleteEmployee = (id) => {
-        setEmployees(employees.filter(emp => emp.id !== id));
-    };
-
     return (
         <BrowserRouter>
             {!isLoggedIn ? (
@@ -107,11 +86,10 @@ function App() {
                             <Route path='/SemiFinished' element={<SemiFinished />} />
                             <Route path='/Finished' element={<Finished />} />
                             <Route path='/HrDashboard' element={<HrDashboard />} />
-                            <Route path='/add-employee' element={<AddEmployee onAdd={handleAddEmployee} />} />
-                            <Route path='/view-employees' element={<ViewEmployees employees={employees} onDelete={handleDeleteEmployee} />} />
-                            <Route path='/add-leave' element={<AddLeave onAdd={handleSubmit} />} />
+                            <Route path='/view-employees' element={<ViewEmployees />} />
+                            <Route path='/add-leave' element={<AddLeave />} />
                             <Route path='/attendance' element={<Attendance />} />
-                            <Route path='/update-employee' element={<UpdateEmployee onUpdateEmployee={handleUpdateEmployee} employees={employees} />} />
+                            <Route path='/update-employee' element={<UpdateEmployee />} />
                             <Route path='/process-payroll' element={<Payroll />} />
                             <Route path='/payroll-table' element={<PayrollTable />} />
                             <Route path='/Payroll' element={<Payroll />} />
@@ -146,6 +124,8 @@ function App() {
                             <Route path="/payables" element={<Payables />} />
                             <Route path="/Company-Legder" element={<CompanyLegder />} />
                             <Route path="/EmployeeLogin" element={<EmployeeLogin />} />
+                            <Route path="/onboardEmployee/:id" element={<OnboardEmployee />} />
+                            <Route path="/salaryDetails" element={<SalaryDetails />} />
                         </Routes>
                     </div>
                 </>
