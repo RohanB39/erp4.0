@@ -9,10 +9,9 @@ import style from './login.module.css'
 const countryCodes = [
     { code: '+1', name: 'USA' },
     { code: '+91', name: 'India' },
-    // Add more country codes as needed
 ];
 
-function LoginPage({ onLogin }) {
+function LoginPage({onLogin}) {
     const [isSignUp, setIsSignUp] = useState(false);
     const [isPasswordChange, setIsPasswordChange] = useState(false);
     const [formData, setFormData] = useState({
