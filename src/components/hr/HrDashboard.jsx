@@ -6,18 +6,24 @@ import { MdModeEditOutline } from "react-icons/md";
 import { MdOutlineDelete } from "react-icons/md";
 import { useNavigate } from 'react-router-dom'; // React Router hook for navigation
 import { fireDB } from '../firebase/FirebaseConfig';
-import { collection, getDocs } from 'firebase/firestore'; // Firestore methods
+import { collection, getDocs, query, where } from 'firebase/firestore'; // Firestore methods
 import './hrDash.css';
 
 function HrDashboard() {
     const [employees, setEmployees] = useState([]);
+    const [onboardEmployee, setOnboardEmployee] = useState(0);
     const navigate = useNavigate();
-
     // Fetch employees from Firebase
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const querySnapshot = await getDocs(collection(fireDB, "employees")); 
+                // Create a query to fetch employees with Status 'Active'
+                const employeesQuery = query(
+                    collection(fireDB, "employees"),
+                    where("Status", "==", "Active")
+                );
+
+                const querySnapshot = await getDocs(employeesQuery);
                 const employeesData = querySnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data(),
@@ -27,13 +33,26 @@ function HrDashboard() {
                 console.error("Error fetching employees: ", error);
             }
         };
-        
+
         fetchEmployees();
     }, []);
 
-    const addEmployee = (employee) => {
-        setEmployees([...employees, employee]);
-    };
+    useEffect(() => {
+        const fetchEmployeesCount = async () => {
+            try {
+                const employeesQuery = query(
+                    collection(fireDB, "employees"),
+                    where("Status", "==", "Onboarded")
+                );
+                const querySnapshot = await getDocs(employeesQuery);
+                setOnboardEmployee(querySnapshot.size);
+            } catch (error) {
+                console.error("Error fetching employees: ", error);
+            }
+        };
+
+        fetchEmployeesCount();
+    }, []);
 
     const data = useMemo(() => employees, [employees]);
 
@@ -66,13 +85,15 @@ function HrDashboard() {
             },
             {
                 Header: 'Status',
-                accessor: 'Status', 
+                accessor: 'Status',
             },
             {
                 Header: 'Action',
-                Cell: () => (
+                Cell: ({ row }) => (
                     <div>
-                        <button className='edit'><MdModeEditOutline /></button>
+                        <button className='edit' onClick={() => handleNavigate(row.original.id)}>
+                            <MdModeEditOutline />
+                        </button>
                         <button className='delet'><MdOutlineDelete /></button>
                     </div>
                 ),
@@ -80,6 +101,10 @@ function HrDashboard() {
         ],
         []
     );
+
+    const handleNavigate = (id) => {
+        navigate(`/onboardEmployee/${id}`); // Pass the id as a route parameter
+    };
 
     const {
         getTableProps,
@@ -107,11 +132,11 @@ function HrDashboard() {
     );
 
     const handleAddEmployeeClick = () => {
-        navigate('/add-employee'); 
+        navigate('/add-employee');
     };
 
     const handleEmployeeLoginClick = () => {
-        navigate('/EmployeeLogin'); 
+        navigate('/EmployeeLogin');
     };
 
     return (
@@ -125,7 +150,7 @@ function HrDashboard() {
                     <div className="single-employee-card">
                         <div className="employee-detail">
                             <h3>Total Employee</h3>
-                            <p>{employees.length}</p> {/* Display total number of employees */}
+                            <p>{onboardEmployee}</p>
                         </div>
                         <div className="employee-icon">
                             <FiUsers />
