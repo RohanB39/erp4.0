@@ -3,6 +3,7 @@ import './LeavePage.css';
 import { MdOutlineDelete } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import LeaveOverview from './LeaveOverview';
+import { useNavigate } from 'react-router-dom';
 
 const LeavePage = () => {
   const [leaveStats, setLeaveStats] = useState({
@@ -34,10 +35,17 @@ const LeavePage = () => {
 };
 
 const LeaveStats = ({ stats }) => {
+  const navigate = useNavigate(); // Initialize the navigate function
+  const handleAssignLeave = () => {
+    navigate('/add-leave'); // Navigate to the AddLeave page when button is clicked
+  };
   return (
     <div className="leave-stats main" id='main'>
       <h2>Leave Statistics</h2>
       <div className="stats-cards " id=''>
+        <button className='LeaveAssign' onClick={handleAssignLeave}>
+          Assign Leave
+        </button>
         <div className="card" id=''>
           <h3>Annual Leave</h3>
           <p>{stats.annualLeave}</p>
@@ -55,6 +63,14 @@ const LeaveStats = ({ stats }) => {
           <p>{stats.remainingLeave}</p>
         </div>
       </div>
+    </div>
+  );
+};
+
+const AssignLeaveButton = () => {
+  return (
+    <div className="assign-leave-btn-container">
+      <button className="assign-leave-btn">Assign Leaves For Employees</button>
     </div>
   );
 };
@@ -96,6 +112,16 @@ const LeaveRecords = ({ records }) => {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+};
+
+const EmployeeLeaveSection = ({ stats, records }) => {
+  return (
+    <div>
+      <LeaveStats stats={stats} />
+      <AssignLeaveButton />
+      <LeaveRecords records={records} />
     </div>
   );
 };
