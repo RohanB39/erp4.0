@@ -7,20 +7,40 @@ import { collection, getDocs } from 'firebase/firestore';
 import { fireDB } from '../../firebase/FirebaseConfig';
 
 const LeavePage = () => {
-
-  const [leaveRecords, setLeaveRecords] = useState([
-    { type: 'Medical Leave', from: '27 Feb 2023', to: '27 Feb 2023', days: '1 day', reason: 'Going to Hospital' },
-    { type: 'Hospitalisation', from: '15 Jan 2023', to: '25 Jan 2023', days: '10 days', reason: 'Going to Hospital' },
-    { type: 'Maternity Leave', from: '5 Jan 2023', to: '15 Jan 2023', days: '10 days', reason: 'Going to Hospital' },
-    { type: 'Casual Leave', from: '10 Jan 2023', to: '11 Jan 2023', days: '2 days', reason: 'Going to Hospital' },
-    { type: 'Casual Leave', from: '9 Jan 2023', to: '10 Jan 2023', days: '2 days', reason: 'Going to Hospital' },
-    { type: 'LOP', from: '24 Feb 2023', to: '25 Feb 2023', days: '2 days', reason: 'Personal' },
-    { type: 'Casual Leave', from: '13 Jan 2023', to: '14 Jan 2023', days: '2 days', reason: 'Going to Hospital' },
-    { type: 'Paternity Leave', from: '13 Feb 2023', to: '17 Feb 2023', days: '5 days', reason: 'Going to Hospital' },
-    { type: 'Casual Leave', from: '8 Mar 2023', to: '9 Mar 2023', days: '2 days', reason: 'Going to Hospital' },
-    { type: 'Casual Leave', from: '30 Jan 2023', to: '31 Jan 2023', days: '2 days', reason: 'Personal' },
-  ]);
-
+  const [leaveRecords, setLeaveRecords] = useState([]);
+  useEffect(() => {
+    const fetchLeaveRecords = async () => {
+      const records = [];
+      try {
+        const employeesSnapshot = await getDocs(collection(fireDB, 'employees'));
+        employeesSnapshot.forEach(async (docSnapshot) => {
+          const employeeData = docSnapshot.data();
+          const leaveApplications = employeeData?.LeaveApplications || {};
+          for (const leaveId in leaveApplications) {
+            const leave = leaveApplications[leaveId];
+            if (leave.status === 'Approved') {
+              const firstName = employeeData?.personalInfo?.firstName || '';
+              const lastName = employeeData?.personalInfo?.lastName || '';
+              const fullName = `${firstName} ${lastName}`;
+              records.push({
+                name: fullName,
+                from: leave.fromDate,
+                to: leave.toDate,
+                daysRequested: leave.daysRequested,
+                reason: leave.reason,
+                status: leave.status
+              });
+            }
+          }
+        });
+        setLeaveRecords(records);
+      } catch (error) {
+        console.error('Error fetching leave records:', error);
+      }
+    };
+    fetchLeaveRecords();
+  }, []);
+  
   return (
     <div className="leave-page">
       <LeaveStats />
@@ -93,34 +113,29 @@ const LeaveRecords = ({ records }) => {
       <table>
         <thead>
           <tr>
-            <th>Leave Type</th>
+            <th>Name</th>
             <th>From</th>
             <th>To</th>
             <th>No Of Days</th>
             <th>Reason</th>
             <th>Status</th>
-            <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          {records.map((record, index) => (
-            <tr key={index}>
-              <td>{record.type}</td>
-              <td>{record.from}</td>
-              <td>{record.to}</td>
-              <td>{record.days}</td>
-              <td>{record.reason}</td>
-              <td>Approved</td>
-              <td>
-                <div className='leave-btns'>
-
-                  <button className='Btn'><CiEdit /></button>
-
-                  <button className='Btn'><MdOutlineDelete /></button>
-                </div>
-              </td>
-            </tr>
-          ))}
+          {records.length === 0 ? (
+            <tr><td colSpan="7">No approved leaves found.</td></tr>
+          ) : (
+            records.map((record, index) => (
+              <tr key={index}>
+                <td>{record.name}</td>
+                <td>{record.from}</td>
+                <td>{record.to}</td>
+                <td>{record.daysRequested}</td>
+                <td>{record.reason}</td>
+                <td>{record.status}</td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

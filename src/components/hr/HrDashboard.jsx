@@ -7,13 +7,16 @@ import { MdOutlineDelete } from "react-icons/md";
 import { useNavigate } from 'react-router-dom'; // React Router hook for navigation
 import { fireDB } from '../firebase/FirebaseConfig';
 import { collection, getDocs, query, where } from 'firebase/firestore'; // Firestore methods
+import dayjs from "dayjs";
 import './hrDash.css';
 
 function HrDashboard() {
     const [employees, setEmployees] = useState([]);
     const [onboardEmployee, setOnboardEmployee] = useState(0);
     const navigate = useNavigate();
-    // Fetch employees from Firebase
+    const [persentCount, setPersentCount] = useState(0);
+    const [paidLeaveCount, setPaidLeaveCount] = useState(0);
+
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
@@ -103,7 +106,7 @@ function HrDashboard() {
     );
 
     const handleNavigate = (id) => {
-        navigate(`/onboardEmployee/${id}`); // Pass the id as a route parameter
+        navigate(`/onboardEmployee/${id}`);
     };
 
     const {
@@ -131,13 +134,77 @@ function HrDashboard() {
         useRowSelect
     );
 
-    const handleAddEmployeeClick = () => {
-        navigate('/add-employee');
-    };
-
     const handleEmployeeLoginClick = () => {
         navigate('/EmployeeLogin');
     };
+
+    const fetchPresentEmployees = async () => {
+        const today = dayjs().format("YYYY-MM-DD");
+        let presentCount = 0;
+        try {
+            const signInCollectionRef = collection(fireDB, "EMP_SIGNIN_SIGNOUT");
+            const snapshot = await getDocs(signInCollectionRef);
+            snapshot.forEach(doc => {
+                const docData = doc.data();
+                if (docData[today]) {
+                    presentCount += 1;
+                }
+            });
+            return presentCount;
+        } catch (error) {
+            console.error("Error fetching absent employees count: ", error);
+            return 0;
+        }
+    };
+
+    useEffect(() => {
+        const getPresentEmployees = async () => {
+            const count = await fetchPresentEmployees();
+            setPersentCount(count);
+        };
+
+        getPresentEmployees();
+    }, []);
+
+    const getTodayDate = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const day = String(today.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    };
+
+    useEffect(() => {
+        const fetchPaidLeaveCount = async () => {
+            const todayDate = getTodayDate();
+            let count = 0;
+
+            try {
+                const querySnapshot = await getDocs(collection(fireDB, "employees"));
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const leaveApplications = data.LeaveApplications || {};
+
+                    // Check if any fromDate matches todayDate
+                    for (const leaveId in leaveApplications) {
+                        const leave = leaveApplications[leaveId];
+                        if (leave.fromDate === todayDate) {
+                            count++;
+                            break; // Increment count once per document if match is found
+                        }
+                    }
+                });
+
+                setPaidLeaveCount(count);
+            } catch (error) {
+                console.error("Error fetching documents:", error);
+            }
+        };
+
+        fetchPaidLeaveCount();
+    }, []);
+
+
 
     return (
         <>
@@ -158,8 +225,8 @@ function HrDashboard() {
                     </div>
                     <div className="single-employee-card">
                         <div className="employee-detail">
-                            <h3>On Leave</h3>
-                            <p>0</p> {/* Dummy data, replace with actual logic if available */}
+                            <h3>Present Employees</h3>
+                            <p>{persentCount}</p>
                         </div>
                         <div className="employee-icon">
                             <FiUsers />
@@ -168,7 +235,7 @@ function HrDashboard() {
                     <div className="single-employee-card">
                         <div className="employee-detail">
                             <h3>Request Paid Leave</h3>
-                            <p>0</p> {/* Dummy data, replace with actual logic if available */}
+                            <p><p>{paidLeaveCount}</p></p>
                         </div>
                         <div className="employee-icon">
                             <FiUsers />

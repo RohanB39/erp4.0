@@ -57,6 +57,9 @@ import SalaryDetails from './components/hr/SalaryDetails/SalaryDetails';
 import ApproveLeave from './components/hr/leave/ApproveLeave/ApproveLeave';
 import onboardEmployee from './components/hr/OnboardEmployee/OnboardEmployee';
 import { useAuth } from './AuthContext';
+import AttendanceCalendar from './components/hr/attendance/AttendanceCalander/AttendanceCalander';
+import AddLeave from './components/hr/leave/AssignLeave/AddLeave';
+import OnboardEmployee from './components/hr/OnboardEmployee/OnboardEmployee';
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false); // Set initial state to false
     const handleLogin = () => {
@@ -113,9 +116,11 @@ function App() {
                             <Route path="/payables" element={<Payables />} />
                             <Route path="/Company-Legder" element={<CompanyLegder />} />
                             <Route path="/EmployeeLogin" element={<EmployeeLogin />} />
-                            <Route path="/onboardEmployee/:id" element={<onboardEmployee />} />
+                            <Route path="/onboardEmployee/:id" element={<OnboardEmployee />} />
                             <Route path="/salaryDetails" element={<SalaryDetails />} />
                             <Route path="/approve-leave" element={<ApproveLeave />} />
+                            <Route path="/attendance-calendar" element={<AttendanceCalendar />} />
+                            <Route path="/add-leave" element={<AddLeave />} />
                         </Routes>
                     </div>
                 </>

@@ -97,8 +97,8 @@ const SalaryDetailsPopup = ({ employeeData, onClose }) => {
         alert('Email sent successfully!');
 
         // Save salary details to Firebase Firestore
-        const employeeDocRef = doc(fireDB, 'employees', employeeData.employeeId); // Reference to the employee document
-
+        const employeeDocRef = doc(fireDB, 'employees', employeeData.employeeId);
+        const currentDate = new Date().toISOString().split('T')[0];
         await updateDoc(employeeDocRef, {
           SalaryDetails: {
             basicPay,
@@ -116,7 +116,8 @@ const SalaryDetailsPopup = ({ employeeData, onClose }) => {
           },
           designation: designation,
           password: password,
-          Status: 'Onboarded'
+          Status: 'Onboarded',
+          onboardDate: currentDate
         });
 
         alert('Salary details saved to Firestore successfully!');

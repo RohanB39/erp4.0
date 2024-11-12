@@ -1,23 +1,26 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './attendance.css';
-import { IoMdListBox, IoMdTime } from "react-icons/io";
-import { IoLocationOutline } from "react-icons/io5";
 import { FaBullhorn, FaLongArrowAltRight } from "react-icons/fa";
 import { LuArrowDownRightSquare, LuArrowUpRightSquare } from "react-icons/lu";
-import { CiExport, CiSearch } from "react-icons/ci";
+import { CiExport } from "react-icons/ci";
 import { useTable, usePagination, useGlobalFilter } from 'react-table';
 import CalendarButton from '../../calenderButton/CalenderButton';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { fireDB } from '../../firebase/FirebaseConfig';
 import dayjs from "dayjs";
+import { useNavigate } from 'react-router-dom';
+
 
 const Attendance = () => {
     const [attendanceData, setAttendanceData] = useState([]);
-    const currentDate = new Date().toISOString().split('T')[0];
     const [today, setToday] = useState('');
     const [onboardEmployee, setOnboardEmployee] = useState(0);
     const [absentCount, setAbsentCount] = useState(0);
     const [persentCount, setPersentCount] = useState(0);
+    const navigate = useNavigate(); 
+    const handleButtonClick = () => {
+        navigate('/attendance-calendar');
+      };
 
     // useEffect(() => {
     //     const interval = setInterval(() => {
@@ -27,34 +30,31 @@ const Attendance = () => {
     //   }, []);
 
     const fetchAttendanceData = async () => {
+        const currentDate = new Date().toISOString().split('T')[0];
+        const attendanceCollectionRef = collection(fireDB, 'EMP_SIGNIN_SIGNOUT');
+        const data = [];
         try {
-            const attendanceCollectionRef = collection(fireDB, 'EMP_SIGNIN_SIGNOUT');
             const snapshot = await getDocs(attendanceCollectionRef);
-            const data = [];
 
             snapshot.forEach(doc => {
-                const docId = doc.id;
-                const parts = docId.split(' '); // Split by space
-                const employeeName = parts.slice(0, -1).join(' ');
-                const date = parts[parts.length - 1]; // The last part is the date
-
-                if (date === currentDate) {
-                    const attendanceRecord = {
-                        id: docId,
-                        emp_name: employeeName,
-                        position: doc.data().designation,
-                        date: doc.data().signInDate,
-                        shift: doc.data().shiftType,
-                        status: doc.data().isSignedIn ? 'Signed In' : 'Signed Out',
-                        checkIn: doc.data().signInTime,
-                        checkOut: doc.data().signOutTime,
+                const docData = doc.data();
+                const employeeId = doc.id;
+                if (docData[currentDate]) {
+                    const attendanceRecord = docData[currentDate];
+                    data.push({
+                        id: employeeId,
+                        emp_name: attendanceRecord.employeeName,
+                        position: attendanceRecord.designation,
+                        date: attendanceRecord.signInDate,
+                        shift: attendanceRecord.shiftType,
+                        status: attendanceRecord.isSignedIn ? 'Signed In' : 'Signed Out',
+                        checkIn: attendanceRecord.signInTime,
+                        checkOut: attendanceRecord.signOutTime,
                         overtime: 'N/A'
-                    };
-                    data.push(attendanceRecord);
-                } else {
-                    // console.log(`Skipping document ${docId} as date does not match: ${date} !== ${currentDate}`);
+                    });
                 }
             });
+
             setAttendanceData(data);
         } catch (error) {
             console.error('Error fetching attendance data:', error);
@@ -200,32 +200,19 @@ const Attendance = () => {
     //     fetchLateInCount();
     // }, []);
 
-    const fetchAbsentEmployees = async () => {
+    const fetchPresentEmployees = async () => {
+        const today = dayjs().format("YYYY-MM-DD");
+        let presentCount = 0;
         try {
-            // Today's date in the required format (MMMM D, YYYY)
-            const today = dayjs().format("MMMM D, YYYY");
-
-            // Step 1: Get the count of "Onboarded" employees from the "employees" collection
-            const employeesQuery = query(
-                collection(fireDB, "employees"),
-                where("Status", "==", "Onboarded")
-            );
-            const employeeSnapshot = await getDocs(employeesQuery);
-            const totalOnboarded = employeeSnapshot.size;
-
-            // Step 2: Get the count of sign-in records for today's date from the "EMP_SIGNIN_SIGNOUT" collection
-            const signInQuery = query(
-                collection(fireDB, "EMP_SIGNIN_SIGNOUT"),
-                where("signInDate", "==", today)
-            );
-            const signInSnapshot = await getDocs(signInQuery);
-            const signedInToday = signInSnapshot.size;
-
-            // Step 3: Calculate absent employees (Onboarded - Signed In Today)
-            const absentCount = totalOnboarded - signedInToday;
-
-            return absentCount; // Return the count of absent employees
-
+            const signInCollectionRef = collection(fireDB, "EMP_SIGNIN_SIGNOUT");
+            const snapshot = await getDocs(signInCollectionRef);
+            snapshot.forEach(doc => {
+                const docData = doc.data();
+                if (docData[today]) {
+                    presentCount += 1;
+                }
+            });
+            return presentCount;
         } catch (error) {
             console.error("Error fetching absent employees count: ", error);
             return 0;
@@ -233,21 +220,25 @@ const Attendance = () => {
     };
 
     useEffect(() => {
-        const getAbsentEmployees = async () => {
-            const count = await fetchAbsentEmployees();
-            setAbsentCount(count); // Set the count of absent employees
+        const getPresentEmployees = async () => {
+            const count = await fetchPresentEmployees();
+            setPersentCount(count);
         };
 
-        getAbsentEmployees(); // Call the function to fetch absent employee count
+        getPresentEmployees();
     }, []);
+
+    useEffect(() => {
+        if (onboardEmployee > 0 && persentCount >= 0) {
+            setAbsentCount(onboardEmployee - persentCount); 
+        }
+    }, [onboardEmployee, persentCount]);
 
     const handleSearchChange = (event) => {
         setGlobalFilter(event.target.value || undefined);
     };
 
-    useEffect(() => {
-        setPersentCount(onboardEmployee - absentCount);
-      }, [onboardEmployee, absentCount]);
+
 
     return (
         <>
@@ -336,6 +327,9 @@ const Attendance = () => {
                         <div className="single-filter">
                             <button className='active'>All Employees</button>
                         </div>
+                        <button className='active' onClick={handleButtonClick}>
+        Attendance Calendar
+      </button>
                         {/* <div className="single-filter">
                             <button>IT Division</button>
                         </div>

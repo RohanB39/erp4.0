@@ -23,7 +23,7 @@ const SalaryDetails = () => {
                         fullName: fullName,
                         mobileNumber: employeeData.personalInfo.mobileNumber,
                         personalEmail: employeeData.personalInfo.personalEmail,
-                        docId: doc.id // Storing document ID for future use (like editing or adding salary details)
+                        docId: doc.id
                     };
                 });
                 setEmployees(employeeList); // Update the state with fetched employee data

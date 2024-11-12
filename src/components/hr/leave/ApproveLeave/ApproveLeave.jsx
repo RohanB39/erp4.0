@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { useTable } from 'react-table';
-import { fireDB } from '../../../firebase/FirebaseConfig'; // Adjust this path to your Firebase config file
+import { fireDB } from '../../../firebase/FirebaseConfig';
+import Swal from 'sweetalert2';
 
 const ApproveLeave = () => {
   const [leaveData, setLeaveData] = useState([]);
@@ -20,8 +21,8 @@ const ApproveLeave = () => {
         Object.entries(LeaveApplications).forEach(([key, leaveApplication]) => {
           if (leaveApplication.status === 'Pending') {
             pendingLeaves.push({
-              docId: doc.id, // Keep track of document ID for updates
-              leaveId: key, // Store the unique key for each leave application
+              docId: doc.id,
+              leaveId: key,
               employeeId,
               firstName: personalInfo.firstName,
               lastName: personalInfo.lastName,
@@ -44,14 +45,61 @@ const ApproveLeave = () => {
     fetchPendingLeaves();
   }, []);
 
-  // Approve or reject leave application
   const handleLeaveAction = async (docId, leaveId, newStatus) => {
-    const employeeRef = doc(fireDB, 'employees', docId);
-    await updateDoc(employeeRef, {
-      [`LeaveApplications.${leaveId}.status`]: newStatus,
-    });
-    fetchPendingLeaves();
+    try {
+      const employeeRef = doc(fireDB, 'employees', docId);
+      const employeeDoc = await getDoc(employeeRef);
+      const employeeData = employeeDoc.data();
+      if (employeeData?.LeaveApplications && employeeData.LeaveApplications[leaveId]) {
+        const leaveApplication = employeeData.LeaveApplications[leaveId];
+        await updateDoc(employeeRef, {
+          [`LeaveApplications.${leaveId}.status`]: newStatus,
+        });
+        if (newStatus === 'Approved') {
+          const { leaveType, daysRequested } = leaveApplication;
+          if (leaveType && daysRequested) {
+            const leaveInfo = employeeData.leaveInfo || {};
+            let updatedLeaveInfo = { ...leaveInfo };
+            if (leaveType.toLowerCase() === 'casual') {
+              updatedLeaveInfo.casualLeave = (updatedLeaveInfo.casualLeave || 0) - daysRequested;
+            } else if (leaveType.toLowerCase() === 'earn') {
+              updatedLeaveInfo.earnLeave = (updatedLeaveInfo.earnLeave || 0) - daysRequested;
+            } else if (leaveType.toLowerCase() === 'hpl') {
+              updatedLeaveInfo.hplLeave = (updatedLeaveInfo.hplLeave || 0) - daysRequested;
+            }
+            await updateDoc(employeeRef, {
+              leaveInfo: updatedLeaveInfo,
+            });
+          }
+        }
+        Swal.fire({
+          icon: 'success',
+          title: 'Leave ' + newStatus + '!',
+          text: `The leave has been successfully ${newStatus.toLowerCase()}ed.`,
+          confirmButtonText: 'OK'
+        });
+        fetchPendingLeaves();
+      } else {
+        console.error('Leave application or leaveId not found!');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'Leave application not found or invalid leave ID.',
+          confirmButtonText: 'OK'
+        });
+      }
+    } catch (error) {
+      console.error('Error updating leave status and leaveInfo:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Something went wrong!',
+        text: 'An error occurred while updating the leave details. Please try again.',
+        confirmButtonText: 'OK'
+      });
+    }
   };
+  
+  
 
   // Define columns for React Table
   const columns = React.useMemo(

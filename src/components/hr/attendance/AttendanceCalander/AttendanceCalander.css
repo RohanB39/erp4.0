@@ -1,0 +1,66 @@
+/* .attendance-cards {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .employee-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .employee-card {
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .employee-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .employee-info {
+    font-size: 16px;
+  }
+  
+  .employee-id {
+    font-weight: bold;
+  }
+  
+  .employee-name {
+    font-size: 18px;
+  }
+  
+  .toggle-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+  
+  .toggle-button:hover {
+    transform: scale(1.2);
+  }
+  
+  .attendance-details {
+    margin-top: 15px;
+  }
+  
+  .attendance-day {
+    margin-bottom: 5px;
+  }
+  
+  .present {
+    color: green;
+  }
+  
+  .absent {
+    color: red;
+  }
+   */
