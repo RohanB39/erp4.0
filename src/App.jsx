@@ -25,16 +25,12 @@ import Master from './components/analysis/MasterCard';
 import HrDashboard from './components/hr/HrDashboard';
 import ViewEmployees from './components/hr/employee/viewEmployee/ViewEmployees';
 import UpdateEmployee from './components/hr/employee/updateEmployee/UpdateEmployee';
-import AddLeave from './components/hr/leave/AddLeave';
 import Attendance from './components/hr/attendance/Attendance';
 import Payroll from './components/hr/payments/payrollOverview/Payroll';
 import PayrollTable from './components/hr/payments/payrollOverview/PayrollTable';
-import LeaveOverview from './components/hr/leave/LeaveOverview';
-import LeaveCalendar from './components/hr/leave/LeaveCalendar';
 import ShiftOverrideForm from './components/hr/shift/ShiftOverrideForm';
 import LeavePage from './components/hr/leave/LeavePage';
 import ShiftRosterPage from './components/hr/shift/ShiftRosterPage';
-
 import AllProduction from './components/production/AllProduction';
 import Store from './components/store/Store';
 import FinancePage from './components/finance/FinancePage';
@@ -42,7 +38,6 @@ import SalesPurchase from './components/purchase/SalesPurchase';
 import MasterDash from './components/Masters/MasterDash';
 import Dispach from './components/dispatch/Dispach';
 import DispachInvoice from './components/dispatch/dispatchInvoice/DispachInvoice';
-
 import AllQuality from './components/Quality/AllQuality';
 import Grn from './components/store/grn/Grn';
 import PurchaseOrder from './components/purchase/purchaseOrder/PurchaseOrder';
@@ -58,10 +53,10 @@ import Receivables from './components/finance/receivables/Receivables';
 import Payables from './components/finance/payables/Payables';
 import CompanyLegder from './components/finance/companyLegder/CompanyLegder';
 import EmployeeLogin from './components/hr/EmployeeLogin/EmployeeLogin';
-import OnboardEmployee from './components/hr/OnboardEmployee/OnboardEmployee';
 import SalaryDetails from './components/hr/SalaryDetails/SalaryDetails';
+import ApproveLeave from './components/hr/leave/ApproveLeave/ApproveLeave';
+import onboardEmployee from './components/hr/OnboardEmployee/OnboardEmployee';
 import { useAuth } from './AuthContext';
-
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false); // Set initial state to false
     const handleLogin = () => {
@@ -87,14 +82,11 @@ function App() {
                             <Route path='/Finished' element={<Finished />} />
                             <Route path='/HrDashboard' element={<HrDashboard />} />
                             <Route path='/view-employees' element={<ViewEmployees />} />
-                            <Route path='/add-leave' element={<AddLeave />} />
                             <Route path='/attendance' element={<Attendance />} />
                             <Route path='/update-employee' element={<UpdateEmployee />} />
                             <Route path='/process-payroll' element={<Payroll />} />
                             <Route path='/payroll-table' element={<PayrollTable />} />
                             <Route path='/Payroll' element={<Payroll />} />
-                            <Route path='/LeaveOverview' element={<LeaveOverview />} />
-                            <Route path='/LeaveCalendar' element={<LeaveCalendar />} />
                             <Route path="/ShiftOverrideForm" element={<ShiftOverrideForm />} />
                             <Route path='/LeavePage' element={<LeavePage />} />
                             <Route path='/ShiftRosterPage' element={<ShiftRosterPage />} />
@@ -104,14 +96,11 @@ function App() {
                             <Route path="/purchase-order" element={<PurchaseOrder />} />
                             <Route path="/customerPO" element={<CustomerPO />} />
                             <Route path='/MasterDash' element={<MasterDash />} />
-
                             <Route path="/Store" element={<Store />} />
                             <Route path='/Dispach' element={<Dispach />} />
                             <Route path='/DispachInvoice' element={<DispachInvoice />} />
                             <Route path='/Packging' element={<Packging />} />
-
                             <Route path="/AllQuality" element={<AllQuality />} />
-
                             <Route path="/Store" element={<Store />} />
                             <Route path="/Grn" element={<Grn />} />
                             <Route path="/fgInventory" element={<FGInventory />} />
@@ -124,8 +113,9 @@ function App() {
                             <Route path="/payables" element={<Payables />} />
                             <Route path="/Company-Legder" element={<CompanyLegder />} />
                             <Route path="/EmployeeLogin" element={<EmployeeLogin />} />
-                            <Route path="/onboardEmployee/:id" element={<OnboardEmployee />} />
+                            <Route path="/onboardEmployee/:id" element={<onboardEmployee />} />
                             <Route path="/salaryDetails" element={<SalaryDetails />} />
+                            <Route path="/approve-leave" element={<ApproveLeave />} />
                         </Routes>
                     </div>
                 </>

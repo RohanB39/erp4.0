@@ -16,8 +16,15 @@ const Attendance = () => {
     const currentDate = new Date().toISOString().split('T')[0];
     const [today, setToday] = useState('');
     const [onboardEmployee, setOnboardEmployee] = useState(0);
-    const [lateInCount, setLateInCount] = useState(0);
     const [absentCount, setAbsentCount] = useState(0);
+    const [persentCount, setPersentCount] = useState(0);
+
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //       window.location.reload();
+    //     }, 2000);
+    //     return () => clearInterval(interval);
+    //   }, []);
 
     const fetchAttendanceData = async () => {
         try {
@@ -154,44 +161,44 @@ const Attendance = () => {
         fetchEmployeesCount();
     }, []);
 
-    useEffect(() => {
-        const fetchLateInCount = async () => {
-            try {
-                const today = dayjs().format("MMMM D, YYYY");
-                const employeesQuery = query(
-                    collection(fireDB, "EMP_SIGNIN_SIGNOUT"),
-                    where("signInDate", "==", today)
-                );
-                const querySnapshot = await getDocs(employeesQuery);
-                let count = 0;
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const signInTime = data.signInTime;
-                    const [time, period] = signInTime.split(" ");
-                    const shiftATime = dayjs("04:00:00 AM", "hh:mm:ss A"); // Shift A time (4:00 AM)
-                    const shiftBTime = dayjs("12:00:00 PM", "hh:mm:ss A"); // Shift B time (12:00 PM)
-                    const shiftCTime = dayjs("08:00:00 PM", "hh:mm:ss A"); // Shift C time (8:00 PM)
+    // useEffect(() => {
+    //     const fetchLateInCount = async () => {
+    //         try {
+    //             const today = dayjs().format("MMMM D, YYYY");
+    //             const employeesQuery = query(
+    //                 collection(fireDB, "EMP_SIGNIN_SIGNOUT"),
+    //                 where("signInDate", "==", today)
+    //             );
+    //             const querySnapshot = await getDocs(employeesQuery);
+    //             let count = 0;
+    //             querySnapshot.forEach((doc) => {
+    //                 const data = doc.data();
+    //                 const signInTime = data.signInTime;
+    //                 const [time, period] = signInTime.split(" ");
+    //                 const shiftATime = dayjs("04:00:00 AM", "hh:mm:ss A"); // Shift A time (4:00 AM)
+    //                 const shiftBTime = dayjs("12:00:00 PM", "hh:mm:ss A"); // Shift B time (12:00 PM)
+    //                 const shiftCTime = dayjs("08:00:00 PM", "hh:mm:ss A"); // Shift C time (8:00 PM)
 
-                    if (data.shiftType === "A" && time > shiftATime) {
-                        console.log("A - Late In");
-                        count++;
-                    } else if (data.shiftType === "B" && time > shiftBTime) {
-                        console.log("B - Late In");
-                        count++;
-                    } else if (data.shiftType === "C" && time > shiftCTime) {
-                        console.log("C - Late In");
-                        count++;
-                    }
-                });
+    //                 if (data.shiftType === "A" && time > shiftATime) {
+    //                     console.log("A - Late In");
+    //                     count++;
+    //                 } else if (data.shiftType === "B" && time > shiftBTime) {
+    //                     console.log("B - Late In");
+    //                     count++;
+    //                 } else if (data.shiftType === "C" && time > shiftCTime) {
+    //                     console.log("C - Late In");
+    //                     count++;
+    //                 }
+    //             });
 
-                setLateInCount(count);
-            } catch (error) {
-                console.error("Error fetching late in count: ", error);
-            }
-        };
+    //             setLateInCount(count);
+    //         } catch (error) {
+    //             console.error("Error fetching late in count: ", error);
+    //         }
+    //     };
 
-        fetchLateInCount();
-    }, []);
+    //     fetchLateInCount();
+    // }, []);
 
     const fetchAbsentEmployees = async () => {
         try {
@@ -235,8 +242,12 @@ const Attendance = () => {
     }, []);
 
     const handleSearchChange = (event) => {
-        setGlobalFilter(event.target.value || undefined); // Set global filter to the input value
+        setGlobalFilter(event.target.value || undefined);
     };
+
+    useEffect(() => {
+        setPersentCount(onboardEmployee - absentCount);
+      }, [onboardEmployee, absentCount]);
 
     return (
         <>
@@ -275,10 +286,10 @@ const Attendance = () => {
                                     <LuArrowDownRightSquare className='downright' />
                                 </div>
                             </div>
-                            <div className="single-info">
+                            {/* <div className="single-info">
                                 <h2>Late In</h2>
                                 <div>
-                                    {/* <h3>{lateInCount}</h3> */}
+                                    <h3>{lateInCount}</h3>
                                     <h3>2</h3>
                                     <LuArrowUpRightSquare className='upright' />
                                 </div>
@@ -289,7 +300,7 @@ const Attendance = () => {
                                     <h3>0</h3>
                                     <LuArrowUpRightSquare className='upright' />
                                 </div>
-                            </div>
+                            </div> */}
                             <div className="single-info">
                                 <h2>Absent</h2>
                                 <div>
@@ -300,7 +311,7 @@ const Attendance = () => {
                             <div className="single-info">
                                 <h2>Present</h2>
                                 <div>
-                                    <h3>2</h3>
+                                    <h3>{persentCount}</h3>
                                     <LuArrowUpRightSquare className='upright' />
                                 </div>
                             </div>
