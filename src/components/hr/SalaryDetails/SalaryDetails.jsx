@@ -8,7 +8,6 @@ const SalaryDetails = () => {
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-    // Fetch data from Firestore when the component mounts
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
@@ -89,12 +88,6 @@ const SalaryDetails = () => {
             )}
         </div>
     );
-};
-
-// Function to handle the "Add Salary Details" button click
-const handleAddSalaryDetails = (employeeId) => {
-    console.log(`Adding salary details for Employee ID: ${employeeId}`);
-    // Implement the logic for adding salary details (e.g., open a form or popup to enter salary info)
 };
 
 export default SalaryDetails;
