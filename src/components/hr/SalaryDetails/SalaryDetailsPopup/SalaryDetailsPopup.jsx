@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import emailjs from '@emailjs/browser'; // Import emailjs for sending emails
-import { fireDB } from '../../../firebase/FirebaseConfig'; // Import Firebase configuration
-import { doc, updateDoc } from 'firebase/firestore'; // Import Firestore functions
+import emailjs from '@emailjs/browser'; 
+import { fireDB } from '../../../firebase/FirebaseConfig';
+import { doc, updateDoc } from 'firebase/firestore';
 import './SalaryDetailsPopup.css';
 
 const SalaryDetailsPopup = ({ employeeData, onClose }) => {
@@ -56,10 +56,10 @@ const SalaryDetailsPopup = ({ employeeData, onClose }) => {
 
     // Automatically calculate HRA, Employer's PF, and Total Fixed Pay
     useEffect(() => {
-      setHra(basicPay * 0.5); // HRA is 50% of Basic
-      setEmployerPF(basicPay * 0.12); // Employer's PF is 12% of Basic
-      setTotalFixedPay(basicPay + hra + conveyance + bonus + employerPF + flexibleComponents); // Total Fixed Pay
-      setTotalCTC(totalFixedPay + totalVariablePay + additionalBenefits); // Total CTC = A + B + C
+      setHra(basicPay * 0.5); 
+      setEmployerPF(basicPay * 0.12); 
+      setTotalFixedPay(basicPay + hra + conveyance + bonus + employerPF + flexibleComponents); 
+      setTotalCTC(totalFixedPay + totalVariablePay + additionalBenefits); 
     }, [basicPay, hra, conveyance, bonus, employerPF, flexibleComponents, totalFixedPay, totalVariablePay, additionalBenefits]);
 
     // Function to handle saving data and sending email
