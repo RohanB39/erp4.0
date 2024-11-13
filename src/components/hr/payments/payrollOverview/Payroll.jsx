@@ -7,143 +7,9 @@ import { BiRupee } from "react-icons/bi";
 import { IoWalletOutline } from "react-icons/io5";
 import { CiWallet } from "react-icons/ci";
 import PayRollEmpList from './PayRollEmpList';
-import { fireDB } from '../../../firebase/FirebaseConfig';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-const data = [
-    {
-        employee: 'Amit Sharma',
-        employeeNo: '001',
-        paidHours: '160',
-        grossPay: '2000',
-        statutoryPay: '200',
-        deduction: '100',
-        netPay: '1700',
-        status: 'Paid',
-        paySlip: 'View'
-    },
-    {
-        employee: 'Neha Gupta',
-        employeeNo: '002',
-        paidHours: '158',
-        grossPay: '1980',
-        statutoryPay: '195',
-        deduction: '90',
-        netPay: '1695',
-        status: 'Paid',
-        paySlip: 'View'
-    },
-    {
-        employee: 'Rajesh Kumar',
-        employeeNo: '003',
-        paidHours: '162',
-        grossPay: '2040',
-        statutoryPay: '210',
-        deduction: '110',
-        netPay: '1730',
-        status: 'Paid',
-        paySlip: 'View'
-    },
-    {
-        employee: 'Priya Singh',
-        employeeNo: '004',
-        paidHours: '160',
-        grossPay: '2000',
-        statutoryPay: '200',
-        deduction: '100',
-        netPay: '1700',
-        status: 'Paid',
-        paySlip: 'View'
-    },
-    {
-        employee: 'Vikram Patel',
-        employeeNo: '005',
-        paidHours: '159',
-        grossPay: '1990',
-        statutoryPay: '198',
-        deduction: '95',
-        netPay: '1697',
-        status: 'Paid',
-        paySlip: 'View'
-    },
-    {
-        employee: 'Anjali Desai',
-        employeeNo: '006',
-        paidHours: '161',
-        grossPay: '2010',
-        statutoryPay: '202',
-        deduction: '105',
-        netPay: '1703',
-        status: 'Paid',
-        paySlip: 'View'
-    },
-    {
-        employee: 'Ravi Nair',
-        employeeNo: '007',
-        paidHours: '160',
-        grossPay: '2000',
-        statutoryPay: '200',
-        deduction: '100',
-        netPay: '1700',
-        status: 'Un Paid',
-        paySlip: 'View'
-    },
-    {
-        employee: 'Kiran Joshi',
-        employeeNo: '008',
-        paidHours: '158',
-        grossPay: '1980',
-        statutoryPay: '195',
-        deduction: '90',
-        netPay: '1695',
-        status: 'Paid',
-        paySlip: 'View'
-    },
-    {
-        employee: 'Suresh Menon',
-        employeeNo: '009',
-        paidHours: '162',
-        grossPay: '2040',
-        statutoryPay: '210',
-        deduction: '110',
-        netPay: '1730',
-        status: 'Paid',
-        paySlip: 'View'
-    },
-    {
-        employee: 'Lakshmi Iyer',
-        employeeNo: '010',
-        paidHours: '160',
-        grossPay: '2000',
-        statutoryPay: '200',
-        deduction: '100',
-        netPay: '1700',
-        status: 'Un Paid',
-        paySlip: 'View'
-    },
-    {
-        employee: 'Rohan Mehta',
-        employeeNo: '011',
-        paidHours: '159',
-        grossPay: '1990',
-        statutoryPay: '198',
-        deduction: '95',
-        netPay: '1697',
-        status: 'Paid',
-        paySlip: 'View'
-    },
-    {
-
-        employee: 'Meena Rao',
-        employeeNo: '012',
-        paidHours: '161',
-        grossPay: '2010',
-        statutoryPay: '202',
-        deduction: '105',
-        netPay: '1703',
-        status: 'Un Paid',
-        paySlip: 'View'
-    }
-];
+import { fireDB, doc } from '../../../firebase/FirebaseConfig';
+import { collection, getDocs, query, where, getDoc } from 'firebase/firestore';
+import dayjs from 'dayjs';
 
 function Payroll() {
     const [onboardEmployee, setOnboardEmployee] = useState(0);
@@ -151,6 +17,7 @@ function Payroll() {
     const currentMonth = new Date().toLocaleString('default', { month: 'long' });
     const [currentMonthLastDate, setCurrentMonthLastDate] = useState('');
     const [previousMonthLastDate, setPreviousMonthLastDate] = useState('');
+    const [data, setData] = useState([]);
     useEffect(() => {
         const fetchEmployeesCount = async () => {
             try {
@@ -245,81 +112,221 @@ function Payroll() {
         calculateMonthEndDates();
     }, []);
 
-    const columns = useMemo(
-        () => [
+    useEffect(() => {
+        const fetchEmployees = async () => {
+            try {
+                const employeesRef = collection(fireDB, 'employees');
+                const q = query(employeesRef, where("Status", "==", "Onboarded"));
+                const querySnapshot = await getDocs(q);
+                const currentMonth = dayjs().month();
+                const currentYear = dayjs().year();
+                const employeesData = [];
+                for (const docSnapshot of querySnapshot.docs) {
+                    const employee = docSnapshot.data();
+                    const employeeId = employee.employeeId;
+                    console.log("Employee Id: " + employeeId);
 
-            {
-                Header: 'Employee',
-                accessor: 'employee'
-            },
-            {
-                Header: 'Employee No',
-                accessor: 'employeeNo'
-            },
-            {
-                Header: 'Paid Hours',
-                accessor: 'paidHours',
-                Cell: ({ value }) => (
-                    <span>
-                        <BiRupee /> {value}
-                    </span>
-                )
-            },
-            {
-                Header: 'Gross Pay',
-                accessor: 'grossPay',
-                Cell: ({ value }) => (
-                    <span>
-                        <BiRupee /> {value}
-                    </span>
-                )
-            },
-            {
-                Header: 'Statutory Pay',
-                accessor: 'statutoryPay',
-                Cell: ({ value }) => (
-                    <span>
-                        <BiRupee /> {value}
-                    </span>
-                )
-            },
-            {
-                Header: 'Deduction',
-                accessor: 'deduction',
-                Cell: ({ value }) => (
-                    <span>
-                        <BiRupee /> {value}
-                    </span>
-                )
-            },
-            {
-                Header: 'Net Pay',
-                accessor: 'netPay',
-                Cell: ({ value }) => {
-                    const netPayClass = value >= 1700 ? 'net-pay-positive' : 'net-pay-negative';
-                    return (
-                        <span className={netPayClass}>
-                            <BiRupee /> {value}
-                        </span>
-                    );
+                    const signInOutRef = collection(fireDB, 'EMP_SIGNIN_SIGNOUT');
+                    const signInOutDocRef = doc(signInOutRef, employeeId);
+                    const signInOutDocSnapshot = await getDoc(signInOutDocRef);
+                    let signInOutDays = 0;
+                    if (signInOutDocSnapshot.exists()) {
+                        const signInOutData = signInOutDocSnapshot.data();
+                        
+                        Object.keys(signInOutData).forEach((date) => {
+                            const signInOutDate = dayjs(date, 'YYYY-MM-DD');
+                            console.log("Signin Date: ", signInOutDate.format('YYYY-MM-DD'));
+                            
+                            if (signInOutDate.month() === currentMonth && signInOutDate.year() === currentYear) {
+                                signInOutDays += 1;
+                            }
+                        });
+                    } else {
+                        console.log("No sign-in/out data found for employeeId:", employeeId);
+                    }
+                    const totalLeaves = employee.LeaveApplications
+                        ? Object.values(employee.LeaveApplications).reduce((acc, leave) => {
+                            const leaveDate = dayjs(leave.fromDate);
+                            if (leaveDate.month() === currentMonth && leaveDate.year() === currentYear) {
+                                return acc + (leave.daysRequested || 0);
+                            }
+                            return acc;
+                        }, 0)
+                        : 0;
+
+                    // Calculate authorized leaves
+                    const authorizedLeaves = employee.leaveInfo
+                        ? (() => {
+                            const startDate = employee.leaveInfo.StartDate;
+                            const endDate = employee.leaveInfo.EndDate;
+                            const [startDay, startMonth, startYear] = startDate.split("-");
+                            const [endDay, endMonth, endYear] = endDate.split("-");
+                            const currentDate = dayjs();
+                            const currentMonth = currentDate.month() + 1;
+                            const currentYear = currentDate.year();
+
+                            let isCurrentMonthInRange = false;
+
+                            if (employee.leaveInfo.leaveFrequency === "Monthly") {
+                                isCurrentMonthInRange = (startMonth == currentMonth || endMonth == currentMonth);
+                            } else if (employee.leaveInfo.leaveFrequency === "Yearly") {
+                                isCurrentMonthInRange = (startMonth == currentMonth && startYear == currentYear) ||
+                                    (endMonth == currentMonth && endYear == currentYear + 1);
+                            }
+
+                            return isCurrentMonthInRange ? (employee.leaveInfo.approvedLeaves || 0) : 0;
+                        })()
+                        : 0;
+                    
+                    const grossPay = employee.SalaryDetails?.totalCTC || 0;
+                    const PM = (grossPay / 12).toFixed(2);
+
+                    // Push data into employeesData array
+                    employeesData.push({
+                        employeeName: `${employee.personalInfo?.firstName || ''} ${employee.personalInfo?.lastName || ''}`,
+                        employeeId: employee.employeeId || '',
+                        leaves: totalLeaves,
+                        authorizedLeaves,
+                        signInOutDays,
+                        workingDays: 0,
+                        PM, 
+                        statutoryPay: 0,
+                        deduction: 0,
+                        netPay: 0,
+                        status: employee.Status || 'Unpaid'
+                    });
                 }
-            },
-            {
-                Header: 'Status',
-                accessor: 'status',
-                Cell: ({ value }) => {
-                    const statusClass = value === 'Paid' ? 'status-paid' : 'status-unpaid';
-                    return <span className={statusClass}>{value}</span>;
-                }
-            },
-            {
-                Header: 'Pay Slip',
-                accessor: 'paySlip',
-                Cell: ({ value }) => <button className='payroll-btn'>{value}</button>
+
+                setData(employeesData);
+            } catch (error) {
+                console.error("Error fetching employee data: ", error);
             }
-        ],
-        []
-    );
+        };
+
+        fetchEmployees();
+    }, []);
+
+
+
+    const columns = useMemo(() => [
+        {
+            Header: 'Employee',
+            accessor: 'employeeName'
+        },
+        {
+            Header: 'Employee ID',
+            accessor: 'employeeId'
+        },
+        {
+            Header: 'Approved Leaves',
+            accessor: 'authorizedLeaves'
+        },
+        {
+            Header: 'Taken Leaves',
+            accessor: 'leaves'
+        },
+        {
+            Header: 'Extra Leaves',
+            accessor: '',
+            Cell: ({ row }) => {
+                const takenLeaves = row.original.leaves || 0;
+                const approvedLeaves = row.original.authorizedLeaves || 0;
+                const extraLeaves = takenLeaves > approvedLeaves ? takenLeaves - approvedLeaves : 0;
+                row.original.extraLeaves = extraLeaves; 
+                return <span>{extraLeaves}</span>;
+            }
+        },
+        {
+            Header: 'Working Days',
+            accessor: 'signInOutDays'
+        },
+        {
+            Header: 'Exception Days',
+            accessor: 'absentDays',
+            Cell: ({ row }) => {
+                const signInOutDays = row.original.signInOutDays || 0;
+                const currentDay = dayjs().date(); 
+                const extraLeaves = row.original.extraLeaves || 0;
+                const absentDays = (currentDay - signInOutDays);
+                return <span>{absentDays}</span>;
+            }
+        },
+        {
+            Header: 'Payable Days',
+            accessor: 'workingDays',
+            Cell: ({ row }) => {
+                let authorizedLeaves = row.original.authorizedLeaves || 0;
+                if(authorizedLeaves <= 3) {
+                    const workingDays = row.original.signInOutDays || 0;
+                    const payableDays = authorizedLeaves + workingDays;
+                    return <span>{payableDays}</span>;
+                }else {
+                    const takenLeaves = row.original.leaves || 0;
+                    const workingDays = row.original.signInOutDays || 0;
+                    const payableDays = takenLeaves + workingDays;
+                    return <span>{payableDays}</span>;
+                }
+                
+            }
+        },
+        {
+            Header: 'Gross Pay',
+            accessor: 'PM',
+            Cell: ({ value }) => (
+                <span>
+                    <BiRupee /> {value}
+                </span>
+            )
+        },
+        {
+            Header: 'Statutory Pay',
+            accessor: 'statutoryPay',
+            Cell: ({ value }) => (
+                <span>
+                    <BiRupee /> {value}
+                </span>
+            )
+        },
+        {
+            Header: 'Deduction',
+            accessor: 'deduction',
+            Cell: ({ value }) => (
+                <span>
+                    <BiRupee /> {value}
+                </span>
+            )
+        },
+        {
+            Header: 'Net Pay',
+            accessor: 'netPay',
+            Cell: ({ value }) => {
+                const netPayClass = value >= 1700 ? 'net-pay-positive' : 'net-pay-negative';
+                return (
+                    <span className={netPayClass}>
+                        <BiRupee /> {value}
+                    </span>
+                );
+            }
+        },
+        {
+            Header: 'Status',
+            accessor: 'status',
+            Cell: ({ value }) => {
+                const statusClass = value === 'Paid' ? 'status-paid' : 'status-unpaid';
+                return <span className={statusClass}>{value}</span>;
+            }
+        },
+        {
+            Header: 'Pay Slip',
+            accessor: 'paySlipButton',
+            Cell: ({ row }) => (
+                <button className='payroll-btn' disabled={row.original.status !== 'Paid'}>
+                    Generate Pay Slip
+                </button>
+            )
+        }
+    ], []);
+
 
     return (
         <main className='main' id='main'>
