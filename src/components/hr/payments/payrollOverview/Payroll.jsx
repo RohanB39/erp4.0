@@ -10,6 +10,7 @@ import PayRollEmpList from './PayRollEmpList';
 import { fireDB, doc } from '../../../firebase/FirebaseConfig';
 import { collection, getDocs, query, where, getDoc } from 'firebase/firestore';
 import dayjs from 'dayjs';
+import SalaryPopup from './SalaryPopup/SalaryPopup';
 
 function Payroll() {
     const [onboardEmployee, setOnboardEmployee] = useState(0);
@@ -18,6 +19,8 @@ function Payroll() {
     const [currentMonthLastDate, setCurrentMonthLastDate] = useState('');
     const [previousMonthLastDate, setPreviousMonthLastDate] = useState('');
     const [data, setData] = useState([]);
+    const [selectedRow, setSelectedRow] = useState(null);
+    const [showPopup, setShowPopup] = useState(false);
     useEffect(() => {
         const fetchEmployeesCount = async () => {
             try {
@@ -132,11 +135,11 @@ function Payroll() {
                     let signInOutDays = 0;
                     if (signInOutDocSnapshot.exists()) {
                         const signInOutData = signInOutDocSnapshot.data();
-                        
+
                         Object.keys(signInOutData).forEach((date) => {
                             const signInOutDate = dayjs(date, 'YYYY-MM-DD');
                             console.log("Signin Date: ", signInOutDate.format('YYYY-MM-DD'));
-                            
+
                             if (signInOutDate.month() === currentMonth && signInOutDate.year() === currentYear) {
                                 signInOutDays += 1;
                             }
@@ -177,9 +180,36 @@ function Payroll() {
                             return isCurrentMonthInRange ? (employee.leaveInfo.approvedLeaves || 0) : 0;
                         })()
                         : 0;
-                    
+
                     const grossPay = employee.SalaryDetails?.totalCTC || 0;
                     const PM = (grossPay / 12).toFixed(2);
+                    const PD = (Number(PM) / 30).toFixed(2);
+                    let workingDays = 0;
+                    if (authorizedLeaves <= 3) {
+                        workingDays = authorizedLeaves + signInOutDays;
+                    } else {
+                        const takenLeaves = employee.leaves || 0;
+                        workingDays = takenLeaves + signInOutDays;
+                    }
+                    const netPaye = (PD * workingDays).toFixed(2);
+                    const deduction = PM - netPaye;
+
+                    const currentDay = dayjs().date();
+                    const absentDays = (currentDay - signInOutDays);
+
+                    let status = 'Unpaid';
+                    const salaryDetailsRef = doc(fireDB, 'Salary_Details', employeeId);
+                    const salaryDocSnapshot = await getDoc(salaryDetailsRef);
+                    if (salaryDocSnapshot.exists()) {
+                        const salaryData = salaryDocSnapshot.data();
+                        const currentMonthh = new Date().getMonth() + 1;
+                        const currentYearr = new Date().getFullYear();
+                        const currentMonthKey = `${currentYearr}-${String(currentMonthh).padStart(2, '0')}`;
+                        console.log("Current month end date: " + currentMonthKey);
+                        if (salaryData[currentMonthKey] && salaryData[currentMonthKey].Status) {
+                            status = salaryData[currentMonthKey].Status;
+                        }
+                    }
 
                     // Push data into employeesData array
                     employeesData.push({
@@ -188,12 +218,13 @@ function Payroll() {
                         leaves: totalLeaves,
                         authorizedLeaves,
                         signInOutDays,
-                        workingDays: 0,
-                        PM, 
-                        statutoryPay: 0,
-                        deduction: 0,
+                        workingDays,
+                        PM,
+                        absentDays,
+                        netPaye,
+                        deduction,
                         netPay: 0,
-                        status: employee.Status || 'Unpaid'
+                        status,
                     });
                 }
 
@@ -219,11 +250,17 @@ function Payroll() {
         },
         {
             Header: 'Approved Leaves',
-            accessor: 'authorizedLeaves'
+            accessor: 'authorizedLeaves',
+            Cell: ({ value }) => (
+                <span>{value} &nbsp;Leaves</span>
+            )
         },
         {
             Header: 'Taken Leaves',
-            accessor: 'leaves'
+            accessor: 'leaves',
+            Cell: ({ value }) => (
+                <span>{value} &nbsp;Leaves</span>
+            )
         },
         {
             Header: 'Extra Leaves',
@@ -232,42 +269,30 @@ function Payroll() {
                 const takenLeaves = row.original.leaves || 0;
                 const approvedLeaves = row.original.authorizedLeaves || 0;
                 const extraLeaves = takenLeaves > approvedLeaves ? takenLeaves - approvedLeaves : 0;
-                row.original.extraLeaves = extraLeaves; 
+                row.original.extraLeaves = extraLeaves;
                 return <span>{extraLeaves}</span>;
             }
         },
         {
             Header: 'Working Days',
-            accessor: 'signInOutDays'
+            accessor: 'signInOutDays',
+            Cell: ({ value }) => (
+                <span>{value} &nbsp;Days</span>
+            )
         },
         {
             Header: 'Exception Days',
             accessor: 'absentDays',
-            Cell: ({ row }) => {
-                const signInOutDays = row.original.signInOutDays || 0;
-                const currentDay = dayjs().date(); 
-                const extraLeaves = row.original.extraLeaves || 0;
-                const absentDays = (currentDay - signInOutDays);
-                return <span>{absentDays}</span>;
-            }
+            Cell: ({ value }) => (
+                <span>{value} &nbsp;Days</span>
+            )
         },
         {
             Header: 'Payable Days',
             accessor: 'workingDays',
-            Cell: ({ row }) => {
-                let authorizedLeaves = row.original.authorizedLeaves || 0;
-                if(authorizedLeaves <= 3) {
-                    const workingDays = row.original.signInOutDays || 0;
-                    const payableDays = authorizedLeaves + workingDays;
-                    return <span>{payableDays}</span>;
-                }else {
-                    const takenLeaves = row.original.leaves || 0;
-                    const workingDays = row.original.signInOutDays || 0;
-                    const payableDays = takenLeaves + workingDays;
-                    return <span>{payableDays}</span>;
-                }
-                
-            }
+            Cell: ({ value }) => (
+                <span>{value} &nbsp;Days</span>
+            )
         },
         {
             Header: 'Gross Pay',
@@ -279,51 +304,40 @@ function Payroll() {
             )
         },
         {
-            Header: 'Statutory Pay',
-            accessor: 'statutoryPay',
-            Cell: ({ value }) => (
-                <span>
-                    <BiRupee /> {value}
-                </span>
-            )
-        },
-        {
             Header: 'Deduction',
             accessor: 'deduction',
             Cell: ({ value }) => (
-                <span>
+                <span style={{ color: 'red' }}>
                     <BiRupee /> {value}
                 </span>
             )
         },
         {
             Header: 'Net Pay',
-            accessor: 'netPay',
-            Cell: ({ value }) => {
-                const netPayClass = value >= 1700 ? 'net-pay-positive' : 'net-pay-negative';
-                return (
-                    <span className={netPayClass}>
-                        <BiRupee /> {value}
-                    </span>
-                );
-            }
+            accessor: 'netPaye',
+            Cell: ({ value }) => (
+                <span style={{ color: 'green' }}>
+                    <BiRupee /> {value}
+                </span>
+            )
         },
         {
             Header: 'Status',
             accessor: 'status',
-            Cell: ({ value }) => {
+            Cell: ({ row, value }) => {
                 const statusClass = value === 'Paid' ? 'status-paid' : 'status-unpaid';
-                return <span className={statusClass}>{value}</span>;
+                const handleClick = () => {
+                    if (value !== 'Paid') {
+                        setSelectedRow(row.original);
+                        setShowPopup(true);
+                    }
+                };
+                return (
+                    <span className={statusClass} onClick={handleClick} style={{ cursor: 'pointer' }}>
+                        {value}
+                    </span>
+                );
             }
-        },
-        {
-            Header: 'Pay Slip',
-            accessor: 'paySlipButton',
-            Cell: ({ row }) => (
-                <button className='payroll-btn' disabled={row.original.status !== 'Paid'}>
-                    Generate Pay Slip
-                </button>
-            )
         }
     ], []);
 
@@ -440,6 +454,13 @@ function Payroll() {
                     </div>
                 </div>
             </div>
+            {showPopup && (
+                <SalaryPopup
+                    showPopup={showPopup}
+                    setShowPopup={setShowPopup}
+                    selectedRow={selectedRow}
+                />
+            )}
         </main>
     );
 }
