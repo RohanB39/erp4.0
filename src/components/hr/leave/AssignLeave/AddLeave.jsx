@@ -116,7 +116,7 @@ function AddLeave() {
     try {
       const employeeDocRef = doc(fireDB, 'employees', employeeId);
       const employeeLeaveData = leaveData.find((data) => data.employeeId === employeeId);
-  
+
       if (employeeLeaveData) {
         const startDate = dayjs().format('DD-MM-YYYY');
         let endDate;
@@ -129,13 +129,18 @@ function AddLeave() {
         }
         const leaveInfo = {
           leaveFrequency: employeeLeaveData.leaveFrequency,
-          casualLeave: employeeLeaveData.casualLeave,
-          earnLeave: employeeLeaveData.earnLeave,
-          hplLeave: employeeLeaveData.hplLeave,
+          casualLeave: Number(employeeLeaveData.casualLeave),
+          earnLeave: Number(employeeLeaveData.earnLeave),
+          hplLeave: Number(employeeLeaveData.hplLeave),
           StartDate: startDate,
           EndDate: endDate,
           LeaveStatus: 'Not Used',
+          approvedLeaves:
+            Number(employeeLeaveData.casualLeave) +
+            Number(employeeLeaveData.earnLeave) +
+            Number(employeeLeaveData.hplLeave),
         };
+
         await updateDoc(employeeDocRef, { leaveInfo });
         Swal.fire({
           icon: 'success',
