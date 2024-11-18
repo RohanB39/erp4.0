@@ -21,7 +21,7 @@ const SalaryPopup = ({ showPopup, setShowPopup, selectedRow }) => {
     const ExceptionDays = selectedRow?.absentDays;
     const PayableDays = selectedRow?.workingDays;
     const GrossPay = selectedRow?.PM;
-    const Deduction = selectedRow?.employeeName;
+    const Deduction = selectedRow?.deduction;
     const NetPay = selectedRow?.netPaye;
 
     const docRef = doc(fireDB, 'Salary_Details', EmployeeId);
