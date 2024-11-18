@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTable, usePagination } from 'react-table';
-import { collection, getDocs, query, where, getFirestore } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { fireDB } from '../firebase/FirebaseConfig';
 import './dispach.css';
 import EditInvoicePopup from './editDispatchInvoicePopup/EditInvoicePopup';
@@ -16,7 +16,6 @@ function Dispach() {
   const [isDDPopup, setisDDPopup] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null); 
   const [selectedDD, setselectedDD] = useState(null); 
-  const db = getFirestore();
   const [isPaymentPopupOpen, setIsPaymentPopupOpen] = useState(false);
   const [selectedRowData, setSelectedRowData] = useState(null);
 
@@ -24,16 +23,18 @@ function Dispach() {
     const fetchProductionOrders = async () => {
       try {
         const productionOrdersCollection = collection(fireDB, 'Production_Orders');
-        const productionQuery = query(productionOrdersCollection, where('dispatchOrInventory', '==', 'Dispatch'));
+        const productionQuery = query(
+          productionOrdersCollection,
+          where('dispatchOrInventory', '==', 'Dispatch'),
+          where('progressStatus', '==', 'Ready To Dispatch'),
+          where('productionStatus', '==', 'Production Completed')
+        );
         const querySnapshot = await getDocs(productionQuery);
   
         const fetchedData = querySnapshot.docs.map(doc => {
           const data = doc.data();
-          const dispatchData = data.dispatchData || []; // Default to empty array if not present
-  
-          // Ensure dispatchData has elements before accessing the first element
+          const dispatchData = data.dispatchData || [];
           const dispatchInfo = dispatchData.length > 0 ? dispatchData[0] : {};
-  
           return {
             ...data,
             dispatchInvoiceNo: dispatchInfo.invoiceNo, // Set invoiceNo from the first dispatchData
@@ -112,6 +113,7 @@ function Dispach() {
     setIsPaymentPopupOpen(false);
   };
 
+  // Columns for dispatch details
   const dispatchColumns = useMemo(
     () => [
       {
@@ -160,7 +162,7 @@ function Dispach() {
     []
   );
 
-  // Columns for Dispatch Operations Table
+  // Columns for Dispatch Orders Table
   const productionOrdersColumns = useMemo(
     () => [
       {
@@ -201,6 +203,7 @@ function Dispach() {
     []
   );
 
+  // Columns for dispatch invoice
   const dispatchInvoiceColumns = useMemo(
     () => [
       {
@@ -267,7 +270,7 @@ function Dispach() {
     usePagination
   );
 
-  // Dispatch Operations Table configuration
+  // Dispatch Orders Table configuration
   const {
     getTableProps: getProductionTableProps,
     getTableBodyProps: getProductionTableBodyProps,
