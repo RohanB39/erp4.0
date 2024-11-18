@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fireDB, collection, query, where, getDocs } from '../../firebase/FirebaseConfig'; // Import necessary Firestore methods
+import { fireDB, collection, query, where, getDocs } from '../../firebase/FirebaseConfig';
 
 const Payables = () => {
   const [payablesData, setPayablesData] = useState([]);
