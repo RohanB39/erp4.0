@@ -1,6 +1,7 @@
 import { React, useState, useEffect } from 'react';
 import Select from 'react-select';
-import { getFirestore, collection, getDocs, doc, updateDoc, increment } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, increment } from 'firebase/firestore';
+import { fireDB } from '../../firebase/FirebaseConfig';
 import './editIncomingPopup.css';
 
 const EditExistingPopup = ({ rowData, onClose }) => {
@@ -9,33 +10,26 @@ const EditExistingPopup = ({ rowData, onClose }) => {
     const [rackInput, setRackInput] = useState('');
     const [existingRackLocation, setExistingRackLocation] = useState('');
     const [existingQuantity, setExistingQuantity] = useState('');
-
-    // Fetch racks and compare product IDs
     const fetchRacks = async () => {
-        const db = getFirestore();
-        const racksRef = collection(db, 'Store_Racks');
+        const racksRef = collection(fireDB, 'Store_Racks');
         try {
             const snapshot = await getDocs(racksRef);
             let matchedRack = null;
             let foundLocation = '';
             let foundQuantity = '';
-
             const racks = snapshot.docs.map(doc => {
                 const products = doc.data().products;
                 const foundProduct = products.find(product => product.id === rowData.materialId);
-
                 if (foundProduct) {
                     matchedRack = doc.id;
                     foundLocation = foundProduct.pLocation;
                     foundQuantity = foundProduct.quantity;
                 }
-
                 return {
                     value: doc.id,
                     label: doc.id,
                 };
             });
-
             setRackOptions(racks);
             if (matchedRack) {
                 setSelectedRack({ value: matchedRack, label: matchedRack });
@@ -46,56 +40,41 @@ const EditExistingPopup = ({ rowData, onClose }) => {
             console.error("Error fetching racks: ", error);
         }
     };
-
     useEffect(() => {
         if (rowData?.materialId) {
             fetchRacks();
         }
     }, [rowData]);
-
     const handleSave = async () => {
-        const db = getFirestore();
-
         try {
-            // 1) Update the "Items" collection
-            const itemDocRef = doc(db, 'Items', rowData.materialId); // Find document by materialId
+            const itemDocRef = doc(fireDB, 'Items', rowData.materialId); 
             await updateDoc(itemDocRef, {
-                GrnInvoicePrice: increment(rowData.GrnInvoicePrice), // Increment the price
+                GrnInvoicePrice: increment(rowData.GrnInvoicePrice),
             });
-
-            // 2) Update the quantity in "Store_Racks"
-            const racksRef = collection(db, 'Store_Racks');
+            const racksRef = collection(fireDB, 'Store_Racks');
             const racksSnapshot = await getDocs(racksRef);
-
             racksSnapshot.forEach(async rackDoc => {
                 const products = rackDoc.data().products;
                 const foundProduct = products.find(product => product.id === rowData.materialId);
-
                 if (foundProduct) {
                     const updatedProducts = products.map(product => {
                         if (product.id === rowData.materialId) {
                             return {
                                 ...product,
-                                quantity: product.quantity + rowData.quantityReceived, // Add the quantity
+                                quantity: product.quantity + rowData.quantityReceived,
                             };
                         }
                         return product;
                     });
-
-                    const rackDocRef = doc(db, 'Store_Racks', rackDoc.id);
+                    const rackDocRef = doc(fireDB, 'Store_Racks', rackDoc.id);
                     await updateDoc(rackDocRef, { products: updatedProducts });
                 }
             });
-
-            // 3) Update the "Purchase_Orders" status
-            const purchaseOrderDocRef = doc(db, 'Purchase_Orders', rowData.id); 
+            const purchaseOrderDocRef = doc(fireDB, 'Purchase_Orders', rowData.id); 
             await updateDoc(purchaseOrderDocRef, {
                 status: 'Stored', 
             });
-
             alert('Save successful!');
-
-            // Optionally, close the popup
             onClose();
         } catch (error) {
             console.error("Error updating documents: ", error);
