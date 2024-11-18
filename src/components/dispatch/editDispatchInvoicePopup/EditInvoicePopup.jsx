@@ -43,6 +43,8 @@ const EditInvoicePopup = ({ invoice, onClose }) => {
           }))
           .filter(doc => doc.data.productionStatus === "Packaging done, added to inventory")
           .sort((a, b) => b.FGQuantity - a.FGQuantity);
+          console.log('Filtered and Sorted Production Docs:', productionDocs);
+
 
         const firstDoc = productionDocs[0];  // Get the first document (highest FGQuantity)
         const currentQuantity = firstDoc.FGQuantity;
