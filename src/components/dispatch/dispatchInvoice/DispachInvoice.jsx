@@ -251,7 +251,7 @@ function DispachInvoice() {
 
             const orderDocRef = doc(fireDB, 'Customer_Purchase_Orders', orderNo);
             await setDoc(orderDocRef, { status: 'Closed' }, { merge: true });
-            alert('Order status updated to Closed');
+            alert('Order status updated');
 
         } catch (error) {
             console.error('Error saving invoice:', error);
