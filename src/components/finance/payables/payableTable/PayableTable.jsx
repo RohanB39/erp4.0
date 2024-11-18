@@ -21,9 +21,8 @@ const PayableTable = () => {
 
               setReceivables(receivablesData);
               const total = receivablesData.reduce((acc, receivable) => {
-                // Parse amount as a float and handle cases where amount might not be a number
                 const amount = parseFloat(receivable.GrnInvoicePrice);
-                return acc + (isNaN(amount) ? 0 : amount); // Only add if it's a valid number
+                return acc + (isNaN(amount) ? 0 : amount);
             }, 0);
 
             setTotalAmount(total);
