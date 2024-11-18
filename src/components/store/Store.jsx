@@ -22,10 +22,10 @@ const Store = () => {
     const [isProductionDemandEditPopupOpen, setProductionDemandEditPopupOpen] = useState(false);
     const [selectedMaterial, setSelectedMaterial] = useState(null);
     const [incomingExistingStock, setIncomingExistingStock] = useState([]);
-    const [isExistingIncomingPopupOpen, setExistingIncomingPopupOpen] = useState(false);
     const [editRowData, setEditRowData] = useState(null);
     const [isPaymentStatusPopupOpen, setIsPaymentStatusPopupOpen] = useState(false);
     const [selectedRowData, setSelectedRowData] = useState(null);
+    const [isExistingIncomingPopupOpen, setExistingIncomingPopupOpen] = useState(false);
 
 
     const fetchData = async () => {
@@ -315,11 +315,10 @@ const Store = () => {
     const handleEdittt = (rowData) => {
         setEditRowData(rowData);
         setExistingIncomingPopupOpen(true);
-        console.log(rowData);
     };
 
     const handleUpdatePaymentStatus = (rowData) => {
-        setSelectedRowData(rowData); 
+        setSelectedRowData(rowData);
         setIsPaymentStatusPopupOpen(true);
     };
 
@@ -948,7 +947,7 @@ const Store = () => {
                 />
             )}
             {isPaymentStatusPopupOpen && (
-                <UpdateExistingPaymentPopup 
+                <UpdateExistingPaymentPopup
                     rowData={selectedRowData}
                     onClose={closePaymentPopup}
                 />
