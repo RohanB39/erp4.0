@@ -113,7 +113,7 @@ const Grn = () => {
       const materialDocRef = doc(fireDB, "Items", materialId);
       await updateDoc(materialDocRef, updatedMaterial);
 
-      alert("Material and Purchase Order status updated successfully");
+      alert("Material status updated successfully");
     } catch (error) {
       alert("Error updating material or purchase order: ", error);
     }
