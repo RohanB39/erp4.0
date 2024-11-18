@@ -1,20 +1,18 @@
 import React, { useState } from 'react';
-import { getFirestore, doc, setDoc } from 'firebase/firestore'; // Import Firestore functions
+import { doc, setDoc } from 'firebase/firestore';
+import { fireDB } from '../../firebase/FirebaseConfig';
 
 const UpdateExistingPaymentPopup = ({ rowData, onClose }) => {
-    // State to manage the selected payment status
-    const [paymentStatus, setPaymentStatus] = useState(rowData.paymentStatus || ''); // Initialize with existing payment status or empty string
-
+    const [paymentStatus, setPaymentStatus] = useState(rowData.paymentStatus || ''); 
     const handlePaymentStatusChange = (e) => {
-        setPaymentStatus(e.target.value); // Update state when dropdown value changes
+        setPaymentStatus(e.target.value);
     };
 
-    const handleSave = async () => {
-        const db = getFirestore(); // Get Firestore instance
-        const documentRef = doc(db, 'Payable_Ledger', rowData.vendorInvoice); // Reference to the specific document using vendorInvoice as ID
+    console.log("Hello");
 
+    const handleSave = async () => {
+        const documentRef = doc(fireDB, 'Payable_Ledger', rowData.vendorInvoice);
         try {
-            // Set the document in Firestore with the new data
             await setDoc(documentRef, {
                 materialId: rowData.materialId,
                 materialName: rowData.materialName,
@@ -31,12 +29,12 @@ const UpdateExistingPaymentPopup = ({ rowData, onClose }) => {
             console.error("Error saving payment status: ", error);
         }
 
-        onClose(); // Close the popup after saving
+        onClose();
     };
 
     return (
-        <div className="popup-container">
-            <div className="popup-content">
+        <div>
+            <div>
                 <h2>Update Payment Status</h2>
 
                 <p><strong>ID:</strong> {rowData.materialId}</p>
