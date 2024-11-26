@@ -2,7 +2,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTable } from 'react-table';
 import { collection, query, where, getDocs, doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { fireDB } from '../firebase/FirebaseConfig';
-import './quality.css';
+
+
+
+import style from './quality.module.css';
 import GreenTickGif from '../../assets/approve.mp4';
 
 function FinalQuality() {
@@ -97,30 +100,35 @@ function FinalQuality() {
     useTable({ columns, data: modifiedData });
 
   return (
-    <div className='qualityTable'>
+    <div className={style.qualityTable}>
       <table {...getTableProps()} style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+        <thead className={style.qualityTableHeader}>
+          {headerGroups.map((headerGroup, i) => (
+            <tr {...headerGroup.getHeaderGroupProps()} key={`headerGroup-${i}`}>
+              {headerGroup.headers.map((column, j) => (
+                <th {...column.getHeaderProps()} key={`column-${j}`}>
+                  {column.render('Header')}
+                </th>
               ))}
             </tr>
           ))}
         </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
+        <tbody {...getTableBodyProps()} className={style.qualityTableBody}>
+          {rows.map((row, rowIndex) => {
             prepareRow(row);
             return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+              <tr {...row.getRowProps()} key={`row-${rowIndex}`}>
+                {row.cells.map((cell, cellIndex) => (
+                  <td {...cell.getCellProps()} key={`cell-${rowIndex}-${cellIndex}`}>
+                    {cell.render('Cell')}
+                  </td>
                 ))}
               </tr>
             );
           })}
         </tbody>
       </table>
+
     </div>
   );
 }

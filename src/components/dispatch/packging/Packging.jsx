@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { fireDB } from '../../firebase/FirebaseConfig';
 import DispatchPopup from './dispatchPopup/DispatchPopup';
-import './packging.css';
+import style from './packging.module.css';
+import { Link } from 'react-router-dom'
+
+
+import { RiArrowGoBackFill } from "react-icons/ri";
 
 const Packging = () => {
   const [products, setProducts] = useState([]);
@@ -143,10 +147,16 @@ const Packging = () => {
   }
 
   return (
-    <div id='main'>
-      <h1>Packaging</h1>
-      <table>
-        <thead>
+    <div className={style.packagingContainer}>
+      <div>
+        <Link to={'/Dispach'}><RiArrowGoBackFill className={style.returnIcon} /></Link>
+        <h1>Packaging</h1>
+
+      </div>
+
+
+      <table className={style.packagingContainerTable}>
+        <thead className={style.packagingContainerTableHeader}>
           <tr>
             <th>Sr/No</th>
             <th>Production Order ID</th>
@@ -159,7 +169,7 @@ const Packging = () => {
             <th>Action</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className={style.packagingContainerTableBody}>
           {products.map((product) => (
             <tr key={product.selectedProductId}>
               <td>{product.id}</td>

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { fireDB } from '../../../firebase/FirebaseConfig';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import style from './receivable.module.css';
+import { PiCurrencyInr } from "react-icons/pi";
 
 const OnlineRecivable = () => {
     const [receivables, setReceivables] = useState([]);
@@ -21,7 +23,7 @@ const OnlineRecivable = () => {
                         id: doc.id,
                         ...doc.data(),
                     }))
-                    .filter((receivable) => 
+                    .filter((receivable) =>
                         ['onlineBanking', 'upi', 'debitCard', 'creditCard'].includes(receivable.paymentStatus)
                     );
 
@@ -48,26 +50,21 @@ const OnlineRecivable = () => {
     }
 
     return (
-        <div>
-            <h2>Online Payment</h2>
-            <div style={{
-                padding: '20px',
-                margin: '20px 0',
-                backgroundColor: '#f9f9f9',
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-                textAlign: 'center',
-                fontSize: '18px',
-                fontWeight: 'bold',
-                color: '#333',
-                width: '30%',
-                color: 'green',
-            }}>
-                Total Online Credit : {totalAmount.toFixed(2)} Rs
+        <div className={style.onlineWrapper} id='online'>
+            <div className={style.Header}>
+
+                <div className={style.title}>
+                    <h2>Online Payment</h2>
+                    <p>Lorem ipsum dolor sit amet consectetur.</p>
+
+                </div>
+                <div className={style.credits}>
+                    <span><PiCurrencyInr className={style.icon} />{totalAmount.toFixed(2)} </span>
+                    Total Online Credit
+                </div>
             </div>
-            <table>
-                <thead>
+            <table className={style.table}>
+                <thead className={style.tableHeader}>
                     <tr>
                         <th>SR/No</th>
                         <th>Invoice No</th>
@@ -80,7 +77,7 @@ const OnlineRecivable = () => {
                         <th>Amount</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className={style.tableBody}>
                     {receivables.map((receivable, index) => (
                         <tr key={receivable.id}>
                             <td>{index + 1}</td>

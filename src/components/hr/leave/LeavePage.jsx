@@ -54,11 +54,11 @@ const LeaveStats = () => {
   const navigate = useNavigate();
 
   const handleAssignLeave = () => {
-    navigate('/add-leave');
+    navigate('/addLeave');
   };
 
   const handleApproveLeave = () => {
-    navigate('/approve-leave');
+    navigate('/approveLeave');
   };
 
   const fetchPendingLeaves = async () => {

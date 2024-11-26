@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { fireDB } from '../../../firebase/FirebaseConfig';
-import './productionExecution.css'
+
+
+import style from './productionExecution.module.css'
 
 const ProductionExecution = () => {
     const [data, setData] = useState([]);
@@ -47,16 +49,24 @@ const ProductionExecution = () => {
     };
 
     return (
-        <div className="main">
-            <input
-                type="text"
-                placeholder="Search by Production Order ID"
-                value={searchInput}
-                onChange={handleSearchChange}
-                className="search-bar"
-            />
-            <table>
-                <thead>
+        <div className={style.productionExecutionontainer}>
+            <div className={style.productionHeader}>
+                <div className={style.title}>
+                    <i class="ri-rocket-line"></i>
+
+                    <h4>Production Execution</h4>
+                </div>
+                <input
+                    type="text"
+                    placeholder="Search by Production Order ID"
+                    value={searchInput}
+                    onChange={handleSearchChange}
+                    className="search-bar"
+                />
+
+            </div>
+            <table className={style.productionExecutionTable}>
+                <thead className={style.productionExecutionTableHeader}>
                     <tr>
                         <th>Production Order ID</th>
                         <th>Product ID</th>
@@ -65,7 +75,7 @@ const ProductionExecution = () => {
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className={style.productionExecutionTableBody}>
                     {filteredData.map(item => (
                         <React.Fragment key={item.id}>
                             <tr>

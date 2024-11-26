@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { fireDB } from '../../../firebase/FirebaseConfig'; // Import your Firebase config
 import { collection, getDocs } from 'firebase/firestore';
-import './GenralLegder.css';
+
 import PayableTable from '../../payables/payableTable/PayableTable';
 import SaleTable from '../SaleTable/SaleTable';
 import PurchaseTable from '../PurchaseTable/PurchaseTable';
+
+import style from './GenralLegder.module.css'
+
+import { CiSearch } from "react-icons/ci";
 
 const GenralLegder = () => {
   const [transactions, setTransactions] = useState([]);
@@ -89,33 +93,43 @@ const GenralLegder = () => {
   });
 
   return (
-    <div>
-      <h1>General Ledger</h1>
+    <div className={style.generalWrapper}>
+      <div className={style.generalWrapperContent}>
 
-      <div className='info'>
-        {/* Search bar */}
-        <input
-          type="text"
-          placeholder="Search by Name of Business"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-bar"
-        />
+        <div className={style.title}>
+          <h4>General Ledger</h4>
 
-        {/* Another Dropdown for Ledger Type */}
-        <select
-          value={documentType}
-          onChange={(e) => setDocumentType(e.target.value)}
-          className="document-dropdown"
-        >
-          <option value="">Select Ledger</option>
-          <option value="Sale">Sale</option>
-          <option value="Purchase">Purchase</option>
-        </select>
+        </div>
+
+        <div className={style.info}>
+          {/* Search bar */}
+          <div className={style.searchBarContainer}>
+            <input
+              type="text"
+              placeholder="Search by Name of Business"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={style.searchBarInput}
+            />
+            {/* <CiSearch className={style.searchIcon} /> */}
+          </div>
+
+          {/* Another Dropdown for Ledger Type */}
+          <select
+            value={documentType}
+            onChange={(e) => setDocumentType(e.target.value)}
+            className="document-dropdown"
+          >
+            <option value="">Select Ledger</option>
+            <option value="Sale">Sale</option>
+            <option value="Purchase">Purchase</option>
+          </select>
+        </div>
       </div>
+      <hr className='hr' />
 
-      <table className="ledger-table">
-        <thead>
+      <table className={style.ledgerTable}>
+        <thead className={style.ledgerTableHeader}>
           <tr>
             <th>Sr/No</th>
             <th>Date</th>
@@ -128,7 +142,7 @@ const GenralLegder = () => {
             <th>Credit</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className={style.ledgerTableBody}>
           {filteredTransactions.map((transaction, index) => (
             <tr key={transaction.id}>
               <td>{index + 1}</td>

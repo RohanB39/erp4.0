@@ -1,13 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import './financePage.css';
+import style from './financePage.module.css'
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
-import { GiReceiveMoney } from "react-icons/gi";
-import { BsCurrencyRupee } from "react-icons/bs";
-import { FaMoneyBillAlt } from "react-icons/fa";
-import { AiOutlineCalendar } from 'react-icons/ai';
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { fireDB, collection, query, where, getDocs } from '../firebase/FirebaseConfig';
+
+
+
+import { CiMoneyBill } from "react-icons/ci";
+import { GiReceiveMoney } from "react-icons/gi";
+<GiReceiveMoney />
+import { PiCurrencyInrLight } from "react-icons/pi";
+<PiCurrencyInrLight />
+
+import { CiCalendarDate } from "react-icons/ci";
+<CiCalendarDate />
+
+
+
 
 const dataMoneyFlow = [
     { name: 'Jan', Internet: 164, Health: 128, Food: 210, Shopping: 180, Vacation: 300 },
@@ -255,161 +265,179 @@ function FinancePage() {
 
     return (
         <>
-            <div className="finance-container">
-                <div className="main" id='main'>
-                    <div className="finance-content">
-                        <div>
+            <div className={style.financeWrapper}>
+
+                <div className={style.financeContent}>
+                    <div>
+                        <div className={style.title}>
+                            <i className="ri-wallet-line"></i>
                             <h3>Your Total Balance</h3>
-                            <p>Take a look at your statistics</p>
+
                         </div>
-                        <div className='finance-stats'>
-                            <div className='left-stats'>
-                                <h3>Rs. {currentMonthIncome.toLocaleString()}</h3>
-                                <span>Rs. {Math.abs(incomeDifference).toLocaleString()} {incomeChangeIndicator}</span>
+                        <p>Take a look at your statistics</p>
+                    </div>
+
+                    <div className={style.financeStats}>
+                        <div className={style.leftStats}>
+                            <div>
+                                <i className="ri-bank-line"></i>
+                                <h4>Rs. {currentMonthIncome.toLocaleString()}</h4>
                             </div>
-                            <div className='stats'>
-                                {/* <GiReceiveMoney className='icon' /> */}
-                                <div>
-                                    <h2>Rs. {totalAssets}</h2>
-                                    <span>Total Investment</span>
-                                </div>
-                            </div>
-                            <div className='stats'>
-                                {/* <BsCurrencyRupee className='icon' /> */}
-                                <div>
-                                    <h2>$3232</h2>
-                                    <span>Income from Accounts</span>
-                                </div>
-                            </div>
+                            <span>Rs. {Math.abs(incomeDifference).toLocaleString()} {incomeChangeIndicator}</span>
                         </div>
 
-                    </div>
-                    <hr />
-                </div>
-            </div>
-            <div className="finance-cards" id='main'>
-                <div className="single-card">
-                    <div className="icon">
-                        <div>
-                            <h3>Rs. {totalIncome}</h3>
-                            <p>Total Income</p>
+                        <div className={style.stats}>
+
+                            <div>
+                                <i className="ri-exchange-dollar-line"></i>
+                                <h4>$3232</h4>
+                            </div>
+                            <span>Income from Accounts</span>
                         </div>
-                        <FaMoneyBillAlt className="icons" />
-                    </div>
-                    <div className="graph">
-                        <ResponsiveContainer width="100%" height={30}>
-                            <AreaChart data={newArray}>
-                                <Tooltip />
-                                <Area type="monotone" dataKey="income" stroke="#8884d8" fill="#8884d8" />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-                <div className="single-card">
-                    <div className="icon">
-                        <div>
-                            <h3>Rs. {totalExpance}</h3>
-                            <p>Total Expence</p>
+                        <div className={style.stats}>
+
+                            <div >
+                                <i className="ri-wallet-line"></i>
+                                <h4>Rs. {totalAssets}</h4>
+                            </div>
+                            <span>Total Investment</span>
                         </div>
-                        <FaMoneyBillAlt className='icons' />
-                    </div>
-                    <div className='graph'>
-                        <ResponsiveContainer width="100%" height={30}>
-                            <AreaChart data={dataExpence}>
-                                <Tooltip />
-                                <Area type="monotone" dataKey="expenc" stroke="#82ca9d" fill="#82ca9d" />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-                <div className="single-card">
-                    <div className="icon">
-                        <div>
-                            <h3 style={{ color: profitOrLoss >= 0 ? 'green' : 'red' }}>
-                                {profitOrLoss >= 0 ? '+' : '-'} Rs. {Math.abs(profitOrLoss)}
-                            </h3>
-                            <p>Total Profit/Loss</p>
-                        </div>
-                        <FaMoneyBillAlt className='icons' />
-                    </div>
-                    <div className='graph'>
-                        <ResponsiveContainer width="100%" height={30}>
-                            <AreaChart data={[{ savings: profitOrLoss }]}>
-                                <Tooltip />
-                                <Area type="monotone" dataKey="savings" stroke="#ffc658" fill="#ffc658" />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-                <div className="single-card">
-                    <div className="icon">
-                        <div>
-                            <h3>Rs. {totalAssets}</h3>
-                            <p>Total Assets</p>
-                        </div>
-                        <FaMoneyBillAlt className='icons' />
-                    </div>
-                    <div className='graph'>
-                        <ResponsiveContainer width="100%" height={30}>
-                            <AreaChart data={newAssetsArray}>
-                                <Tooltip />
-                                <Area type="monotone" dataKey="expance" stroke="#ff7300" fill="#ff7300" />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-            </div>
-            <div className="finance-graph-container " id="main">
-                <div className="graph-container">
-                    <div className="graph-header">
-                        <h3>Money Flow</h3>
-                        <p>Cost and Usage</p>
-                    </div>
-                    <div className="graph-body">
-                        <ResponsiveContainer width="100%" height={300}>
-                            <LineChart data={dataMoneyFlow}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="name" />
-                                <YAxis />
-                                <Tooltip />
-                                <Line type="" dataKey="Internet" stroke="#8884d8" />
-                                <Line type="bar" dataKey="Health" stroke="#82ca9d" />
-                                <Line type="" dataKey="Food" stroke="#ffc658" />
-                                <Line type="monotone" dataKey="Shopping" stroke="#ff7300" />
-                                <Line type="monotone" dataKey="Vacation" stroke="#413ea0" />
-                            </LineChart>
-                        </ResponsiveContainer>
                     </div>
 
                 </div>
-                <div className="recent-payment-container">
-                    <div className="payment-header">
-                        <h3>Recent Payment</h3>
-                    </div>
-                    <div className="payment-serch">
-                        <input
-                            type="text"
-                            placeholder='Search Payment'
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
-                    <div className="payment-list">
-                        {filteredPayments.map((payment, index) => (
-                            <div className='single-payment' key={index}>
-                                <div>
-                                    <h3>
-                                        {payment.type === 'purchase_order' ? payment.materialName : payment.customer}
-                                    </h3>
-                                    <p>{payment.date}</p>
-                                </div>
-                                <div>
-                                    <h5 style={{ color: payment.type === 'purchase_order' ? 'red' : 'green' }}>
-                                        {payment.type === 'purchase_order' ? `- Rs. ${payment.price}` : `+ Rs. ${payment.total}`}
-                                    </h5>
-                                </div>
+                <hr className='hr' />
+
+
+                <div className={style.finanaceCards}>
+                    <div className={style.singleCard}>
+                        <div className={style.icon}>
+                            <div>
+                                <h3>Rs. {totalIncome}</h3>
+                                <p>Total Income</p>
                             </div>
-                        ))}
+                            <i className="ri-money-rupee-circle-line"></i>
+                        </div>
+                        <div className={style.graph}>
+                            <ResponsiveContainer width="100%" height={30}>
+                                <AreaChart data={newArray}>
+                                    <Tooltip />
+                                    <Area type="monotone" dataKey="income" stroke="#8884d8" fill="#8884d8" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                    <div className={style.singleCard}>
+                        <div className={style.icon}>
+                            <div>
+                                <h3>Rs. {totalExpance}</h3>
+                                <p>Total Expence</p>
+                            </div>
+                            <i className="ri-currency-line"></i>
+                        </div>
+                        <div className={style.graph}>
+                            <ResponsiveContainer width="100%" height={30}>
+                                <AreaChart data={dataExpence}>
+                                    <Tooltip />
+                                    <Area type="monotone" dataKey="expenc" stroke="#82ca9d" fill="#82ca9d" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                    <div className={style.singleCard}>
+                        <div className={style.icon}>
+                            <div>
+                                <h3 style={{ color: profitOrLoss >= 0 ? 'green' : '#e85353' }}>
+                                    {profitOrLoss >= 0 ? '+' : '-'} Rs. {Math.abs(profitOrLoss)}
+                                </h3>
+                                <p>Total Profit/Loss</p>
+                            </div>
+                            <i className="ri-money-rupee-circle-line"></i>
+                        </div>
+                        <div className={style.graph}>
+                            <ResponsiveContainer width="100%" height={30}>
+                                <AreaChart data={[{ savings: profitOrLoss }]}>
+                                    <Tooltip />
+                                    <Area type="monotone" dataKey="savings" stroke="#ffc658" fill="#ffc658" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                    <div className={style.singleCard}>
+                        <div className={style.icon}>
+                            <div>
+                                <h3>Rs. {totalAssets}</h3>
+                                <p>Total Assets</p>
+                            </div>
+                            <i className="ri-wallet-3-line"></i>
+                        </div>
+                        <div className={style.graph}>
+                            <ResponsiveContainer width="100%" height={30}>
+                                <AreaChart data={newAssetsArray}>
+                                    <Tooltip />
+                                    <Area type="monotone" dataKey="expance" stroke="#ff7300" fill="#ff7300" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                </div>
+                <div className={style.graphWrapper}>
+                    <div className={style.graphcontainer}>
+                        <div className={style.graphheader}>
+                            <div className={style.title}>
+                                <i className="ri-cash-line"></i>
+                                <h3>Money Flow</h3>
+                            </div>
+                            <p>Cost and Usage</p>
+                        </div>
+                        <div className={style.graphbody}>
+                            <ResponsiveContainer width="100%" height={300}>
+                                <LineChart data={dataMoneyFlow}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="name" />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Line type="" dataKey="Internet" stroke="#8884d8" />
+                                    <Line type="bar" dataKey="Health" stroke="#82ca9d" />
+                                    <Line type="" dataKey="Food" stroke="#ffc658" />
+                                    <Line type="monotone" dataKey="Shopping" stroke="#ff7300" />
+                                    <Line type="monotone" dataKey="Vacation" stroke="#413ea0" />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+
+                    </div>
+                    <div className={style.recentPaymentContainer}>
+                        <div className={style.paymentHeader}>
+                            <div className={style.paymentHead}>
+                                <i className="ri-time-line"></i>
+                                <h3>Recent Payment</h3>
+                            </div>
+                            <div className={style.paymentSearch}>
+                                <input
+                                    type="text"
+                                    placeholder='Search Payment'
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div className={style.paymentList}>
+                            {filteredPayments.map((payment, index) => (
+                                <div className={style.singlePayment} key={index}>
+                                    <div>
+                                        <h3>
+                                            {payment.type === 'purchase_order' ? payment.materialName : payment.customer}
+                                        </h3>
+                                        <p>{payment.date}</p>
+                                    </div>
+                                    <div>
+                                        <h5 style={{ color: payment.type === 'purchase_order' ? 'red' : 'green' }}>
+                                            {payment.type === 'purchase_order' ? `- Rs. ${payment.price}` : `+ Rs. ${payment.total}`}
+                                        </h5>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>

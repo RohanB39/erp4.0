@@ -10,7 +10,9 @@ import jsPDF from 'jspdf';
 import logo from '../../../assets/Tectigon_logo.png';
 import * as XLSX from 'xlsx';
 import ExportModal from '../../purchase/exportModel/ExportModal';
-import './bomModal.css';
+
+
+import style from './bomModal.module.css'
 
 const BillOfMaterials = () => {
     const [searchInput, setSearchInput] = useState('');
@@ -178,10 +180,16 @@ const BillOfMaterials = () => {
     );
 
     return (
-        <div className="allproduction">
-            <div className="allproduction-table">
-                <div className="allproduction-table-header">
-                    <div className='productionsearch'>
+        <div className={style.bomWrapper}>
+            <div className={style.info}>
+                <h3>Production</h3>
+                <span>/</span>
+                <p>Bill Of Materials</p>
+
+            </div>
+            <div className={style.bomTable}>
+                <div className={style.bomTableHeader}>
+                    <div className={style.bomSearch}>
                         <input
                             type="text"
                             placeholder='Search by invoice'
@@ -189,29 +197,32 @@ const BillOfMaterials = () => {
                             onChange={(e) => setSearchInput(e.target.value)}
                         />
                     </div>
-                    <div className='createproduction'>
+                    <div className={style.bomTabs}>
                         <button onClick={() => setExportModalOpen(true)}><MdOutlineFileDownload className='icon' /> Export</button>
-                        <button onClick={handleCreatePurchaseOrder}> <IoAdd className='icon' />Create Purchase Order</button>
+                        <button onClick={handleCreatePurchaseOrder}> <IoAdd className='icon' />Create Order</button>
                     </div>
                 </div>
-                <div className="production-item-list">
-                    <table {...getPurchaseTableProps()}>
-                        <thead>
-                            {purchaseHeaderGroups.map(headerGroup => (
-                                <tr {...headerGroup.getHeaderGroupProps()}>
-                                    {headerGroup.headers.map(column => (
-                                        <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+                <hr className='hr' />
+                <div className={style.bomItemList}>
+                    <table {...getPurchaseTableProps()} className={style.bomItemTable}>
+                        <thead className={style.bomItemTableHeader}>
+                            {purchaseHeaderGroups.map((headerGroup, headerGroupIndex) => (
+                                <tr {...headerGroup.getHeaderGroupProps()} key={`headerGroup-${headerGroupIndex}`}>
+                                    {headerGroup.headers.map((column, columnIndex) => (
+                                        <th {...column.getHeaderProps()} key={`column-${columnIndex}`}>
+                                            {column.render('Header')}
+                                        </th>
                                     ))}
                                 </tr>
                             ))}
                         </thead>
-                        <tbody {...getPurchaseTableBodyProps()}>
-                            {purchasePage.map(row => {
+                        <tbody {...getPurchaseTableBodyProps()} className={style.bomItemTableBody}>
+                            {purchasePage.map((row, rowIndex) => {
                                 preparePurchaseRow(row);
                                 return (
-                                    <tr {...row.getRowProps()}>
-                                        {row.cells.map(cell => (
-                                            <td {...cell.getCellProps()}>
+                                    <tr {...row.getRowProps()} key={`row-${rowIndex}`}>
+                                        {row.cells.map((cell, cellIndex) => (
+                                            <td {...cell.getCellProps()} key={`cell-${rowIndex}-${cellIndex}`}>
                                                 {cell.render('Cell')}
                                             </td>
                                         ))}
@@ -220,13 +231,14 @@ const BillOfMaterials = () => {
                             })}
                         </tbody>
                     </table>
+
                 </div>
-                <div className="pagination">
+                <div className={style.pagination}>
                     <button onClick={() => previousPage()} disabled={!canPreviousWarehousePage}>
                         {'<'}
                     </button>
                     <span>
-                        Showing{' '}
+
                         {purchasePageIndex + 1} of {purchasePageOptions.length}
                     </span>
                     <button onClick={() => nextpurchasePage()} disabled={!canNextPurchasePage}>

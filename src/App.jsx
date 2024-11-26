@@ -1,129 +1,193 @@
-import React, { useState } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import './App.css';
-
-// Bootstrap
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.min.js';
 
 // Icons
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'remixicon/fonts/remixicon.css';
 
 // Components
-import LoginPage from './components/loginPage/LoginPage';
-import Header from './components/header/Header';
 import Sidebar from './components/sidebar/Sidebar';
+import LoginPage from './components/loginPage/LoginPage';
 import Main from './components/mainDash/Main';
-import CustomerList from './components/Masters/customer/CustomerList';
-import ItemList from './components/Masters/items/ItemList';
-import VendorList from './components/Masters/vendor/VendorList';
-import RawMaterial from './components/Masters/rawMaterial/RawMaterial';
-import SemiFinished from './components/Masters/semiFinished/SemiFinished';
-import Finished from './components/Masters/finished/Finished';
-import Master from './components/analysis/MasterCard';
-import HrDashboard from './components/hr/HrDashboard';
-import ViewEmployees from './components/hr/employee/viewEmployee/ViewEmployees';
-import UpdateEmployee from './components/hr/employee/updateEmployee/UpdateEmployee';
-import Attendance from './components/hr/attendance/Attendance';
-import Payroll from './components/hr/payments/payrollOverview/Payroll';
-import PayrollTable from './components/hr/payments/payrollOverview/PayrollTable';
-import ShiftOverrideForm from './components/hr/shift/ShiftOverrideForm';
-import LeavePage from './components/hr/leave/LeavePage';
-import ShiftRosterPage from './components/hr/shift/ShiftRosterPage';
-import AllProduction from './components/production/AllProduction';
-import Store from './components/store/Store';
-import FinancePage from './components/finance/FinancePage';
+import Header from './components/header/Header';
 import SalesPurchase from './components/purchase/SalesPurchase';
-import MasterDash from './components/Masters/MasterDash';
-import Dispach from './components/dispatch/Dispach';
-import DispachInvoice from './components/dispatch/dispatchInvoice/DispachInvoice';
-import AllQuality from './components/Quality/AllQuality';
+import CustomerPO from './components/purchase/customerPurchaseOrder/CustomerPO';
+import Store from './components/store/Store';
+import FGInventory from './components/store/FGInventory/FGInventory';
 import Grn from './components/store/grn/Grn';
-import PurchaseOrder from './components/purchase/purchaseOrder/PurchaseOrder';
+import AllQuality from './components/Quality/AllQuality';
+import AllProduction from './components/production/AllProduction';
 import DemandMaterial from './components/production/demandMaterial/DemandMaterial';
 import ProductionProcess from './components/production/productionProcess/ProductionProcess';
 import AddMachines from './components/production/addMachines/AddMachines';
+import FinancePage from './components/finance/FinancePage';
+import Dispach from './components/dispatch/Dispach';
+import DispachInvoice from './components/dispatch/dispatchInvoice/DispachInvoice';
 import Packging from './components/dispatch/packging/Packging';
-import FGInventory from './components/store/FGInventory/FGInventory';
-import CustomerPO from './components/purchase/customerPurchaseOrder/CustomerPO';
-import ExistingMaterialGrn from './components/store/grn/existingMaterialGrn/ExistingMaterialGrn';
-import ExistingMaterialInward from './components/Quality/ExistingMaterialInward';
-import Receivables from './components/finance/receivables/Receivables';
-import Payables from './components/finance/payables/Payables';
 import CompanyLegder from './components/finance/companyLegder/CompanyLegder';
-import EmployeeLogin from './components/hr/EmployeeLogin/EmployeeLogin';
-import SalaryDetails from './components/hr/SalaryDetails/SalaryDetails';
-import ApproveLeave from './components/hr/leave/ApproveLeave/ApproveLeave';
-import onboardEmployee from './components/hr/OnboardEmployee/OnboardEmployee';
-import { useAuth } from './AuthContext';
-import AttendanceCalendar from './components/hr/attendance/AttendanceCalander/AttendanceCalander';
+import Payables from './components/finance/payables/Payables';
+import Receivables from './components/finance/receivables/Receivables'
+import PurchaseOrder from './components/purchase/purchaseOrder/PurchaseOrder'
+import MasterDash from './components/Masters/MasterDash';
+import CustomerForm from './components/Masters/customer/customerPopup/CustomerPopup'
+import HrDashboard from './components/hr/HrDashboard';
+import LeavePage from './components/hr/leave/LeavePage';
 import AddLeave from './components/hr/leave/AssignLeave/AddLeave';
+import ApproveLeave from './components/hr/leave/ApproveLeave/ApproveLeave';
+import EmployeeLogin from './components/hr/EmployeeLogin/EmployeeLogin';
 import OnboardEmployee from './components/hr/OnboardEmployee/OnboardEmployee';
+import Attendance from './components/hr/attendance/Attendance';
+import AttendanceCalendar from './components/hr/attendance/AttendanceCalander/AttendanceCalander';
+import Payroll from './components/hr/payments/payrollOverview/Payroll';
+import NewInvoice from './components/dispatch/dispatchInvoice/NewInvoice';
+
 function App() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false); // Set initial state to false
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const handleLogin = () => {
         setIsLoggedIn(true);
     };
+    
     return (
         <BrowserRouter>
             {!isLoggedIn ? (
                 <LoginPage onLogin={handleLogin} />
             ) : (
-                <>
+                <div className="parentBody">
+                    <aside>
+                        <Sidebar />
+                    </aside>
                     <Header />
-                    <Sidebar />
-                    <div className="main-content">
+                    <main>
                         <Routes>
-                            <Route path='/' element={<Main />} />
-                            <Route path='/Master' element={<Master />} />
-                            <Route path='/CustomerList' element={<CustomerList />} />
-                            <Route path='/ItemList' element={<ItemList />} />
-                            <Route path='/VendorList' element={<VendorList />} />
-                            <Route path='/RawMaterial' element={<RawMaterial />} />
-                            <Route path='/SemiFinished' element={<SemiFinished />} />
-                            <Route path='/Finished' element={<Finished />} />
-                            <Route path='/HrDashboard' element={<HrDashboard />} />
-                            <Route path='/view-employees' element={<ViewEmployees />} />
-                            <Route path='/attendance' element={<Attendance />} />
-                            <Route path='/update-employee' element={<UpdateEmployee />} />
-                            <Route path='/process-payroll' element={<Payroll />} />
-                            <Route path='/payroll-table' element={<PayrollTable />} />
-                            <Route path='/Payroll' element={<Payroll />} />
-                            <Route path="/ShiftOverrideForm" element={<ShiftOverrideForm />} />
-                            <Route path='/LeavePage' element={<LeavePage />} />
-                            <Route path='/ShiftRosterPage' element={<ShiftRosterPage />} />
-                            <Route path="/allproduction" element={<AllProduction />} />
-                            <Route path="/FinancePage" element={<FinancePage />} />
-                            <Route path='/SalesPurchase' element={<SalesPurchase />} />
-                            <Route path="/purchase-order" element={<PurchaseOrder />} />
-                            <Route path="/customerPO" element={<CustomerPO />} />
-                            <Route path='/MasterDash' element={<MasterDash />} />
-                            <Route path="/Store" element={<Store />} />
-                            <Route path='/Dispach' element={<Dispach />} />
-                            <Route path='/DispachInvoice' element={<DispachInvoice />} />
-                            <Route path='/Packging' element={<Packging />} />
-                            <Route path="/AllQuality" element={<AllQuality />} />
-                            <Route path="/Store" element={<Store />} />
-                            <Route path="/Grn" element={<Grn />} />
-                            <Route path="/fgInventory" element={<FGInventory />} />
-                            <Route path="/DemandMaterial" element={<DemandMaterial />} />
-                            <Route path="/ProductionProcess" element={<ProductionProcess />} />
-                            <Route path="/addMachines" element={<AddMachines />} />
-                            <Route path="/existing-material-grn" element={<ExistingMaterialGrn />} />
-                            <Route path="/existing-material-Inward" element={<ExistingMaterialInward />} />
-                            <Route path="/receivable" element={<Receivables />} />
-                            <Route path="/payables" element={<Payables />} />
-                            <Route path="/Company-Legder" element={<CompanyLegder />} />
-                            <Route path="/EmployeeLogin" element={<EmployeeLogin />} />
-                            <Route path="/onboardEmployee/:id" element={<OnboardEmployee />} />
-                            <Route path="/salaryDetails" element={<SalaryDetails />} />
-                            <Route path="/approve-leave" element={<ApproveLeave />} />
-                            <Route path="/attendance-calendar" element={<AttendanceCalendar />} />
-                            <Route path="/add-leave" element={<AddLeave />} />
+                            <Route path="/" element={<Main />} />
+                            <Route
+                                path="/SalesPurchase"
+                                element={isLoggedIn ? <SalesPurchase /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/CustomerPo"
+                                element={isLoggedIn ? <CustomerPO /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/Storage"
+                                element={isLoggedIn ? <Store /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/Grn"
+                                element={isLoggedIn ? <Grn /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/fgInventory"
+                                element={isLoggedIn ? <FGInventory /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/AllQuality"
+                                element={isLoggedIn ? <AllQuality /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/allProduction"
+                                element={isLoggedIn ? <AllProduction /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/DemandMaterial"
+                                element={isLoggedIn ? <DemandMaterial /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/ProductionProcess"
+                                element={isLoggedIn ? <ProductionProcess /> : <Navigate to="/" />}
+                            />
+
+                            <Route
+                                path="/AddMachines"
+                                element={isLoggedIn ? <AddMachines /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/Finance"
+                                element={isLoggedIn ? <FinancePage /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/Recivable"
+                                element={isLoggedIn ? <Receivables /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/Payables"
+                                element={isLoggedIn ? <Payables /> : <Navigate to="/" />}
+                            />
+
+                            <Route
+                                path="/CompanyLegder"
+                                element={isLoggedIn ? <CompanyLegder /> : <Navigate to="/" />}
+                            />
+
+
+
+
+                            <Route
+                                path="/Dispach"
+                                element={isLoggedIn ? <Dispach /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/DispachInvoice"
+                                element={isLoggedIn ? <NewInvoice /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/Packging"
+                                element={isLoggedIn ? <Packging /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/purchaseOrder"
+                                element={isLoggedIn ? <PurchaseOrder /> : <Navigate to="/" />}
+                            />
+
+                            <Route
+                                path="/MasterDash"
+                                element={isLoggedIn ? <MasterDash /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/CustomerForm"
+                                element={isLoggedIn ? <CustomerForm /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/hrDashboard"
+                                element={isLoggedIn ? <HrDashboard /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/hrLeave"
+                                element={isLoggedIn ? <LeavePage /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/addLeave"
+                                element={isLoggedIn ? <AddLeave /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/approveLeave"
+                                element={isLoggedIn ? <ApproveLeave /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/EmployeeLogin"
+                                element={isLoggedIn ? <EmployeeLogin /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/onboardEmployee"
+                                element={isLoggedIn ? <OnboardEmployee /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/attendance"
+                                element={isLoggedIn ? <Attendance /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/attendance-calendar"
+                                element={isLoggedIn ? <AttendanceCalendar /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/Payroll"
+                                element={isLoggedIn ? <Payroll /> : <Navigate to="/" />}
+                            />
+
                         </Routes>
-                    </div>
-                </>
+                    </main>
+                </div>
             )}
         </BrowserRouter>
     );

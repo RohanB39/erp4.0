@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './companyLedger.css';
+import style from './companyLedger.module.css';
 import RawMaterialTable from './rawMaterialTable/RawMaterialTable';
 import FinishedGoodsTable from './finishedGoodsTable/FinishedGoodsTable';
 import SalaryTable from './salaryTable/SalarayTable';
@@ -17,6 +17,11 @@ import UnderMaintainanceAssets from './assetsTable/AssetsOptions/UnderMaintainan
 import GenralLegder from './GenralLegder/GenralLegder';
 import SaleTable from './SaleTable/SaleTable';
 import PurchaseTable from './PurchaseTable/PurchaseTable';
+
+
+
+import { BiCategory } from "react-icons/bi";
+import { BsCashStack } from "react-icons/bs";
 
 const CompanyLedger = () => {
   // Set 'salaryPayroll' as the default selected option
@@ -48,7 +53,7 @@ const CompanyLedger = () => {
 
   const handlePayableChange = (event) => {
     setPayableType(event.target.value);
-};
+  };
 
   const handleInventoryOptionChange = (event) => {
     setInventoryOption(event.target.value);
@@ -59,35 +64,49 @@ const CompanyLedger = () => {
   };
 
   return (
-    <div id='main'>
-      <h1>Company Ledger</h1>
-      <div className='ddContainer'>
-        <div className="dropdown-container">
-          <select
-            id="ledgerOptions"
-            value={selectedOption}
-            onChange={handleDropdownChange}
-            className="custom-dropdown"
-          >
-            <option value="" disabled>Category</option>
-            <option value="payments">Payments</option>
-            <option value="inventoryLedger">Inventory</option>
-            <option value="salaryPayroll">Salary & Payroll</option>
-            <option value="genral">General</option>
-            <option value="cash">Cash</option>
-            <option value="sale">Sale</option>
-            <option value="purchase">Purchase</option>
-            <option value="asset">Asset</option>
-          </select>
+    <div className={style.legderWrapper}>
+      <div className={style.title}>
+        <div>
+          <i class="ri-pencil-line"></i>
+          <h4>Company Ledger</h4>
+        </div>
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+
+      </div>
+      <hr className='hr' />
+      <div className={style.ddContainer}>
+        <div>
+
+
+          <BiCategory className={style.icon} />
+          <div className={style.dropdownContainer}>
+            <select
+              id="ledgerOptions"
+              value={selectedOption}
+              onChange={handleDropdownChange}
+              className={style.customDropdown}
+            >
+              <option value="" disabled>Category</option>
+              <option value="payments">Payments</option>
+              <option value="inventoryLedger">Inventory</option>
+              <option value="salaryPayroll">Salary & Payroll</option>
+              <option value="genral">General</option>
+              <option value="cash">Cash</option>
+              <option value="sale">Sale</option>
+              <option value="purchase">Purchase</option>
+              <option value="asset">Asset</option>
+            </select>
+          </div>
         </div>
 
         {selectedOption === 'payments' && (
-          <div className="dropdown-container">
+          <div className={style.dropdownContainer}>
+            <BsCashStack className={style.icon} />
             <select
               id="paymentOptions"
               value={paymentOption}
               onChange={handlePaymentOptionChange}
-              className="custom-dropdown"
+              className={style.customDropdown}
             >
               <option value="" disabled>Select a payment type</option>
               <option value="receivable">Receivable</option>
@@ -98,12 +117,12 @@ const CompanyLedger = () => {
 
         {/* Conditionally render the "Online or Cash" dropdown when 'receivable' is selected under payments */}
         {paymentOption === 'receivable' && (
-          <div className="dropdown-container">
+          <div className={style.dropdownContainer}>
             <select
               id="Category"
               value={documentType}
               onChange={handleDocumentType}
-              className="custom-dropdown"
+              className={style.customDropdown}
             >
               <option value="" disabled>Select Type</option>
               <option value="online">Online</option>
@@ -113,12 +132,12 @@ const CompanyLedger = () => {
         )}
 
         {paymentOption === 'payable' && (
-          <div className="dropdown-container">
+          <div className={style.dropdownContainer}>
             <select
               id="category"
               value={payableType}
               onChange={handlePayableChange}
-              className="custom-dropdown"
+              className={style.customDropdown}
             >
               <option value="" disabled>Select Type</option>
               <option value="online">Online</option>
@@ -128,12 +147,12 @@ const CompanyLedger = () => {
         )}
 
         {selectedOption === 'inventoryLedger' && (
-          <div className="dropdown-container">
+          <div className={style.dropdownContainer}>
             <select
               id="inventoryLedgerOption"
               value={inventoryOption}
               onChange={handleInventoryOptionChange}
-              className="custom-dropdown"
+              className={style.customDropdown}
             >
               <option value="" disabled>Select Material type</option>
               <option value="rawMaterial">Raw Material</option>
@@ -143,12 +162,12 @@ const CompanyLedger = () => {
         )}
 
         {selectedOption === 'asset' && (
-          <div className="dropdown-container">
+          <div className={style.dropdownContainer}>
             <select
               id="assetsledgeroption"
               value={assetsOption}
               onChange={handleIAssetsptionChange}
-              className="custom-dropdown"
+              className={style.customDropdown}
             >
               <option value="" disabled>Select Assets type</option>
               <option value="active">Active</option>

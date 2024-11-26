@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 import { app } from '../../../firebase/FirebaseConfig';
+import style from './materialAllocation.module.css'
 
 const MaterialAllocation = () => {
     const [orders, setOrders] = useState([]);
-    const [expandedRows, setExpandedRows] = useState([]); // Tracks which rows are expanded
-    const [searchTerm, setSearchTerm] = useState(''); // Stores the search term
+    const [expandedRows, setExpandedRows] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
     const db = getFirestore(app);
 
     // Function to fetch data from Firestore
@@ -54,23 +55,27 @@ const MaterialAllocation = () => {
     );
 
     return (
-        <div className='main'>
-            <div className='grn-page'>
-                <h4>Store Approved Orders</h4>
+        <div className={style.materialAllocation}>
+            <div className={style.materialPage}>
+                <div className={style.title}>
+                    <i class="ri-task-line"></i>
+                    <h4>Store Approved Orders</h4>
+                </div>
+                <div>
+                    <input
+                        type="text"
+                        placeholder="Search by Product ID"
+                        value={searchTerm}
+                        onChange={handleSearch}
+                        className='sarch'
+                    />
+                </div>
             </div>
+            <hr className='hr' />
             {/* Search bar */}
             <div>
-                <input
-                    type="text"
-                    placeholder="Search by Product ID"
-                    value={searchTerm}
-                    onChange={handleSearch}
-                    style={{ marginBottom: '20px', padding: '10px', width: '300px' }}
-                />
-            </div>
-            <div>
-                <table>
-                    <thead>
+                <table className={style.materialTable}>
+                    <thead className={style.materialTableHeader}>
                         <tr>
                             <th>Sr No</th>
                             <th>Product ID</th>
@@ -78,7 +83,7 @@ const MaterialAllocation = () => {
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className={style.materialTableBody}>
                         {filteredOrders.length > 0 ? (
                             filteredOrders.map((order, index) => (
                                 <React.Fragment key={order.id}>
@@ -87,23 +92,23 @@ const MaterialAllocation = () => {
                                         <td>{order.productId}</td>
                                         <td>{order.productionOrderId}</td>
                                         <td>
-                                            <button onClick={() => toggleRow(order.id)}>
+                                            <button onClick={() => toggleRow(order.id)} className={style.btn}>
                                                 {expandedRows.includes(order.id) ? 'Hide Materials' : 'Show Materials'}
                                             </button>
                                         </td>
                                     </tr>
                                     {expandedRows.includes(order.id) && (
-                                        <tr>
+                                        <tr className={style.expandedRow}>
                                             <td colSpan="4">
-                                                <table>
-                                                    <thead>
+                                                <table className={style.expandedTable}>
+                                                    <thead className={style.expandedTableHeader}>
                                                         <tr>
                                                             <th>Material ID</th>
                                                             <th>Required Quantity</th>
                                                             <th>Status</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody>
+                                                    <tbody className={style.expandedTableBody}>
                                                         {order.requiredMaterials.map((material, matIndex) => (
                                                             <tr key={`${order.id}-${matIndex}`}>
                                                                 <td>{material.id}</td>
@@ -120,7 +125,7 @@ const MaterialAllocation = () => {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="4">No orders found with Material Allocated status.</td>
+                                <td colSpan="4" className={style.errorMessage}>No orders found with Material Allocated status.</td>
                             </tr>
                         )}
                     </tbody>

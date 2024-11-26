@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { getFirestore, collection, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
-import "./demandMaterialPopup.css";
+import style from './demandMaterialPopup.module.css'
+
+
+
+import { IoCloseOutline } from "react-icons/io5";
 
 const DemandMaterialEdit = ({ item, onClose, onSave }) => {
     const [productName, setProductName] = useState('');
@@ -61,7 +65,7 @@ const DemandMaterialEdit = ({ item, onClose, onSave }) => {
 
     const handleSave = async () => {
         const db = getFirestore();
-        if(requestedQuantity > quantity){
+        if (requestedQuantity > quantity) {
             alert("Requested quantity exceeds available stock");
             return;
         }
@@ -90,7 +94,7 @@ const DemandMaterialEdit = ({ item, onClose, onSave }) => {
 
                 updateDoc(rackRef, { products: updatedProducts });
                 const demandMaterialRef = doc(db, 'Demand_Material', item?.id);
-                await updateDoc(demandMaterialRef, { status: 'Approved', approvedQty: requestedQuantity  });
+                await updateDoc(demandMaterialRef, { status: 'Approved', approvedQty: requestedQuantity });
                 setMessage('Product quantity updated and status set to "Approved"!');
                 alert("Ok");
             } else {
@@ -106,43 +110,47 @@ const DemandMaterialEdit = ({ item, onClose, onSave }) => {
 
 
     return (
-        <div className="edit-popup">
-            <div className="edit-popup-content">
-                <h2>Edit Store Product</h2>
-                <div>
+        <div className={style.editPopup}>
+            <div className={style.popupContent}>
+                <div className={style.popupHeader}>
+                    <h2>Edit Store Product</h2>
+                    <button onClick={onClose}><IoCloseOutline className={style.closeBtn} /></button>
+
+                </div>
+                <div className={style.popupDiv}>
                     <label>ID:</label>
                     <input type="text" value={item?.id} readOnly />
                 </div>
 
-                <div>
+                <div className={style.popupDiv}>
                     <label>Material ID:</label>
                     <input type="text" value={item?.selectedMaterialId || 'N/A'} readOnly />
                 </div>
 
-                <div>
+                <div className={style.popupDiv}>
                     <label>Product Name:</label>
                     <input type="text" value={productName || 'N/A'} readOnly />
                 </div>
 
-                <div>
+                <div className={style.popupDiv}>
                     <label>Quantity In Stock:</label>
                     <input type="text" value={quantity || 'N/A'} readOnly />
                 </div>
 
-                <div>
+                <div className={style.popupDiv}>
                     <label>Requested Quantity:</label>
                     <input
                         type="text"
                         value={requestedQuantity}
-                        onChange={(e) => setRequestedQuantity(e.target.value)} 
+                        onChange={(e) => setRequestedQuantity(e.target.value)}
                     />
                 </div>
 
-                {message && <div className="message">{message}</div>} 
+                {message && <div className="message">{message}</div>}
 
                 <div>
-                    <button onClick={handleSave}>Approve</button>
-                    <button onClick={onClose}>Close</button>
+                    <button className={style.approveBtn} onClick={handleSave}>Approve</button>
+
                 </div>
             </div>
         </div>

@@ -2,7 +2,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTable } from 'react-table';
 import { fireDB } from '../../firebase/FirebaseConfig';
 import { collection, query, where, getDocs, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import './productionPhases.css';
+
+import style from './productionPhases.module.css'
+
 import AssemblyPopup from './AssemblyPopup/AssemblyPopup';
 
 
@@ -20,7 +22,7 @@ const productionColumns = [
         Header: 'Action', Cell: ({ row }) => {
             return (
                 <div>
-                    <div className="button-group">
+                    <div className={style.buttonGroup}>
                         <button onClick={() => handleStart(row.original)}>Start</button>
                     </div>
                 </div>
@@ -81,8 +83,8 @@ function AllproductionMain() {
     const [machineData, setMachineData] = useState([]);
     const [assemblyData, setAssemblyData] = useState([]);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const [selectedRowData, setSelectedRowData] = useState(null); 
-    
+    const [selectedRowData, setSelectedRowData] = useState(null);
+
     const handlePhaseClick = (phase) => {
         setActivePhase(phase);
     };
@@ -244,8 +246,8 @@ function AllproductionMain() {
     });
 
     return (
-        <div className="productionPhases">
-            <div className="phases">
+        <div className={style.productionPhases}>
+            <div className={style.phases}>
                 <h5
                     className={activePhase === 'production' ? 'active' : ''}
                     onClick={() => handlePhaseClick('production')}
@@ -259,37 +261,39 @@ function AllproductionMain() {
                     Assembly Phase
                 </h5>
             </div>
-            <div className="singlePhase">
-                <div className="phase-title">
-                    <h3>{activePhase.charAt(0).toUpperCase() + activePhase.slice(1)} Phase</h3>
+            <div className={style.singlePhase}>
+                <div className={style.phaseTitle}>
+                    <h4>{activePhase.charAt(0).toUpperCase() + activePhase.slice(1)} Phase</h4>
                 </div>
-                <div className="phaseMachines">
+                <div className={style.phaseMachines}>
                     {activePhase === 'production' && (
                         <>
-                            <div className="machineBody">
-                                <table {...productionTableInstance.getTableProps()}>
-                                    <thead>
-                                        {productionTableInstance.headerGroups.map((headerGroup) => (
-                                            <tr {...headerGroup.getHeaderGroupProps()}>
-                                                {headerGroup.headers.map((column) => (
-                                                    <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+                            <div className={style.machineBody}>
+                                <table {...productionTableInstance.getTableProps()} className={style.machinTable}>
+                                    <thead className={style.machinTableHead}>
+                                        {productionTableInstance.headerGroups.map((headerGroup, headerGroupIndex) => (
+                                            <tr {...headerGroup.getHeaderGroupProps()} key={`headerGroup-${headerGroupIndex}`}>
+                                                {headerGroup.headers.map((column, columnIndex) => (
+                                                    <th {...column.getHeaderProps()} key={`column-${columnIndex}`}>
+                                                        {column.render('Header')}
+                                                    </th>
                                                 ))}
                                             </tr>
                                         ))}
                                     </thead>
-                                    <tbody {...productionTableInstance.getTableBodyProps()}>
-                                        {productionTableInstance.rows.map((row, i) => {
+                                    <tbody {...productionTableInstance.getTableBodyProps()} className={style.machinTableBody}>
+                                        {productionTableInstance.rows.map((row, rowIndex) => {
                                             productionTableInstance.prepareRow(row);
                                             return (
-                                                <tr {...row.getRowProps()}>
-                                                    {row.cells.map((cell) => (
-                                                        <td {...cell.getCellProps()}>
+                                                <tr {...row.getRowProps()} key={`row-${rowIndex}`}>
+                                                    {row.cells.map((cell, cellIndex) => (
+                                                        <td {...cell.getCellProps()} key={`cell-${rowIndex}-${cellIndex}`}>
                                                             {['cycle', 'perHrQty', 'perDayQty'].includes(cell.column.id) ? (
                                                                 <input
                                                                     type="text"
                                                                     value={cell.value}
                                                                     onChange={(e) =>
-                                                                        handleInputChange(i, cell.column.id, e.target.value)
+                                                                        handleInputChange(rowIndex, cell.column.id, e.target.value)
                                                                     }
                                                                     readOnly={cell.column.id !== 'cycle'} // Only 'cycle' is editable
                                                                 />
@@ -303,41 +307,47 @@ function AllproductionMain() {
                                         })}
                                     </tbody>
                                 </table>
+
                             </div>
                         </>
                     )}
                     {activePhase === 'assembly' && (
-                        <div className="machineBody">
-                        <table {...assemblyTableInstance.getTableProps()}>
-                                <thead>
-                                    {assemblyTableInstance.headerGroups.map((headerGroup) => (
-                                        <tr {...headerGroup.getHeaderGroupProps()}>
-                                            {headerGroup.headers.map((column) => (
-                                                <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+                        <div className={style.machineBody}>
+                            <table {...assemblyTableInstance.getTableProps()} className={style.machinTable}>
+                                <thead className={style.machinTableHead}>
+                                    {assemblyTableInstance.headerGroups.map((headerGroup, headerGroupIndex) => (
+                                        <tr {...headerGroup.getHeaderGroupProps()} key={`headerGroup-${headerGroupIndex}`}>
+                                            {headerGroup.headers.map((column, columnIndex) => (
+                                                <th {...column.getHeaderProps()} key={`column-${columnIndex}`}>
+                                                    {column.render('Header')}
+                                                </th>
                                             ))}
                                         </tr>
                                     ))}
                                 </thead>
-                                <tbody {...assemblyTableInstance.getTableBodyProps()}>
-                                    {assemblyTableInstance.rows.map((row) => {
+                                <tbody {...assemblyTableInstance.getTableBodyProps()} className={style.machinTableBody}>
+                                    {assemblyTableInstance.rows.map((row, rowIndex) => {
                                         assemblyTableInstance.prepareRow(row);
                                         return (
-                                            <tr {...row.getRowProps()}>
-                                                {row.cells.map((cell) => (
-                                                    <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                                            <tr {...row.getRowProps()} key={`row-${rowIndex}`}>
+                                                {row.cells.map((cell, cellIndex) => (
+                                                    <td {...cell.getCellProps()} key={`cell-${rowIndex}-${cellIndex}`}>
+                                                        {cell.render('Cell')}
+                                                    </td>
                                                 ))}
                                             </tr>
                                         );
                                     })}
                                 </tbody>
                             </table>
+
                         </div>
                     )}
                 </div>
             </div>
             {isPopupOpen && <AssemblyPopup rowData={selectedRowData} onClose={closePopup} />}
         </div>
-        
+
     );
 }
 

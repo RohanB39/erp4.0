@@ -2,24 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { fireDB, collection, getDocs, query, where, doc, addDoc } from '../../firebase/FirebaseConfig';
 import { setDoc } from 'firebase/firestore';
 
+
+
+import style from './customerPO.module.css';
+
+
+
 const CustomerPO = () => {
   const [customers, setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState('');
   const [selectedCustomerID, setSelectedCustomerID] = useState('');
-  const [purchaseOrderID, setPurchaseOrderID] = useState('');
+  const [purchaseOrderID, setPurchaseOrderID] = useState(''); // State for PO ID
   const [finishedGoods, setFinishedGoods] = useState([]);
   const [selectedFinishedGood, setSelectedFinishedGood] = useState('');
-  const [selectedFinishedGoodUniqueID, setSelectedFinishedGoodUniqueID] = useState('');
   const [quantity, setQuantity] = useState('');
   const [orderType, setOrderType] = useState('');
   const [price, setPrice] = useState('');
   const [totalPrice, setTotalPrice] = useState('');
-  const [igst, setIGST] = useState(0);
-  const [cgst, setCGST] = useState(0);
-  const [sgst, setSGST] = useState(0);
-  const [grandTotal, setGrandTotal] = useState(0);
-  const [isIGSTChecked, setIsIGSTChecked] = useState(false);
-  const [isCGSTChecked, setIsCGSTChecked] = useState(false);
+  const [igst, setIGST] = useState('');
+  const [cgst, setCGST] = useState('');
+  const [sgst, setSGST] = useState('');
+  const [grandTotal, setGrandTotal] = useState('');
 
   const fetchCustomers = async () => {
     try {
@@ -44,7 +47,6 @@ const CustomerPO = () => {
       const finishedGoodsList = finishedGoodsSnapshot.docs.map(doc => ({
         id: doc.id,
         FGname: doc.data().FGname,
-        uniqueID: doc.data().uniqueID,
       }));
       setFinishedGoods(finishedGoodsList);
     } catch (error) {
@@ -53,8 +55,13 @@ const CustomerPO = () => {
   };
 
   const generatePurchaseOrderID = (customerName) => {
+    // Get initials from the customer's name
     const initials = customerName.split(' ').map(word => word[0]).join('').toUpperCase();
-    const randomNumber = Math.floor(1000 + Math.random() * 9000);
+
+    // Generate a random 4-digit number
+    const randomNumber = Math.floor(1000 + Math.random() * 9000); // ensures a 4-digit number
+
+    // Create the Purchase Order ID
     return `${initials}@CUSPOID${randomNumber}`;
   };
 
@@ -63,11 +70,13 @@ const CustomerPO = () => {
     if (selectedCustomer) {
       setSelectedCustomer(selectedCustomer.name);
       setSelectedCustomerID(selectedCustomer.uniqueID);
+
+      // Generate Purchase Order ID
       const poID = generatePurchaseOrderID(selectedCustomer.name);
       setPurchaseOrderID(poID);
+
       fetchFinishedGoods(selectedCustomer.uniqueID);
       setSelectedFinishedGood('');
-      setSelectedFinishedGoodUniqueID('');
       setQuantity('');
       setOrderType('');
       setPrice('');
@@ -80,11 +89,7 @@ const CustomerPO = () => {
   };
 
   const handleFinishedGoodChange = (e) => {
-    const selectedGood = finishedGoods.find(good => good.FGname === e.target.value);
-    if (selectedGood) {
-      setSelectedFinishedGood(selectedGood.FGname);
-      setSelectedFinishedGoodUniqueID(selectedGood.uniqueID); 
-    }
+    setSelectedFinishedGood(e.target.value);
   };
 
   const handleQuantityChange = (e) => {
@@ -98,17 +103,12 @@ const CustomerPO = () => {
   const handlePriceChange = (e) => {
     const enteredPrice = e.target.value;
     setPrice(enteredPrice);
+
     const total = quantity * enteredPrice;
     setTotalPrice(total);
-    if (isIGSTChecked) {
-      const calculatedIGST = (total * 28) / 100;
-      setIGST(calculatedIGST);
-      setGrandTotal(total + calculatedIGST);
-    } else {
-      const calculatedCGST = (total * cgst) / 100;
-      const calculatedSGST = (total * sgst) / 100;
-      setGrandTotal(total + calculatedCGST + calculatedSGST);
-    }
+
+    const calculatedIGST = (total * 28) / 100;
+    setIGST(calculatedIGST);
   };
 
   const handleCGSTChange = (e) => {
@@ -116,8 +116,8 @@ const CustomerPO = () => {
     setCGST(enteredCGST);
 
     const calculatedCGST = (totalPrice * enteredCGST) / 100;
-    const calculatedSGST = (totalPrice * sgst) / 100;
-    setGrandTotal(totalPrice + calculatedCGST + calculatedSGST);
+    const grandTotal = totalPrice + igst + calculatedCGST + (sgst ? (totalPrice * sgst) / 100 : 0);
+    setGrandTotal(grandTotal);
   };
 
   const handleSGSTChange = (e) => {
@@ -125,41 +125,8 @@ const CustomerPO = () => {
     setSGST(enteredSGST);
 
     const calculatedSGST = (totalPrice * enteredSGST) / 100;
-    const calculatedCGST = (totalPrice * cgst) / 100;
-    setGrandTotal(totalPrice + calculatedCGST + calculatedSGST);
-  };
-
-  const handleIGSTCheckboxChange = (event) => {
-    const checked = event.target.checked;
-    setIsIGSTChecked(checked);
-
-    if (checked) {
-      setIsCGSTChecked(false);  // Uncheck CGST/SGST if IGST is selected
-      setCGST(0);
-      setSGST(0);
-
-      const calculatedIGST = (totalPrice * 28) / 100;
-      setIGST(calculatedIGST);
-      setGrandTotal(totalPrice + calculatedIGST);
-    } else {
-      setIGST(0);
-      setGrandTotal(totalPrice);
-    }
-  };
-
-  const handleCGSTCheckboxChange = (event) => {
-    const checked = event.target.checked;
-    setIsCGSTChecked(checked);
-
-    if (checked) {
-      setIsIGSTChecked(false);  // Uncheck IGST if CGST/SGST is selected
-      setIGST(0);
-      const calculatedCGST = (totalPrice * cgst) / 100;
-      const calculatedSGST = (totalPrice * sgst) / 100;
-      setGrandTotal(totalPrice + calculatedCGST + calculatedSGST);
-    } else {
-      setGrandTotal(totalPrice);
-    }
+    const grandTotal = totalPrice + igst + (cgst ? (totalPrice * cgst) / 100 : 0) + calculatedSGST;
+    setGrandTotal(grandTotal);
   };
 
   const handleSubmit = async (e) => {
@@ -172,7 +139,6 @@ const CustomerPO = () => {
     const purchaseOrderData = {
       customerID: selectedCustomerID,
       finishedGood: selectedFinishedGood,
-      finishedGoodId: selectedFinishedGoodUniqueID,
       quantity: quantity,
       status: orderType,
       price: price,
@@ -199,168 +165,179 @@ const CustomerPO = () => {
   }, []);
 
   return (
-    <div className="main" id="main">
-      <h2>Customer Purchase Order</h2>
-      <form onSubmit={handleSubmit}> {/* Handle form submission */}
+    <div className={style.CustomerHeader}>
+      <div>
+        <i className="bi bi-person"></i>
+        <h4>Customer Purchase Order</h4>
+      </div>
+      <p>Review the details of the customer's purchase order, including item descriptions, quantities, pricing, and terms of delivery. Ensure accuracy before proceeding with fulfillment.</p>
+      <hr />
+
+      <form className={style.CustomerForm} onSubmit={handleSubmit}> {/* Handle form submission */}
         <table>
           <tbody>
-            <tr>
-              <td><label htmlFor="customer">Select Customer:</label></td>
-              <td>
-                <select id="customer" value={selectedCustomer} onChange={handleCustomerChange}>
-                  <option value="" disabled>Select a customer</option>
-                  {customers.map((customer) => (
-                    <option key={customer.id} value={customer.name}>
-                      {customer.name}
-                    </option>
-                  ))}
-                </select>
-              </td>
-            </tr>
+            <div className={style.formRow}>
 
-            {selectedCustomerID && (
-              <>
-                <tr>
-                  <td>Customer Unique ID:</td>
-                  <td>{selectedCustomerID}</td>
-                </tr>
-                <tr>
-                  <td>Purchase Order ID:</td>
-                  <td>{purchaseOrderID}</td> {/* Display the generated PO ID */}
-                </tr>
-              </>
-            )}
 
-            {finishedGoods.length > 0 && (
               <tr>
-                <td><label htmlFor="finishedGood">Select Finished Good:</label></td>
+                <td><label htmlFor="customer">Select Customer : </label></td>
                 <td>
-                  <select id="finishedGood" value={selectedFinishedGood} onChange={handleFinishedGoodChange}>
-                    <option value="" disabled>Select a finished good</option>
-                    {finishedGoods.map((good) => (
-                      <option key={good.id} value={good.FGname}>
-                        {good.FGname}
+
+                  <select id="customer" value={selectedCustomer} onChange={handleCustomerChange}>
+                    <option value="" disabled>Select a customer</option>
+                    {customers.map((customer) => (
+                      <option key={customer.id} value={customer.name}>
+                        {customer.name}
                       </option>
                     ))}
                   </select>
                 </td>
               </tr>
-            )}
-            <tr>
-              <td>Finished Good ID:</td>
-              <td>
-                {finishedGoods.find((good) => good.FGname === selectedFinishedGood)?.uniqueID || "N/A"}
-              </td>
-            </tr>
+            </div>
 
-            {selectedFinishedGood && (
-              <tr>
-                <td><label htmlFor="quantity">Enter Quantity:</label></td>
-                <td>
-                  <input
-                    type="number"
-                    id="quantity"
-                    value={quantity}
-                    onChange={handleQuantityChange}
-                    placeholder="Enter quantity"
-                  />
-                </td>
-              </tr>
+            {selectedCustomerID && (
+              <div className={style.formData}>
+                <tr className={style.Row}>
+                  <td>Customer  ID : </td>
+                  <td>{selectedCustomerID}</td>
+                </tr>
+                <tr className={style.formrow}>
+                  <td>Purchase Order ID : </td>
+                  <td>{purchaseOrderID}</td> {/* Display the generated PO ID */}
+                </tr>
+              </div>
             )}
+            <hr />
+            <div className={style.rows}>
 
-            {quantity && (
-              <tr>
-                <td><label htmlFor="orderType">Select Order Type:</label></td>
-                <td>
-                  <select id="orderType" value={orderType} onChange={handleOrderTypeChange}>
-                    <option value="" disabled>Select order type</option>
-                    <option value="Open">Open</option>
-                    <option value="Closed">Closed</option>
-                    <option value="Hybrid">Hybrid</option>
-                  </select>
-                </td>
-              </tr>
-            )}
 
-            {orderType && (
-              <tr>
-                <td><label htmlFor="price">Enter Price per Unit:</label></td>
-                <td>
-                  <input
-                    type="number"
-                    id="price"
-                    value={price}
-                    onChange={handlePriceChange}
-                    placeholder="Enter price"
-                  />
-                </td>
-              </tr>
-            )}
 
-            {price && (
-              <tr>
-                <td>Total Price:</td>
-                <td>₹{totalPrice}</td>
-              </tr>
-            )}
+              {finishedGoods.length > 0 && (
+                <tr>
+                  <td><label htmlFor="finishedGood">Select Finished Good:</label></td>
+                  <td>
+                    <select id="finishedGood" value={selectedFinishedGood} onChange={handleFinishedGoodChange}>
+                      <option value="" disabled>Select a finished good</option>
+                      {finishedGoods.map((good) => (
+                        <option key={good.id} value={good.FGname}>
+                          {good.FGname}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+              )}
 
-            {totalPrice && (
-              <tr>
-                <td>
-                  <input
-                    type="checkbox"
-                    id="igst-checkbox"
-                    checked={isIGSTChecked}
-                    onChange={handleIGSTCheckboxChange}
-                  />
-                  <label htmlFor="igst-checkbox"> IGST (28%):</label>
-                </td>
-                <td>₹{igst}</td>
-              </tr>
-            )}
+              {selectedFinishedGood && (
+                <tr>
+                  <td><label htmlFor="quantity">Enter Quantity:</label></td>
+                  <td>
+                    <input
+                      type="number"
+                      id="quantity"
+                      value={quantity}
+                      onChange={handleQuantityChange}
+                      placeholder="Enter quantity"
+                    />
+                  </td>
+                </tr>
+              )}
+            </div>
+            <div className={style.rows}>
+              {quantity && (
+                <tr>
+                  <td><label htmlFor="orderType">Select Order Type:</label></td>
+                  <td>
+                    <select id="orderType" value={orderType} onChange={handleOrderTypeChange}>
+                      <option value="" disabled>Select order type</option>
+                      <option value="Open">Open</option>
+                      <option value="Closed">Closed</option>
+                      <option value="Hybrid">Hybrid</option>
+                    </select>
+                  </td>
+                </tr>
+              )}
 
-            {totalPrice && (
-              <tr>
-                <td><label htmlFor="cgst">Enter CGST (%):</label></td>
-                <td>
-                  <input
-                    type="number"
-                    id="cgst"
-                    value={cgst}
-                    onChange={handleCGSTChange}
-                    placeholder="Enter CGST"
-                    disabled={isIGSTChecked}
-                  />
-                </td>
-              </tr>
-            )}
+              {orderType && (
+                <tr>
+                  <td><label htmlFor="price">Enter Price per Unit:</label></td>
+                  <td>
+                    <input
+                      type="number"
+                      id="price"
+                      value={price}
+                      onChange={handlePriceChange}
+                      placeholder="Enter price"
+                    />
+                  </td>
+                </tr>
+              )}
 
-            {totalPrice && (
-              <tr>
-                <td><label htmlFor="sgst">Enter SGST (%):</label></td>
-                <td>
-                  <input
-                    type="number"
-                    id="sgst"
-                    value={sgst}
-                    onChange={handleSGSTChange}
-                    placeholder="Enter SGST"
-                    disabled={isIGSTChecked}
-                  />
-                </td>
-              </tr>
-            )}
+            </div>
 
-            {totalPrice && (
-              <tr>
-                <td>Grand Total:</td>
-                <td>₹{grandTotal}</td>
-              </tr>
-            )}
+            <div className={`${style.rows} ${style.amount}`}>
+              {price && (
+                <tr>
+                  <td>Total Price:</td>
+                  <td className={style.rs}>₹{totalPrice}</td>
+                </tr>
+              )}
 
-            <tr>
+              {totalPrice && (
+                <tr>
+                  <td>IGST (28%):</td>
+                  <td className={style.rs}>₹{igst}</td>
+                </tr>
+              )}
+            </div>
+
+            <div className={style.rows}>
+              {totalPrice && (
+                <tr>
+                  <td><label htmlFor="cgst">Enter CGST (%):</label></td>
+                  <td>
+                    <input
+                      type="number"
+                      id="cgst"
+                      value={cgst}
+                      onChange={handleCGSTChange}
+                      placeholder="Enter CGST"
+                    />
+                  </td>
+                </tr>
+              )}
+
+
+              {totalPrice && (
+                <tr>
+                  <td><label htmlFor="sgst">Enter SGST (%):</label></td>
+                  <td>
+                    <input
+                      type="number"
+                      id="sgst"
+                      value={sgst}
+                      onChange={handleSGSTChange}
+                      placeholder="Enter SGST"
+                    />
+                  </td>
+                </tr>
+              )}
+
+            </div>
+            <div className={style.totalAmount}>
+
+              {totalPrice && (
+                <tr>
+                  <td>Grand Total : </td>
+                  <td className={style.price}> ₹ {grandTotal}</td>
+                </tr>
+              )}
+            </div>
+            <hr />
+
+            <tr className={style.btn}>
               <td colSpan="2">
-                <button type="submit">Submit Purchase Order</button> {/* Button to submit */}
+                <button type="submit">Submit  Order</button> {/* Button to submit */}
               </td>
             </tr>
           </tbody>

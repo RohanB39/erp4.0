@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query, where, fireDB } from '../../../firebase/FirebaseConfig';
 
+import style from './finishedGoods.module.css';
+
+
 const FinishedGoodsTable = () => {
   const [inventoryData, setInventoryData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,29 +47,23 @@ const FinishedGoodsTable = () => {
   }
 
   return (
-    <div className='main'>
-      <div style={{
-        display: 'flex',
-      }}>
-        <div style={{
-          padding: '20px',
-          margin: '20px 0px',
-          marginRight: '10px',
-          backgroundColor: '#f9f9f9',
-          border: '1px solid #ddd',
-          borderRadius: '8px',
-          boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-          textAlign: 'center',
-          fontSize: '18px',
-          fontWeight: 'bold',
-          color: '#333',
-          width: '30%',
-        }}>
-          Total Finished Goods : {totalItemsCount}
+    <div className={style.receivableWrapper}>
+      <div className={style.Header}>
+
+        <div className={style.title}>
+          <h2>Finished Goods</h2>
+          <p>   Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptas, atque.</p>
+
+
+        </div>
+        <div className={style.credits}>
+          <span>{totalItemsCount} </span>
+
+          Total Finished Goods
         </div>
       </div>
-      <table className="inventory-table">
-        <thead>
+      <table className={style.table}>
+        <thead className={style.tableHeader}>
           <tr>
             <th>Sr. No</th>
             <th>Production Order Id</th>
@@ -74,7 +71,7 @@ const FinishedGoodsTable = () => {
             <th>Quantity</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className={style.tableBody}>
           {error ? (
             <tr>
               <td colSpan="6">{error}</td>
@@ -95,7 +92,7 @@ const FinishedGoodsTable = () => {
           )}
         </tbody>
       </table>
-    </div>
+    </div >
   );
 };
 

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { fireDB } from '../../../firebase/FirebaseConfig';
-import './qualityControl.css';
 
+
+import style from './qualityControl.module.css'
 const QualityControl = () => {
   const [data, setData] = useState([]);
 
@@ -35,10 +36,14 @@ const QualityControl = () => {
   };
 
   return (
-    <div className="main">
-      <h2>Quality Control - Final Quality Approved Orders</h2>
-      <table>
-        <thead>
+    <div className={style.qualityControlContainer}>
+      <div className={style.title}>
+        <i class="ri-search-eye-line"></i>
+
+        <h4>Quality Control - Final Quality Approved Orders</h4>
+      </div>
+      <table className={style.qualityControlTable}>
+        <thead className={style.qualityControlTableHeader}>
           <tr>
             <th>Sr/No</th>
             <th>Production Order ID</th>
@@ -47,7 +52,7 @@ const QualityControl = () => {
             <th>Final Quality Approval Date</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className={style.qualityControlTableBody}>
           {data.length > 0 ? (
             data.map((item, index) => (
               <tr key={item.id}>
@@ -60,7 +65,7 @@ const QualityControl = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="5">No data found</td>
+              <td colSpan="5" className={style.errorMsg}>No data found</td>
             </tr>
           )}
         </tbody>

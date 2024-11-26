@@ -5,7 +5,9 @@ import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import './reporting.css';
+
+
+import style from './reporting.module.css'
 
 const Reporting = () => {
     const [data, setData] = useState([]);
@@ -143,16 +145,23 @@ const Reporting = () => {
 
 
     return (
-        <div className="main">
-            <input
-                type="text"
-                placeholder="Search by Production Order ID"
-                value={searchInput}
-                onChange={handleSearchChange}
-                className="search-bar"
-            />
-            <table>
-                <thead>
+        <div className={style.reportingContainer}>
+            <div className={style.reportingHeader}>
+                <div className={style.title}>
+                    <i class="ri-file-chart-line"></i>
+                    <h4>Reporting</h4>
+                </div>
+
+                <input
+                    type="text"
+                    placeholder="Search by Production Order ID"
+                    value={searchInput}
+                    onChange={handleSearchChange}
+
+                />
+            </div>
+            <table className={style.reportingTable}>
+                <thead className={style.reportingTableHeader}>
                     <tr>
                         <th>Sr/No</th>
                         <th>Production Order ID</th>
@@ -160,7 +169,7 @@ const Reporting = () => {
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className={style.reportingTableBody}>
                     {filteredData.map((item) => (
                         <tr key={item.id}>
                             <td>{item.id}</td>

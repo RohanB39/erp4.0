@@ -4,11 +4,14 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useTable } from 'react-table';
 import AssemblyStopPopup from './machineAssignPopup/AssemblyStopPopup';
 
+
+import style from './assembalyComponent.module.css'
+
 const AssemblyComponent = () => {
   const [data, setData] = useState([]); // State to hold the data from Firestore
   const [loading, setLoading] = useState(true); // Loading state
   const [popupOpen, setPopupOpen] = useState(false); // State to control popup visibility
-  const [selectedRowData, setSelectedRowData] = useState(null); 
+  const [selectedRowData, setSelectedRowData] = useState(null);
 
   // Function to fetch data from Firestore
   const fetchData = async () => {
@@ -39,7 +42,7 @@ const AssemblyComponent = () => {
 
   const formatTime = (timestamp) => {
     if (!timestamp) return 'N/A';
-  
+
     // Check if the timestamp is a Firestore Timestamp object
     if (timestamp.toDate) {
       const date = timestamp.toDate(); // Convert Firestore Timestamp to JS Date
@@ -59,7 +62,7 @@ const AssemblyComponent = () => {
     }
     return 'Invalid Date'; // Fallback in case of invalid date
   };
-  
+
 
   // Define columns for the table
   const columns = React.useMemo(
@@ -91,7 +94,7 @@ const AssemblyComponent = () => {
         Cell: ({ row }) => {
           const timeRequired = row.original.assemblyTimeRequired;
           const timeUnit = row.original.assemblyTimeUnit;
-  
+
           return timeRequired ? `${timeRequired.toFixed(2)} ${timeUnit}` : 'N/A';
         },
       },
@@ -103,7 +106,7 @@ const AssemblyComponent = () => {
         Header: 'Action',
         accessor: 'action', // Optional: you can define an accessor if needed
         Cell: ({ row }) => (
-          <button 
+          <button
             onClick={() => handleStopAssembly(row.original)}
           >
             Stop
@@ -112,7 +115,7 @@ const AssemblyComponent = () => {
       },
     ],
     []
-  );  
+  );
 
   const handleStopAssembly = (row) => {
     setSelectedRowData(row); // Set the entire row data
@@ -129,40 +132,45 @@ const AssemblyComponent = () => {
   } = useTable({ columns, data });
 
   return (
-    <div className='main'>
-      <h2>Assembly Orders</h2>
+    <div className={style.assembalyComponentContainer}>
+      <h4>Assembly Orders</h4>
       {loading ? (
-        <p>Loading...</p>
+        <p className={style.loadingMessage}>Loading...</p>
       ) : (
-        <table {...getTableProps()} className='table'>
-          <thead>
-            {headerGroups.map(headerGroup => (
-              <tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map(column => (
-                  <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+        <table {...getTableProps()} className={style.assembalyTable}>
+          <thead className={style.assembalyTableHeader}>
+            {headerGroups.map((headerGroup, headerGroupIndex) => (
+              <tr {...headerGroup.getHeaderGroupProps()} key={`headerGroup-${headerGroupIndex}`}>
+                {headerGroup.headers.map((column, columnIndex) => (
+                  <th {...column.getHeaderProps()} key={`column-${columnIndex}`}>
+                    {column.render('Header')}
+                  </th>
                 ))}
               </tr>
             ))}
           </thead>
-          <tbody {...getTableBodyProps()}>
-            {rows.map(row => {
+          <tbody {...getTableBodyProps()} className={style.assembalyTableBody}>
+            {rows.map((row, rowIndex) => {
               prepareRow(row);
               return (
-                <tr {...row.getRowProps()}>
-                  {row.cells.map(cell => (
-                    <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                <tr {...row.getRowProps()} key={`row-${row.id || rowIndex}`}>
+                  {row.cells.map((cell, cellIndex) => (
+                    <td {...cell.getCellProps()} key={`cell-${cell.column.id || cellIndex}`}>
+                      {cell.render('Cell')}
+                    </td>
                   ))}
                 </tr>
               );
             })}
           </tbody>
         </table>
+
       )}
       {selectedRowData && (
-        <AssemblyStopPopup 
-          isOpen={popupOpen} 
-          rowData={selectedRowData} 
-          onClose={() => setPopupOpen(false)} 
+        <AssemblyStopPopup
+          isOpen={popupOpen}
+          rowData={selectedRowData}
+          onClose={() => setPopupOpen(false)}
         />
       )}
     </div>

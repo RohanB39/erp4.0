@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import './demandmaterial.css';
+
 import { getFirestore, collection, getDocs, doc, setDoc } from 'firebase/firestore';
 import { app } from '../../firebase/FirebaseConfig';
+
+
+import style from './demandmaterial.module.css'
 
 const generateUniqueId = () => {
   return 'DM-' + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -128,10 +131,14 @@ const DemandMaterial = () => {
   };
 
   return (
-    <div className='main' id='main'>
-      <div className="demandConteiner">
-        <h4>Demand Material</h4>
-        <div className="demandHeader">
+    <div className={style.demandMaterialWrapper}>
+      <div className={style.demandMaterialContainer}>
+        <div className={style.title}>
+          <i class="ri-inbox-line"></i>
+          <h4>Demand Material</h4>
+        </div>
+        <hr className='hr' />
+        <div className={style.demandHeader}>
           <div>
             <label htmlFor="uniqueId">DM ID : </label>
             <input
@@ -151,9 +158,9 @@ const DemandMaterial = () => {
               onChange={handleDateChange}
             />
           </div>
-          <hr />
+
         </div>
-        <div className="prioritySelections">
+        <div className={style.prioritySelections}>
           <div>
             <label htmlFor="department">Department:</label>
             <select
@@ -205,7 +212,7 @@ const DemandMaterial = () => {
         <hr />
 
         {selectedMaterialId && (
-          <div className='selectedMaterialid'>
+          <div className={style.selectedMaterialid}>
             <p><span>Material ID : </span> {selectedMaterialId}</p>
           </div>
         )}
@@ -216,7 +223,7 @@ const DemandMaterial = () => {
           </div>
         )}
 
-        <div className='quantitySelection'>
+        <div className={style.quantitySelection}>
           <div>
 
             <label htmlFor="quantityRequested">Quantity Requested:</label>
@@ -245,7 +252,7 @@ const DemandMaterial = () => {
           </select>
         </div>
 
-        <div className='purposeDemand'>
+        <div className={style.purposeDemand}>
           <label htmlFor="purposeOfDemand">Purpose of Demand:</label>
           <textarea
             id="purposeOfDemand"
@@ -256,8 +263,8 @@ const DemandMaterial = () => {
             cols="40"
           />
         </div>
-        <div className="delivery">
-          <div className='deliveryLocationSubmtion'>
+        <div className={style.delivery}>
+          <div className={style.deliveryLocationSubmtion}>
             <div>
               <label htmlFor='deliveryLocation'>Delivery Location: </label>
               <input type='text' value={deliveryLocation} onChange={handleDeliveryLocation} placeholder='Delivery Location' />
@@ -274,7 +281,7 @@ const DemandMaterial = () => {
             </div>
           </div>
           <div>
-            <button onClick={handleSubmit} className='submit-button'>Submit</button>
+            <button onClick={handleSubmit} className={style.submitButton}>Submit</button>
           </div>
         </div>
 

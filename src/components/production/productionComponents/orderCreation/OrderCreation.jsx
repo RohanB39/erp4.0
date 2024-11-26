@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import './orderCreation.css';
+
 import { getFirestore, collection, getDocs, query, where, doc, setDoc } from 'firebase/firestore';
+
+import style from './orderCreation.module.css'
 
 function OrderCreation() {
     const [productionOrderId, setProductionOrderId] = useState('');
@@ -129,10 +131,10 @@ function OrderCreation() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         try {
             const db = getFirestore();
-    
+
             // Prepare the data to be saved in Firestore
             const productionOrderData = {
                 productionOrderId,
@@ -150,14 +152,14 @@ function OrderCreation() {
                 excessBuffer: parseFloat(excessBuffer) || 0,
                 requiredMaterials: requiredMaterials.map(material => ({
                     id: material.id,
-                    requiredQuantity: material.requiredQuantity, 
+                    requiredQuantity: material.requiredQuantity,
                     unit: material.unit
                 })),
             };
-    
+
             // Set the document in the "Production_Orders" collection with the document ID as "productionOrderId"
             await setDoc(doc(db, 'Production_Orders', productionOrderId), productionOrderData);
-    
+
             // Reset form (optional)
             alert('Production Order created successfully');
             setProductionOrderId('');
@@ -181,16 +183,20 @@ function OrderCreation() {
     };
 
     return (
-        <div className='main'>
-            <div className='grn-page'>
-                <h5>Production Order Creation</h5>
-                <form onSubmit={handleSubmit} className='grnForm'>
-                    <div className='grnSerch'>
-                        <div className='grnNum'>
+        <div className={style.OrderCreationWrapper}>
+            <div className={style.orderCreationContainer}>
+                <div className={style.title}>
+                    <i class="ri-task-line"></i>
+                    <h5>Production Order Creation</h5>
+                </div>
+                <hr className='hr' />
+                <form onSubmit={handleSubmit} className={style.orderForm}>
+                    <div className={style.orderSearch}>
+                        <div className={style.orderNum}>
                             <label>Production Order ID:</label>
                             <input type="text" value={productionOrderId} readOnly />
                         </div>
-                        <div className="vendorInfo">
+                        <div className={style.vendorInfo}>
                             <label>Production Order Date:</label>
                             <input
                                 type="date"
@@ -200,31 +206,34 @@ function OrderCreation() {
                             />
                         </div>
                     </div>
-                    <hr />
+                    <hr className='hr' />
 
-                    <div className="FGDD">
-                        <label>Select Finished Product:</label>
-                        <select onChange={handleProductChange} value={selectedProductId} required>
-                            <option value="">Select Product</option>
-                            {finishedGoods.map(good => (
-                                <option key={good.id} value={good.id}>
-                                    {good.FGname} {/* Assuming FGname is the product name */}
-                                </option>
-                            ))}
-                        </select>
-                        <input type='text' placeholder='ID' value={selectedProductId} readOnly /> {/* Fetch the id of that selected product */}
+                    <div className={style.fgdd}>
+                        <div className={style.fgddDiv}>
+
+                            <label>Select Finished Product:</label>
+                            <select onChange={handleProductChange} value={selectedProductId} required>
+                                <option value="">Select Product</option>
+                                {finishedGoods.map(good => (
+                                    <option key={good.id} value={good.id}>
+                                        {good.FGname} {/* Assuming FGname is the product name */}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <input type='text' placeholder='ID' value={selectedProductId} readOnly />
                     </div>
                     <br />
                     <div>
-                        <table className='vendorTable'>
-                            <thead>
+                        <table className={style.vendorTable}>
+                            <thead className={style.vendorTableHeader}>
                                 <tr>
                                     <th>ID</th>
                                     <th>Quantity per piece</th>
                                     <th>Required Total Quantity</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className={style.vendorTableBody}>
                                 {requiredMaterials.map((material, index) => (
                                     <tr key={index}>
                                         <td>{material.id}</td>
@@ -237,7 +246,7 @@ function OrderCreation() {
                         </table>
                     </div>
                     <br />
-                    <div className="vendorInfo">
+                    <div className={style.vendorInfo}>
                         <label>Planned Quantity:</label>
                         <input
                             type="number"
@@ -299,19 +308,19 @@ function OrderCreation() {
                             required
                         />
                         <label>Start Date:</label>
-                            <input
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                required
-                            />
-                            <label>End Date:</label>
-                            <input
-                                type="date"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                required
-                            />
+                        <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            required
+                        />
+                        <label>End Date:</label>
+                        <input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            required
+                        />
                         <label>Production Status:</label>
                         <input
                             type="text"
@@ -328,7 +337,7 @@ function OrderCreation() {
                         />
                     </div>
 
-                    <button type="submit" className='submit-button'>Create Production Order</button>
+                    <button type="submit" className={style.orderSubmitBtn}>Create Production Order</button>
                 </form>
             </div>
         </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query, where, fireDB } from '../../firebase/FirebaseConfig';
-import './fginventory.css';
+import style from './fginventory.module.css';
 
 const FGInventory = () => {
   const [inventoryData, setInventoryData] = useState([]);
@@ -10,7 +10,7 @@ const FGInventory = () => {
       try {
         const productionOrdersRef = collection(fireDB, 'Production_Orders');
         const q = query(
-          productionOrdersRef, 
+          productionOrdersRef,
           where('productionStatus', '==', 'Packaging done, added to inventory'),
           where('dispatchOrInventory', '==', 'Inventory')
         );
@@ -20,9 +20,8 @@ const FGInventory = () => {
           srNo: index + 1,
           productionOrderId: doc.data().productionOrderId,
           selectedProductId: doc.data().selectedProductId,
-          quantity:doc.data().FGQuantity,
-          status:doc.data().dispatchOrInventory,
-          ml:doc.data().materialLocation,
+          quantity: doc.data().quantity,
+          status: doc.data().dispatchOrInventory,
         }));
         setInventoryData(data);
       } catch (error) {
@@ -33,20 +32,23 @@ const FGInventory = () => {
   }, []);
 
   return (
-    <div className="main" id="main">
-      <h2>Finished Goods Inventory</h2>
-      <table className="inventory-table">
-        <thead>
+    <div className={style.fgInventoryWrapper} >
+      <div className={style.title}>
+        <i class="ri-bar-chart-line"></i>
+        <h4>Finished Goods Inventory</h4>
+      </div>
+      <hr className='hr' />
+      <table className={style.inventoryTable}>
+        <thead className={style.inventoryTableHead}>
           <tr>
             <th>Sr. No</th>
             <th>Production Order Id</th>
             <th>Product ID</th>
             <th>Quantity</th>
-            <th>Location</th>
             <th>Status</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className={style.inventoryTableBody}>
           {inventoryData.length > 0 ? (
             inventoryData.map((item) => (
               <tr key={item.id}>
@@ -54,13 +56,12 @@ const FGInventory = () => {
                 <td>{item.productionOrderId}</td>
                 <td>{item.selectedProductId}</td>
                 <td>{item.quantity}</td>
-                <td>{item.ml}</td>
                 <td>{item.status}</td>
               </tr>
             ))
           ) : (
-            <tr>
-              <td colSpan="2">No data available</td>
+            <tr className={style.error}>
+              <td colSpan="6" >No data available</td>
             </tr>
           )}
         </tbody>

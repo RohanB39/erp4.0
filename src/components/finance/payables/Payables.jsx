@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { fireDB, collection, query, where, getDocs } from '../../firebase/FirebaseConfig';
+import { fireDB, collection, query, where, getDocs } from '../../firebase/FirebaseConfig'; // Import necessary Firestore methods
 
+
+import style from './payables.module.css';
 const Payables = () => {
   const [payablesData, setPayablesData] = useState([]);
   const fetchPayablesData = async () => {
@@ -25,10 +27,19 @@ const Payables = () => {
   }, []);
 
   return (
-    <div className="main" id='main'>
-      <h2>Payables</h2>
-      <table>
-        <thead>
+    <div className={style.payablewrapper}>
+      <div className={style.title}>
+        <div>
+          <i class="ri-bank-line"></i>
+          <h4>Payables</h4>
+        </div>
+        <p>View and manage pending payments for all dispatched orders here. </p>
+
+
+      </div>
+      <hr className='hr' />
+      <table className={style.payableTable}>
+        <thead className={style.payableTableHeader}>
           <tr>
             <th>Sr No</th>
             <th>Material Name</th>
@@ -39,7 +50,7 @@ const Payables = () => {
             <th>Amount Paid</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className={style.payableTableBody}>
           {payablesData.map((item, index) => (
             <tr key={item.id}>
               <td>{index + 1}</td>

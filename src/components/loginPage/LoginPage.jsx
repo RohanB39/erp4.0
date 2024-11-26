@@ -5,13 +5,18 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswor
 import { doc, setDoc } from "firebase/firestore";
 import axios from 'axios';
 import stateCityData from '../../cityStateJson/states-and-districts.json';
+
 import style from './login.module.css'
+
+
+
 const countryCodes = [
     { code: '+1', name: 'USA' },
     { code: '+91', name: 'India' },
+    // Add more country codes as needed
 ];
 
-function LoginPage({onLogin}) {
+function LoginPage({ onLogin }) {
     const [isSignUp, setIsSignUp] = useState(false);
     const [isPasswordChange, setIsPasswordChange] = useState(false);
     const [formData, setFormData] = useState({
@@ -212,14 +217,18 @@ function LoginPage({onLogin}) {
             <div className={style.loginForm}>
 
                 <div className={style.leftSide}>
+                    <div className={style.logoIcon}>
+                        <h4>if</h4>
+
+                    </div>
                     <div className={style.logo}>
-                        <h3 className={style.title}>InduFlow</h3>
+                        <h3 className={style.title}><span>I</span>ndu<span>F</span>low</h3>
                         <p className={style.text}>Empowering Manufacturers with Seamless Process Automation and Control.</p>
                     </div>
 
                 </div>
                 <div className={style.formContainer}>
-                    {error && <div className="alert alert-danger">{error}</div>}
+                    {error && <div className={`{style.alert} {style.alertDanger}`}>{error}</div>}
                     {isSignUp ? (
                         <>
                             <h3 className={style.heading}>Create an Account</h3>
@@ -343,7 +352,7 @@ function LoginPage({onLogin}) {
 
             </div>
 
-        </div>
+        </div >
     );
 }
 

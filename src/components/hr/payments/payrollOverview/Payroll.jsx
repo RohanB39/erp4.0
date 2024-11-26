@@ -21,6 +21,7 @@ function Payroll() {
     const [data, setData] = useState([]);
     const [selectedRow, setSelectedRow] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
+
     useEffect(() => {
         const fetchEmployeesCount = async () => {
             try {
@@ -182,8 +183,11 @@ function Payroll() {
                         : 0;
 
                     const grossPay = employee.SalaryDetails?.totalCTC || 0;
+                    const fixedPay = employee.SalaryDetails?.totalFixedPay || 0;
                     const PM = (grossPay / 12).toFixed(2);
-                    const PD = (Number(PM) / 30).toFixed(2);
+                    const FP = (fixedPay / 12).toFixed(2);
+                    const PD = (Number(FP) / 30).toFixed(2);
+                    
                     let workingDays = 0;
                     if (authorizedLeaves <= 3) {
                         workingDays = authorizedLeaves + signInOutDays;
@@ -192,7 +196,7 @@ function Payroll() {
                         workingDays = takenLeaves + signInOutDays;
                     }
                     const netPaye = (PD * workingDays).toFixed(2);
-                    const deduction = PM - netPaye;
+                    const deduction = (PM - FP).toFixed(2);
 
                     const currentDay = dayjs().date();
                     const absentDays = (currentDay - signInOutDays);
@@ -256,14 +260,14 @@ function Payroll() {
             )
         },
         {
-            Header: 'Taken Leaves',
+            Header: 'Paid Leaves',
             accessor: 'leaves',
             Cell: ({ value }) => (
                 <span>{value} &nbsp;Leaves</span>
             )
         },
         {
-            Header: 'Extra Leaves',
+            Header: 'Unpaid Leaves',
             accessor: '',
             Cell: ({ row }) => {
                 const takenLeaves = row.original.leaves || 0;

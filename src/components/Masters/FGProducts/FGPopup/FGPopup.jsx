@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import "./fgpopup.css";
 import { fireDB } from '../../../firebase/FirebaseConfig';
 import { doc, getDoc, collection, getDocs, query, where, setDoc } from "firebase/firestore";
+import style from '../../customer/customerPopup/popup.module.css';
 
 const FGPopup = ({ onClose }) => {
     const [FGname, setFGName] = useState("");
@@ -98,14 +98,14 @@ const FGPopup = ({ onClose }) => {
         setRawMaterialSelections((prevSelections) =>
             prevSelections.map((selection) => {
                 if (selection.id === id) {
-                    newUniqueIDs[id] = rawMaterialID; 
+                    newUniqueIDs[id] = rawMaterialID;
                     return { ...selection, value: rawMaterialID };
                 }
                 return selection;
             })
         );
 
-        setRawUniqueIDs(newUniqueIDs); 
+        setRawUniqueIDs(newUniqueIDs);
 
         if (rawMaterialID) {
             try {
@@ -124,7 +124,6 @@ const FGPopup = ({ onClose }) => {
             setRawUniqueIDs((prev) => ({ ...prev, [id]: "" }));
         }
     };
-
 
     const addRawMaterialSelection = () => {
         setRawMaterialSelections((prev) => [...prev, { id: Date.now(), value: "", quantity: "" }]);
@@ -158,12 +157,12 @@ const FGPopup = ({ onClose }) => {
             rawMaterials: rawMaterialSelections.map(selection => ({
                 id: rawUniqueIDs[selection.id],
                 quantity: selection.quantity,
-                unit : "KG",
+                unit: "KG",
             })),
             weightOfgoods,
             unitOfgoods,
             unit,
-            status:"Active",
+            status: "Active",
             createdAt: new Date(),
         };
 
@@ -187,67 +186,87 @@ const FGPopup = ({ onClose }) => {
     };
 
     return (
-        <div className="popup-overlay">
-            <div className="popup-content">
-                <div className="form-head">
-                    <h3>Create Finished Goods</h3>
-                    <button onClick={onClose}>×</button>
+        <div className={style.popupOverlay}>
+            <div className={style.popupContent}>
+                <div className={style.formHead}>
+                    <h4>Create Finished Goods</h4>
+                    <button onClick={onClose}><i className="ri-close-line"></i></button>
                 </div>
                 <hr />
-                <div className="customer-id">
+                <div className={style.customerId}>
                     <span>FG ID : </span> {uniqueID}
                 </div>
-                {successMessage && <div className="success-message">{successMessage}</div>}
+                {successMessage && <div className={style.successMessage}>{successMessage}</div>}
                 <form onSubmit={handleSubmit}>
-                    <div className="form-row">
-                        <input
-                            className="nameInput"
-                            type="text"
-                            placeholder="Enter Product Name"
-                            value={FGname}
-                            onChange={(e) => setFGName(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className="NameID">
-                        <select
-                            className="nameInput"
-                            value={selectedCustomer}
-                            onChange={(e) => handleCustomerSelect(e.target.value)}
-                            required
-                        >
-                            <option value="">Select Customer</option>
-                            {customers.map((customer) => (
-                                <option key={customer.id} value={customer.id}>
-                                    {customer.name}
-                                </option>
-                            ))}
-                        </select>
+                    <div className={style.formColumn}>
+                        <div className={style.formRow}>
+                            <div>
 
-                        <input
-                            type="text"
-                            className="nameInput"
-                            value={customerUniqueID}
-                            placeholder="Customer ID"
-                            readOnly
-                        />
-                    </div>
+                                <label htmlFor="name">Product Name</label>
+                                <input
+                                    className={style.nameInput}
+                                    type="text"
+                                    placeholder="Enter Product Name"
+                                    value={FGname}
+                                    id="name"
+                                    onChange={(e) => setFGName(e.target.value)}
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className={style.selectCustomer}>
+                            <div>
+                                <label htmlFor="select">Select Customer</label>
 
-                    <div className="NameID">
-                        <textarea
-                            className="nameInput"
-                            value={customerAddress}
-                            readOnly
-                            rows="4"
-                            placeholder="Shipping Address will appear here"
-                        />
+                                <select
+                                    className={style.nameInput}
+                                    value={selectedCustomer}
+                                    onChange={(e) => handleCustomerSelect(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Select Customer</option>
+                                    {customers.map((customer) => (
+                                        <option key={customer.id} value={customer.id}>
+                                            {customer.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label htmlFor="name">Customer ID</label>
+
+
+                                <input
+                                    type="text"
+                                    className={style.nameInput}
+                                    value={customerUniqueID}
+                                    placeholder="Customer ID"
+                                    readOnly
+                                />
+                            </div>
+                        </div>
+                        <hr className="hr" />
+                        <div className={style.addressInput}>
+                            <div>
+
+                                <label htmlFor="address">Address</label>
+                                <textarea
+                                    className={style.nameInput}
+                                    value={customerAddress}
+                                    readOnly
+                                    rows="4"
+                                    placeholder="Shipping Address will appear here"
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     {rawMaterialSelections.map((selection) => (
-                        <div key={selection.id} className="rawmaterial">
+                        <div key={selection.id} className={style.rawMaterialRow}>
+
                             <select
-                                className="nameInput"
-                                value={selection.value} // Ensure value is bound to the selected material ID
+                                className={style.nameInput}
+                                value={selection.value}
                                 onChange={(e) => handleRawMaterialSelect(selection.id, e.target.value)}
                                 required
                             >
@@ -258,61 +277,69 @@ const FGPopup = ({ onClose }) => {
                                     </option>
                                 ))}
                             </select>
-                            <input
-                                type="text"
-                                className="nameInput"
-                                value={rawUniqueIDs[selection.id] || ""}
-                                placeholder="Raw Material ID"
-                                readOnly
-                            />
+
                             <input
                                 type="number"
-                                className="nameInput"
+                                className={style.nameInput}
                                 value={selection.quantity}
                                 onChange={(e) => handleQuantityChange(selection.id, e.target.value)}
-                                placeholder="Quantity"
+                                placeholder="Enter Quantity"
                                 required
                             />
-                            <button type="button" onClick={addRawMaterialSelection}>
-                                +
-                            </button>
-                            <button type="button" onClick={() => removeRawMaterialSelection(selection.id)}>
-                                -
-                            </button>
+                            <div className={style.MaterialButton}>
+                                <button
+                                    type="button"
+                                    onClick={() => removeRawMaterialSelection(selection.id)}
+
+                                >
+                                    <i className="ri-close-line"></i>
+                                </button>
+                            </div>
+
+                            <div className={style.MaterialButton}>
+                                <button type="button" onClick={addRawMaterialSelection}><i className="ri-add-line"></i></button>
+                            </div>
                         </div>
                     ))}
-                    <div className="qty">
-                        <select value={unit} onChange={(e) => setUnit(e.target.value)} required>
-                            <option value="Nos">Nos</option>
-                            <option value="KG">KG</option>
-                            <option value="GRAM">GRAM</option>
-                            <option value="METER">METER</option>
-                            <option value="FEET">FEET</option>
-                            <option value="MILLILITERS">MILLILITERS</option>
-                            <option value="LITERS">LITERS</option>
-                        </select>
+
+                    <hr className="hr" />
+                    <div className={style.formColumn}>
+                        <div className={style.bottomrow}>
+
+                            <div className={style.formRow}>
+                                <div>
+
+                                    <label htmlFor="weight">Weight</label>
+                                    <input
+                                        type="number"
+                                        className={style.nameInput}
+                                        value={weightOfgoods}
+                                        onChange={(e) => setWeightOfgoods(e.target.value)}
+                                        placeholder="Weight"
+                                        id="weight"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className={style.formRow}>
+                                <div>
+                                    <label htmlFor="unit">Unit</label>
+                                    <input
+                                        type="text"
+                                        className={style.nameInput}
+                                        value={unitOfgoods}
+                                        onChange={(e) => setUnitOfGoods(e.target.value)}
+                                        placeholder="Unit of Goods"
+                                        id="unit"
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="weight">
-                        <input
-                            type="number"
-                            className="nameInput"
-                            value={weightOfgoods}
-                            onChange={(e) => setWeightOfgoods(e.target.value)}
-                            placeholder="Enter Weight Of FG"
-                            required
-                        />
-                        <select value={unitOfgoods} onChange={(e) => setUnitOfGoods(e.target.value)} required>
-                            <option value="Nos">Nos</option>
-                            <option value="KG">KG</option>
-                            <option value="GRAM">GRAM</option>
-                            <option value="METER">METER</option>
-                            <option value="FEET">FEET</option>
-                            <option value="MILLILITERS">MILLILITERS</option>
-                            <option value="LITERS">LITERS</option>
-                        </select>
+                    <div className={style.submitButton}>
+                        <button type="submit">Create FG</button>
                     </div>
-                    <button type="submit">Create Finished Goods</button>
                 </form>
             </div>
         </div>

@@ -1,14 +1,14 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { useTable, usePagination } from 'react-table';
 import { getFirestore, collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
-import './Store.css';
+import style from './Store.module.css'
 
 const ProducrionDemand = () => {
     const [productionDemandMaterials, setProductionDemandMaterials] = useState([]);
     const fetchData = async () => {
         const db = getFirestore();
         const productionDemandRef = collection(db, 'Production_Orders');
-    
+
         try {
             //fetching production demand
             const productionDemandQuery = query(
@@ -107,68 +107,83 @@ const ProducrionDemand = () => {
         },
         usePagination
     );
-  return (
-    <>
-        <div className="total-stock-content">
-                    <div className='stock-header'>
-                        <h3>Production Demand</h3>
-                        <input type="text" placeholder='Search stock' />
-                    </div>
-                    <div className="stock-list">
-                        <table {...getProductionDemandTableProps()}>
-                            <thead>
-                                {ProductiondemandHeaderGroups.map(headerGroup => (
-                                    <tr {...headerGroup.getHeaderGroupProps()}>
-                                        {headerGroup.headers.map(column => (
-                                            <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                                        ))}
+    return (
+        <>
+            <div className={style.storeContainer}>
+                <div className={style.stockHeader}>
+                    <h3>Production Demand</h3>
+                    <input type="text" placeholder='Search stock' />
+                </div>
+                <div className={style.stockList}>
+                    <table {...getProductionDemandTableProps()} className={style.stockTable}>
+                        <thead className={style.stockTableHeader}>
+                            {ProductiondemandHeaderGroups.map(headerGroup => {
+                                const { key: headerGroupKey, ...headerGroupProps } = headerGroup.getHeaderGroupProps(); // Extract key
+                                return (
+                                    <tr key={headerGroupKey} {...headerGroupProps}>
+                                        {headerGroup.headers.map(column => {
+                                            const { key: columnKey, ...columnProps } = column.getHeaderProps(); // Extract key
+                                            return (
+                                                <th key={columnKey} {...columnProps}>
+                                                    {column.render('Header')}
+                                                </th>
+                                            );
+                                        })}
                                     </tr>
-                                ))}
-                            </thead>
-                            <tbody {...getProductionDemandTableBodyProps()}>
-                                {ProductiondemandPage.map(row => {
-                                    prepareProductionDemandRow(row);
-                                    return (
-                                        <tr {...row.getRowProps()}>
-                                            {row.cells.map(cell => (
-                                                <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                                            ))}
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                                );
+                            })}
+                        </thead>
+                        <tbody {...getProductionDemandTableBodyProps()}>
+                            {ProductiondemandPage.map(row => {
+                                prepareProductionDemandRow(row);
+                                const { key: rowKey, ...rowProps } = row.getRowProps(); // Extract key
+                                return (
+                                    <tr key={rowKey} {...rowProps}>
+                                        {row.cells.map(cell => {
+                                            const { key: cellKey, ...cellProps } = cell.getCellProps(); // Extract key
+                                            return (
+                                                <td key={cellKey} {...cellProps}>
+                                                    {cell.render('Cell')}
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+
+                </div>
+                <div className={style.pagination}>
+                    <div className='d-flex'>
+                        <button onClick={() => previousProductionDemandPage()} disabled={!canPreviousProductionDemandPage}>
+                            {'<'}
+                        </button>
+                        <span>
+                            {ProductiondemandPageIndex + 1} of {ProductiondemandPageOptions.length}
+                        </span>
+                        <button onClick={() => nextProductionDemandPage()} disabled={!canNextProductionDemandPage}>
+                            {'>'}
+                        </button>
                     </div>
-                    <div className="pagination d-flex">
-                        <div className='d-flex'>
-                            <button onClick={() => previousProductionDemandPage()} disabled={!canPreviousProductionDemandPage}>
-                                {'<'}
-                            </button>
-                            <span>
-                                {ProductiondemandPageIndex + 1} of {ProductiondemandPageOptions.length}
-                            </span>
-                            <button onClick={() => nextProductionDemandPage()} disabled={!canNextProductionDemandPage}>
-                                {'>'}
-                            </button>
-                        </div>
-                        <div>
-                            <select
-                                value={ProductiondemandPageSize}
-                                onChange={e => {
-                                    setProductionDemandPageSize(Number(e.target.value));
-                                }}
-                            >
-                                {[10, 20, 30, 40, 50].map(pageSize => (
-                                    <option key={pageSize} value={pageSize}>
-                                        Show {pageSize}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                    <div>
+                        <select
+                            value={ProductiondemandPageSize}
+                            onChange={e => {
+                                setProductionDemandPageSize(Number(e.target.value));
+                            }}
+                        >
+                            {[10, 20, 30, 40, 50].map(pageSize => (
+                                <option key={pageSize} value={pageSize}>
+                                    Show {pageSize}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 </div>
-    </>
-  )
+            </div>
+        </>
+    )
 }
 
 export default ProducrionDemand

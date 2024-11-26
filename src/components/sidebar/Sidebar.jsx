@@ -1,261 +1,260 @@
-import React, { useState, useEffect } from "react";
-import { Link } from 'react-router-dom';
-import "./sidebar.css";
-import { auth, fireDB } from '../firebase/FirebaseConfig.js';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import React, { useRef, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { auth } from '../firebase/FirebaseConfig.js';
+import style from './sidebar.module.css';
 
-function Sidebar() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeSubmenu, setActiveSubmenu] = useState(null);
+const Sidebar = () => {
+  const location = useLocation();
+  const [isSidebarClosed, setSidebarClosed] = useState(false);
+  const toggleButtonRef = useRef(null);
+  const sidebarRef = useRef(null);
 
-  const handleToggleSubmenu = (tabName) => {
-    setActiveSubmenu((prevActiveSubmenu) =>
-      prevActiveSubmenu === tabName ? null : tabName
-    );
+  const toggleSidebar = () => {
+    setSidebarClosed(!isSidebarClosed);
+
+
+    const subMenus = sidebarRef.current.getElementsByClassName(style.show);
+    Array.from(subMenus).forEach((ul) => {
+      ul.classList.remove(style.show);
+      ul.previousElementSibling.classList.remove(style.rotate);
+    });
+
+    if (toggleButtonRef.current) {
+      toggleButtonRef.current.classList.toggle(style.rotate);
+    }
+  };
+
+  const toggleSubMenu = (event) => {
+    const button = event.currentTarget;
+    button.nextElementSibling.classList.toggle(style.show);
+    button.classList.toggle(style.rotate);
+
+
+    if (isSidebarClosed) {
+      setSidebarClosed(false);
+      if (toggleButtonRef.current) {
+        toggleButtonRef.current.classList.remove(style.rotate);
+      }
+    }
   };
 
   const handleSignOut = async () => {
     try {
-
       await auth.signOut();
-
-      sessionStorage.clear();
+      localStorage.clear();
       window.location.href = '/';
+      console.log('signout')
     } catch (error) {
       console.error("Error signing out: ", error);
     }
   };
 
-  const [count, setCount] = useState(0); // Set initial state as 0
-  // Fetch employees from Firebase
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        // Create a query to fetch employees with Status 'Active'
-        const employeesQuery = query(
-          collection(fireDB, "employees"),
-          where("Status", "==", "Active")
-        );
-
-        const querySnapshot = await getDocs(employeesQuery);
-        const employeesData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setCount(querySnapshot.size); // Set the count to the number of documents
-      } catch (error) {
-        console.error("Error fetching employees: ", error);
-      }
-    };
-
-    fetchEmployees();
-  }, []);
-
-  console.log("Count is: "+count);
-
-
-
   return (
-    <div className={`sideNav ${sidebarOpen ? "" : "sidebar-closed"}`}>
-      <aside id="sidebar" className={`sidebar ${sidebarOpen ? "" : "sidebar-closed"}`}>
-        <ul className="sidebar-nav" id="sidebar-nav">
-          <li className="nav-item">
-            <Link to="/" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-              <i className="bi bi-grid"></i>
-              <span>Dashboard</span>
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link to="/SalesPurchase" className="nav-link" onClick={() => setActiveSubmenu("SalesPurchase")}>
-              <i className="bi bi-bag-check"></i>
-              <span>Purchase</span>
-              <i id="chevron" className={`bi bi-chevron-${activeSubmenu === "SalesPurchase" ? "up" : "down"}`}></i>
-              {activeSubmenu === "SalesPurchase" && (
-                <div className="submenu show">
-                  <ul>
-                    <li>
-                      <Link to="/customerPO" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                        <i className="bi bi-file-earmark-text"></i>
-                        <span>Customer PO</span>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/fgInventory" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                        <i className="bi bi-cart"></i>
-                        <span>Vendor PO</span>
-                      </Link>
-                    </li>
-                  </ul>
-                </div>)}
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link to="/Store" className="nav-link" onClick={() => handleToggleSubmenu("Store")}>
-              <i className="bi bi-shop"></i>
-              <span>Store</span>
-              <i id="chevron" className={`bi bi-chevron-${activeSubmenu === "Store" ? "up" : "down"}`}></i>
-              {activeSubmenu === "Store" && (
-                <div className="submenu show">
-                  <ul>
-                    <li>
-                      <Link to="/Grn" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                        <i className="bi bi-check-circle"></i>
-                        <span>GRN</span>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/fgInventory" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                        <i className="bi bi-box"></i>
-                        <span>FG Inventory</span>
-                      </Link>
-                    </li>
-                  </ul>
-                </div>)}
-            </Link>
-          </li>
+    <div ref={sidebarRef} className={`${style.sidebar} ${isSidebarClosed ? style.close : ''}`}>
+      <ul>
+        <li className={style.firstList}>
+          <span className={style.logo}>if</span>
+          <button
+            onClick={toggleSidebar}
+            ref={toggleButtonRef}
+            id="toggleBtn"
+            className={style.toggleBtn}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="20px"
+              viewBox="0 -960 960 960"
+              width="20px"
+              fill="#1E124A"
+            >
+              <path d="M437-253.85L210.85-480 437-706.15 474.15-669 284.77-480l189.38 189L437-253.85Zm275 0L485.85-480 712-706.15 749.15-669 559.77-480l189.38 189L712-253.85Z" />
+            </svg>
+          </button>
+        </li>
+        <li className={location.pathname === '/' ? style.activeLink : ''}>
+          <Link to="/">
+            <i className="bi bi-grid"></i>
+            <span>Dashboard</span>
+          </Link>
+        </li>
+        <li>
+          <span onClick={toggleSubMenu} className={style.dropdown}>
+            <i className="bi bi-bag-check"></i>
+            <span>Purchase</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="20px"
+              viewBox="0 -960 960 960"
+              width="20px"
+              fill="#1E124A"
+            >
+              <path d="m480-538.85-189 189L253.85-387 480-613.15 706.15-387 669-349.85l-189-189Z" />
+            </svg>
+          </span>
+          <ul className={style.subMenu}>
+            <div>
+              <li className={location.pathname === '/SalesPurchase' ? style.activeLink : ''}>
+                <Link to="/SalesPurchase">All Purchase</Link>
+              </li>
+              <li className={location.pathname === '/CustomerPO' ? style.activeLink : ''}>
+                <Link to="/CustomerPO">Customer PO</Link>
+              </li>
 
-          <li className="nav-item">
-            <Link to="/AllQuality" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-              <i className="bi bi-bag-check"></i>
-              <span>Quality</span>
-            </Link>
-          </li>
+            </div>
+          </ul>
+        </li>
+        <li>
+          <span onClick={toggleSubMenu} className={style.dropdown}>
+            <i className="bi bi-shop"></i>
+            <span>Store</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="20px"
+              viewBox="0 -960 960 960"
+              width="20px"
+              fill="#1E124A"
+            >
+              <path d="m480-538.85-189 189L253.85-387 480-613.15 706.15-387 669-349.85l-189-189Z" />
+            </svg>
+          </span>
+          <ul className={style.subMenu}>
+            <div>
+              <li className={location.pathname === '/Storage' ? style.activeLink : ''}>
+                <Link to="/Storage">Storage</Link>
+              </li>
+              <li className={location.pathname === '/Grn' ? style.activeLink : ''}>
+                <Link to="/Grn">GRN</Link>
+              </li>
+              <li className={location.pathname === '/fgInventory' ? style.activeLink : ''}>
+                <Link to="/fgInventory">FG Inventory</Link>
+              </li>
+            </div>
+          </ul>
+        </li>
+        <li className={location.pathname === '/AllQuality' ? style.activeLink : ''}>
+          <Link to="/AllQuality">
+            <i className="bi bi-bag-check"></i>
+            <span>Quality</span>
+          </Link>
+        </li>
+        <li className={location.pathname === '/Production' ? style.activeLink : ''}>
+          <span onClick={toggleSubMenu} className={style.dropdown}>
+            <i className="bi bi-shop"></i>
+            <span>Production</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="20px"
+              viewBox="0 -960 960 960"
+              width="20px"
+              fill="#1E124A"
+            >
+              <path d="m480-538.85-189 189L253.85-387 480-613.15 706.15-387 669-349.85l-189-189Z" />
+            </svg>
+          </span>
+          <ul className={style.subMenu}>
+            <div>
+              <li className={location.pathname === '/AllProduction' ? style.activeLink : ''}>
+                <Link to="/AllProduction">All Production</Link>
+              </li>
+              <li className={location.pathname === '/DemandMaterial' ? style.activeLink : ''}>
+                <Link to="/DemandMaterial">Demand Material</Link>
+              </li>
+              <li className={location.pathname === '/ProductionProcess' ? style.activeLink : ''}>
+                <Link to="/ProductionProcess">Process</Link>
+              </li>
+              <li className={location.pathname === '/addMachines' ? style.activeLink : ''}>
+                <Link to="/addMachines">Add Machines</Link>
+              </li>
+            </div>
+          </ul>
+        </li>
 
+        <li className={location.pathname === '/Finance' ? style.activeLink : ''}>
+          <span onClick={toggleSubMenu} className={style.dropdown}>
+            <i className="bi bi-cash"></i>
+            <span>Finance</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="20px"
+              viewBox="0 -960 960 960"
+              width="20px"
+              fill="#1E124A"
+            >
+              <path d="m480-538.85-189 189L253.85-387 480-613.15 706.15-387 669-349.85l-189-189Z" />
+            </svg>
+          </span>
+          <ul className={style.subMenu}>
+            <div>
+              <li className={location.pathname === '/Finanace' ? style.activeLink : ''}>
+                <Link to="/Finance">Finance</Link>
+              </li>
+              <li className={location.pathname === '/Recivable' ? style.activeLink : ''}>
+                <Link to="/Recivable">Recivable</Link>
+              </li>
+              <li className={location.pathname === '/Payables' ? style.activeLink : ''}>
+                <Link to="/Payables">Payables</Link>
+              </li>
+              <li className={location.pathname === '/CompanyLegder' ? style.activeLink : ''}>
+                <Link to="/CompanyLegder">CompanyLegder</Link>
+              </li>
+            </div>
+          </ul>
+        </li>
 
-          <li className="nav-item">
-            <Link
-              to="/AllProduction"
-              className="nav-link"
-              onClick={() => handleToggleSubmenu("production")}>
-              <i className="bi bi-card-list"></i>
-              <span>Production</span>
-              <i id="chevron" className={`bi bi-chevron-${activeSubmenu === "production" ? "up" : "down"}`}></i>
-            </Link>
-            {activeSubmenu === "production" && (
-              <div className="submenu show">
-                <ul>
-                  <li>
-                    <Link to="/DemandMaterial" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                      <i className="bi bi-calendar"></i>
-                      <span>Demand Material</span>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/ProductionProcess" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                      <i className="bi bi-gear"></i>
-                      <span>Process</span>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/addMachines" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                      <i class="bi bi-tools"></i>
-                      <span>Add Machines</span>
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            )}
-          </li>
+        <li className={location.pathname === '/Dispach' ? style.activeLink : ''}>
+          <Link to="/Dispach">
+            <i className="bi bi-truck"></i>
+            <span>Dispach</span>
+          </Link>
+        </li>
+        <li className={location.pathname === '/MasterDash' ? style.activeLink : ''}>
+          <Link to="/MasterDash">
+            <i className="bi bi-folder"></i>
+            <span>Masters</span>
+          </Link>
+        </li>
+        <li>
+          <span onClick={toggleSubMenu} className={style.dropdown}>
+            <i className="bi bi-file-person"></i>
+            <span>Hr</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="20px"
+              viewBox="0 -960 960 960"
+              width="20px"
+              fill="#1E124A"
+            >
+              <path d="m480-538.85-189 189L253.85-387 480-613.15 706.15-387 669-349.85l-189-189Z" />
+            </svg>
+          </span>
+          <ul className={style.subMenu}>
+            <div>
+              <li className={location.pathname === '/HrDashboard' ? style.activeLink : ''}>
+                <Link to="/HrDashboard">Hr Dashboard</Link>
+              </li>
+              <li className={location.pathname === './hrLeave' ? style.activeLink : ''}>
+                <Link to="./hrLeave">Leave</Link>
+              </li>
+              <li className={location.pathname === '/attendance' ? style.activeLink : ''}>
+                <Link to="./attendance">Attendence</Link>
+              </li>
+              <li className={location.pathname === '/Payroll' ? style.activeLink : ''}>
+                <Link to="./Payroll">Payroll</Link>
+              </li>
+            </div>
+          </ul>
+        </li>
+        <hr />
+        <li>
+          <span onClick={handleSignOut} className={`${style.signOutButton}`}>
+            <i className="bi bi-box-arrow-left"></i>
+            <Link>Sign Out</Link>
+          </span>
+        </li>
 
-
-          <li className="nav-item">
-            <Link to="/FinancePage" className="nav-link" onClick={() => handleToggleSubmenu("finance")}>
-              <i className="bi bi-cash"></i>
-              <span>Finance</span>
-              <i id="chevron" className={`bi bi-chevron-${activeSubmenu === "finance" ? "up" : "down"}`}></i>
-            </Link>
-            {activeSubmenu === "finance" && (
-              <div className="submenu show">
-                <ul>
-                  <li>
-                    <Link to="./receivable" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                      Receivable
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="./payables" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                      Payable
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/Company-Legder" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                      Company Leadger
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            )}
-          </li>
-
-          <li className="nav-item">
-            <Link to="/Dispach" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-              <i className="bi bi-truck"></i>
-              <span>Dispatch</span>
-            </Link>
-          </li>
-
-
-
-          <li className="nav-item">
-            <Link
-              to="/HrDashboard"
-              className="nav-link"
-              onClick={() => handleToggleSubmenu("hr")}>
-              <i className="bi bi-card-list"></i>
-              <span className="HR">HR</span>
-              <div className="dot">{count}</div>
-              {/* <i id="chevron" className={`bi bi-chevron-${activeSubmenu === "hr" ? "up" : "down"}`}></i> */}
-            </Link>
-            {activeSubmenu === "hr" && (
-              <div className="submenu show">
-                <ul>
-                <li>
-                    <Link to="./salaryDetails" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                      Add Salary
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="./LeavePage" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                      Leave
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="./Attendance" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                      Attendance
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/Payroll" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-                      Payroll Overview
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            )}
-          </li>
-          <li className="nav-item">
-            <Link to="/MasterDash" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-              <i className="bi bi-person"></i>
-              <span>Masters</span>
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link to="/Master" className="nav-link" onClick={() => setActiveSubmenu(null)}>
-              <i className="bi bi-bar-chart"></i>
-              <span>Analysis</span>
-            </Link>
-          </li>
-          <hr />
-          <li className="nav-item signout">
-            <Link to="#" className="nav-link" onClick={handleSignOut}>
-              <i className="bi bi-box-arrow-left"></i>
-              <span>Sign Out</span>
-            </Link>
-          </li>
-        </ul>
-      </aside>
-    </div>
+      </ul>
+    </div >
   );
-}
+};
 
 export default Sidebar;

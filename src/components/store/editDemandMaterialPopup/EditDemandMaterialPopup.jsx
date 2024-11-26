@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getFirestore, doc, updateDoc, getDocs, collection, query, where } from 'firebase/firestore';
-import './editdemandmaterialpopup.css';
+import style from '../editStoreProduct/editStoreProduct.module.css'
 
 const EditDemandMaterialPopup = ({ material, onClose, onSave }) => {
     const [materials, setMaterials] = useState(material.requiredMaterials);
@@ -34,7 +34,7 @@ const EditDemandMaterialPopup = ({ material, onClose, onSave }) => {
                 for (const product of products) {
                     if (quantityMap[product.id]) {
                         const updatedQuantity = Number(product.quantity) - quantityMap[product.id];
-                        product.quantity = updatedQuantity < 0 ? 0 : updatedQuantity; 
+                        product.quantity = updatedQuantity < 0 ? 0 : updatedQuantity;
                         await updateDoc(doc(db, 'Store_Racks', rackDoc.id), {
                             products: products
                         });
@@ -56,30 +56,33 @@ const EditDemandMaterialPopup = ({ material, onClose, onSave }) => {
             console.error("Error updating quantities or progressStatus: ", error);
         }
     };
-    
+
 
     return (
-        <div className="edit-popup">
-            <div className="edit-popup-content">
-                <h2>Edit Demand Material</h2>
-                <div>
+        <div className={style.editPopup}>
+            <div className={style.editPopupContent}>
+                <div className={style.popupHeader}>
+                    <h2>Edit Demand Material</h2>
+                    <button onClick={onClose}>Close</button>
+                </div>
+                <div className={style.popupDiv}>
                     <label>Demand Document ID:</label>
                     <input type="text" value={material.productionOrderId} readOnly />
                 </div>
-                <div>
+                <div className={style.popupDiv}>
                     <label>Product ID:</label>
                     <input type="text" value={material.selectedProductId} readOnly />
                 </div>
-                <div>
+                <div className={style.popupDiv}>
                     <label>Required Materials:</label>
-                    <table className='DemandMaterialTablePopup'>
-                        <thead>
+                    <table className={style.popupTable}>
+                        <thead className={style.popupHead}>
                             <tr>
                                 <th>ID</th>
                                 <th>Required Quantity</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className={style.popupBody}>
                             {materials.map((mat) => (
                                 <tr key={mat.id}>
                                     <td>{mat.id}</td>
@@ -97,8 +100,8 @@ const EditDemandMaterialPopup = ({ material, onClose, onSave }) => {
                     </table>
                 </div>
                 <div>
-                    <button onClick={handleSave}>Approve</button>
-                    <button onClick={onClose}>Close</button>
+                    <button className={style.approveBtn} onClick={handleSave}>Approve</button>
+
                 </div>
             </div>
         </div>

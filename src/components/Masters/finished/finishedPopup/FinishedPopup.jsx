@@ -3,7 +3,7 @@ import { fireDB } from "../../../firebase/FirebaseConfig";
 import { collection, getDocs, setDoc, doc } from "firebase/firestore";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-// import "./finishedPopup.css";
+import style from '../../customer/customerPopup/popup.module.css';
 
 const FinishedPopup = ({ onClose }) => {
     const [uniqueID, setUniqueID] = useState("");
@@ -12,7 +12,7 @@ const FinishedPopup = ({ onClose }) => {
     const [vendors, setVendors] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [materialType, setMaterialType] = useState("");
+    const [materialType, setMaterialType] = useState("Finished Material");
     const [materialName, setMaterialName] = useState("");
     const [specifications, setSpecifications] = useState("");
     const [hsnCode, setHsnCode] = useState("");
@@ -76,7 +76,7 @@ const FinishedPopup = ({ onClose }) => {
             await setDoc(doc(fireDB, "Items", uniqueID), {
                 vendorId,
                 vendorName,
-                materialType: "Finished Material",
+                materialType,
                 materialName,
                 specifications,
                 hsnCode,
@@ -105,33 +105,37 @@ const FinishedPopup = ({ onClose }) => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-
     return (
-        <div className="popup-overlay">
-            <div className="popup-content" ref={dropdownRef}>
-                <div className="form-head">
-                    <h3>Add Item</h3>
-                    <button onClick={onClose}>x
-                    </button>
+        <div className={style.popupOverlay}>
+            <div className={style.popupContent} ref={dropdownRef}>
+                <div className={style.formHead}>
+                    <h4>Add Finished Item</h4>
+                    <button onClick={onClose}><i className="ri-close-line"></i></button>
                 </div>
+                <hr />
                 <form onSubmit={handleSubmit}>
-                    <div className="selectForminput">
+                    <div className={style.formGroup}>
+                        <label htmlFor="vendorId">Vendor ID</label>
                         <input
+                            id="vendorId"
                             type="text"
                             placeholder="Vendor Id"
                             value={vendorId}
                             readOnly
                         />
+
+                        <label htmlFor="vendorSearch">Select Vendor</label>
                         <div className="custom-dropdown">
                             <input
+                                id="vendorSearch"
                                 type="text"
-                                placeholder="Select Vendor"
+                                placeholder="Search Vendor"
                                 value={searchTerm}
                                 onChange={handleInputChange}
                                 onClick={() => setIsDropdownOpen(searchTerm.length > 0)}
                             />
                             {isDropdownOpen && filteredVendors.length > 0 && (
-                                <div className="dropdown-options">
+                                <div className={style.dropdownOptions}>
                                     {filteredVendors.map(vendor => (
                                         <div
                                             key={vendor.id}
@@ -144,61 +148,74 @@ const FinishedPopup = ({ onClose }) => {
                                 </div>
                             )}
                             {isDropdownOpen && filteredVendors.length === 0 && (
-                                <div className="dropdown-option">
+                                <div className={style.dropdownOptionsMsg}>
                                     No vendors found
                                 </div>
                             )}
                         </div>
+
+                        <label htmlFor="materialType">Material Type</label>
                         <input
+                            id="materialType"
                             type="text"
                             value="Finished Material"
                             readOnly
                             required
                         />
-                    </div>
-                    <div className="selectForminput">
+
+                        <label htmlFor="materialName">Material Name</label>
                         <input
+                            id="materialName"
                             type="text"
                             placeholder="Material Name"
                             value={materialName}
                             onChange={(e) => setMaterialName(e.target.value)}
                             required
                         />
+
+                        <label htmlFor="specifications">Specifications</label>
                         <input
+                            id="specifications"
                             type="text"
                             placeholder="Specifications"
                             value={specifications}
                             onChange={(e) => setSpecifications(e.target.value)}
                             required
                         />
+
+                        <label htmlFor="hsnCode">HSN Code</label>
                         <input
+                            id="hsnCode"
                             type="text"
                             placeholder="HSN Code"
                             value={hsnCode}
                             onChange={(e) => setHsnCode(e.target.value)}
                             required
                         />
-                    </div>
-                    <div className="selectForminput">
+
+                        <label htmlFor="batchNumber">Batch Number</label>
                         <input
+                            id="batchNumber"
                             type="text"
                             placeholder="Batch Number"
                             value={batchNumber}
                             onChange={(e) => setBatchNumber(e.target.value)}
                             required
                         />
+
+                        <label htmlFor="qty">Quantity</label>
                         <input
+                            id="qty"
                             type="text"
                             placeholder="Quantity"
                             value={qty}
                             onChange={(e) => setQty(e.target.value)}
                             required
                         />
-                        <input
-                            type="hidden"
-                            value={status}
-                        />
+
+                        <label htmlFor="batchDate">Batch Date</label>
                         <DatePicker
+                            id="batchDate"
                             selected={batchDate}
                             onChange={date => setBatchDate(date)}
                             dateFormat="dd/MM/yyyy"
@@ -206,17 +223,20 @@ const FinishedPopup = ({ onClose }) => {
                             placeholderText="Batch Date"
                             required
                         />
-                    </div>
-                    <div className="selectForminput">
 
+                        <label htmlFor="materialLocation">Material Location</label>
                         <input
+                            id="materialLocation"
                             type="text"
                             placeholder="Material Location"
                             value={materialLocation}
                             onChange={(e) => setMaterialLocation(e.target.value)}
                             required
                         />
+
+                        <label htmlFor="materialId">Material ID</label>
                         <input
+                            id="materialId"
                             type="text"
                             placeholder="Material Id"
                             value={uniqueID}
@@ -226,7 +246,6 @@ const FinishedPopup = ({ onClose }) => {
                     <button className="submit-button" type="submit">Add</button>
                 </form>
             </div>
-
         </div>
     );
 };

@@ -2,7 +2,13 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useTable } from 'react-table';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { fireDB } from "../firebase/FirebaseConfig";
-import './quality.css';
+
+
+import style from './quality.module.css';
+
+
+import { IoCheckmarkOutline } from "react-icons/io5";
+import { IoCloseOutline } from "react-icons/io5";
 
 const ExistingMaterialInward = () => {
     const [data, setData] = useState([]);
@@ -39,7 +45,7 @@ const ExistingMaterialInward = () => {
 
     const showApprovalPopup = (item, status) => {
         setPopupData(item);
-        setPopupStatus(status); 
+        setPopupStatus(status);
     };
 
     const closePopup = () => {
@@ -84,9 +90,9 @@ const ExistingMaterialInward = () => {
                 };
 
                 return (
-                    <div>
-                        <button onClick={handleApproveClick}>Approve</button>
-                        <button onClick={handleRejectClick}>Reject</button>
+                    <div className={style.materialBtn}>
+                        <button onClick={handleApproveClick}><IoCheckmarkOutline className={style.icon} /></button>
+                        <button onClick={handleRejectClick}><IoCloseOutline className={style.icon} /></button>
                     </div>
                 );
             }
@@ -100,52 +106,53 @@ const ExistingMaterialInward = () => {
         rows,
         prepareRow,
     } = useTable({ columns, data });
-  return (
-    <div className='qualityTable'>
-    <div className='tab-content'>
-        <table {...getTableProps()} style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-                {headerGroups.map(headerGroup => (
-                    <tr {...headerGroup.getHeaderGroupProps()}>
-                        {headerGroup.headers.map(column => (
-                            <th {...column.getHeaderProps()}>
-                                {column.render('Header')}
-                            </th>
+    return (
+        <div className={style.qualityTable}>
+            <div className={style.tabContent}>
+                <table {...getTableProps()} style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead className={style.qualityTableHeader} >
+                        {headerGroups.map((headerGroup, headerGroupIndex) => (
+                            <tr {...headerGroup.getHeaderGroupProps()} key={`headerGroup-${headerGroupIndex}`}>
+                                {headerGroup.headers.map((column, columnIndex) => (
+                                    <th {...column.getHeaderProps()} key={`column-${columnIndex}`}>
+                                        {column.render('Header')}
+                                    </th>
+                                ))}
+                            </tr>
                         ))}
-                    </tr>
-                ))}
-            </thead>
-            <tbody {...getTableBodyProps()}>
-                {rows.map(row => {
-                    prepareRow(row);
-                    return (
-                        <tr {...row.getRowProps()}>
-                            {row.cells.map(cell => (
-                                <td {...cell.getCellProps()}>
-                                    {cell.render('Cell')}
-                                </td>
-                            ))}
-                        </tr>
-                    );
-                })}
-            </tbody>
-        </table>
-    </div>
+                    </thead>
+                    <tbody {...getTableBodyProps()} className={style.qualityTableBody}>
+                        {rows.map((row, rowIndex) => {
+                            prepareRow(row);
+                            return (
+                                <tr {...row.getRowProps()} key={`row-${rowIndex}`}>
+                                    {row.cells.map((cell, cellIndex) => (
+                                        <td {...cell.getCellProps()} key={`cell-${rowIndex}-${cellIndex}`}>
+                                            {cell.render('Cell')}
+                                        </td>
+                                    ))}
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
 
-    {/* Popup component */}
-    {popupData && (
-        <div className="popup">
-            <span className="animated-tick">
-                {popupStatus === 'QC Approved' ? '✅' : '❌'}
-            </span>
-            <p>{popupStatus}</p>
-            <p><strong>Item ID:</strong> {popupData.id}</p>
-            <p><strong>Item Name:</strong> {popupData.materialName}</p>
-            <button className="close-button" onClick={closePopup}>X</button>
+            </div>
+
+            {/* Popup component */}
+            {popupData && (
+                <div className="popup">
+                    <span className="animated-tick">
+                        {popupStatus === 'QC Approved' ? '✅' : '❌'}
+                    </span>
+                    <p>{popupStatus}</p>
+                    <p><strong>Item ID:</strong> {popupData.id}</p>
+                    <p><strong>Item Name:</strong> {popupData.materialName}</p>
+                    <button className="close-button" onClick={closePopup}>X</button>
+                </div>
+            )}
         </div>
-    )}
-</div>
-  )
+    )
 }
 
 export default ExistingMaterialInward

@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { getFirestore, collection, getDocs, doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
 import Select from 'react-select';
-import "./editStoreProduct.css";
+
+import style from './editStoreProduct.module.css';
+
+
+import { IoCloseOutline } from "react-icons/io5";
 
 const EditStoreProduct = ({ item, onClose, onSave }) => {
     const [rackOptions, setRackOptions] = useState([]);
     const [selectedRack, setSelectedRack] = useState(null);
     const [rackInput, setRackInput] = useState('');
-    const [quantity, setQuantity] = useState('Loading...'); 
+    const [quantity, setQuantity] = useState('Loading...');  // Loading state for quantity
 
     const fetchRacks = async () => {
         const db = getFirestore();
@@ -15,8 +19,8 @@ const EditStoreProduct = ({ item, onClose, onSave }) => {
         try {
             const snapshot = await getDocs(racksRef);
             const racks = snapshot.docs.map(doc => ({
-                value: doc.id,      
-                label: doc.id       
+                value: doc.id,
+                label: doc.id
             }));
             setRackOptions(racks);
         } catch (error) {
@@ -26,16 +30,20 @@ const EditStoreProduct = ({ item, onClose, onSave }) => {
 
     const fetchQuantity = async () => {
         const db = getFirestore();
-        const purchaseOrdersRef = collection(db, 'Items');
+        const purchaseOrdersRef = collection(db, 'Purchase_Orders');
 
         try {
+            console.log("Fetching quantity for material ID:", item.id);
+
             const snapshot = await getDocs(purchaseOrdersRef);
             const matchingDoc = snapshot.docs.find(doc => doc.data().materialId === item.id);
 
             if (matchingDoc) {
                 const orderData = matchingDoc.data();
-                if (orderData.quantityReceived !== undefined) {
-                    setQuantity(orderData.quantityReceived);
+                console.log("Matching document found:", orderData);
+
+                if (orderData.quantity !== undefined) {
+                    setQuantity(orderData.quantity);
                 } else {
                     console.error("No 'quantity' field found in the matching document");
                     setQuantity('Not Available');
@@ -76,36 +84,36 @@ const EditStoreProduct = ({ item, onClose, onSave }) => {
     const saveProductToRack = async (rackId) => {
         const db = getFirestore();
         const rackRef = doc(db, 'Store_Racks', rackId);  // Reference to the selected rack document
-    
+
         const productData = {
             id: item.id,
             materialName: item.materialName,
             quantity: quantity,
             pLocation: selectedRack.value
         };
-    
+
         try {
             console.log(`Attempting to save product to rack ${rackId}:`, productData);  // Log before saving
-    
+
             // Check if the rack document exists
             const rackDoc = await getDoc(rackRef);
             if (!rackDoc.exists()) {
                 console.error(`Rack document ${rackId} does not exist.`);
                 return; // Early return if the document doesn't exist
             }
-    
+
             // Use arrayUnion to add product data to the "products" field in the rack document
             await updateDoc(rackRef, {
                 products: arrayUnion(productData) // Append product data to the array
             });
-    
+
             console.log(`Product successfully saved to rack ${rackId}`);
         } catch (error) {
             console.error('Error saving product to rack:', error);  // Log any errors
         }
     };
-    
-    
+
+
 
     const handleSave = async () => {
         if (selectedRack) {
@@ -123,22 +131,26 @@ const EditStoreProduct = ({ item, onClose, onSave }) => {
     };
 
     return (
-        <div className="edit-popup">
-            <div className="edit-popup-content">
-                <h2>Edit Store Product</h2>
-                <div>
+        <div className={style.editPopup}>
+            <div className={style.editPopupContent}>
+                <div className={style.popupHeader}>
+
+                    <h2>Edit Store Product</h2>
+                    <button onClick={onClose}><IoCloseOutline className={style.closeBtn} /></button>
+                </div>
+                <div className={style.popupDiv}>
                     <label>ID:</label>
-                    <input type="text" value={item?.id} readOnly />
+                    <input className={style.popupInput} type="text" value={item?.id} readOnly />
                 </div>
-                <div>
+                <div className={style.popupDiv}>
                     <label>Product Name:</label>
-                    <input type="text" defaultValue={item?.materialName} readOnly />
+                    <input className={style.popupInput} type="text" defaultValue={item?.materialName} readOnly />
                 </div>
-                <div>
+                <div className={style.popupDiv}>
                     <label>Product Quantity:</label>
-                    <input type="text" value={quantity} readOnly /> {/* Display fetched quantity */}
+                    <input className={style.popupInput} type="text" value={quantity} readOnly /> {/* Display fetched quantity */}
                 </div>
-                <div>
+                <div className={style.popupDiv}>
                     <label>Enter Rack Location:</label>
                     <Select
                         options={rackOptions}
@@ -148,12 +160,13 @@ const EditStoreProduct = ({ item, onClose, onSave }) => {
                         onInputChange={setRackInput}
                         inputValue={rackInput}
                         isClearable
+                        className={style.popupSelect}
                         noOptionsMessage={() => "No racks found"}
                     />
                 </div>
                 <div>
-                    <button onClick={handleSave}>Approve</button>
-                    <button onClick={onClose}>Close</button>
+                    <button className={style.approveBtn} onClick={handleSave}>Approve</button>
+
                 </div>
             </div>
         </div>

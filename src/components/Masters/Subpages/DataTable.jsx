@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTable, usePagination } from 'react-table';
+import style from './subPage.module.css';
 
 function DataTable({ columns, data }) {
     const {
@@ -27,9 +28,9 @@ function DataTable({ columns, data }) {
     );
 
     return (
-        <div className="customer-table">
-            <table {...getTableProps()}>
-                <thead>
+        <div className={style.customerTable}>
+            <table {...getTableProps()} className={style.table}>
+                <thead className={style.tableHeader}>
                     {headerGroups.map((headerGroup, i) => (
                         <tr {...headerGroup.getHeaderGroupProps()} key={`headerGroup-${i}`}>
                             {headerGroup.headers.map((column, j) => (
@@ -40,7 +41,7 @@ function DataTable({ columns, data }) {
                         </tr>
                     ))}
                 </thead>
-                <tbody {...getTableBodyProps()}>
+                <tbody {...getTableBodyProps()} className={style.tableBody}>
                     {page.map((row, rowIndex) => {
                         prepareRow(row);
                         return (
@@ -55,19 +56,20 @@ function DataTable({ columns, data }) {
                     })}
                 </tbody>
             </table>
-            <div className="pagination">
+            <div className={style.pagination}>
                 <button onClick={() => previousPage()} disabled={!canPreviousPage}>
                     {'<'}
-                </button>{' '}
+                </button>
+                <span>
+
+
+                    {pageIndex + 1} of {pageOptions.length}
+
+                </span>
                 <button onClick={() => nextPage()} disabled={!canNextPage}>
                     {'>'}
                 </button>{' '}
-                <span>
-                    Page{' '}
-                    <strong>
-                        {pageIndex + 1} of {pageOptions.length}
-                    </strong>{' '}
-                </span>
+
                 <select
                     value={pageSize}
                     onChange={e => {

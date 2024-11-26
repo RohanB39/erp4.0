@@ -1,13 +1,23 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { useTable, usePagination } from 'react-table';
 import { getFirestore, collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
-import './Store.css';
+
+
+
+import style from './Store.module.css'
+
 import EditStoreProduct from './editStoreProduct/EditStoreProduct';
 import DemandMaterialEdit from '../production/demandMaterial/DemandMaterialEdit';
 import EditDemandMaterialPopup from '../store/editDemandMaterialPopup/EditDemandMaterialPopup';
 import { fireDB } from '../firebase/FirebaseConfig';
-import EditExistingPopup from './editExistingPopup/EditExistingPopup';
-import UpdateExistingPaymentPopup from './updateExistingorderPayment/UpdateExistingPaymentPopup';
+
+
+
+
+import { IoIosSearch } from "react-icons/io";
+import { CiEdit } from "react-icons/ci";
+import { VscClose } from "react-icons/vsc";
+import { BsCheck2Square } from "react-icons/bs";
 
 
 const Store = () => {
@@ -21,12 +31,6 @@ const Store = () => {
     const [productionDemandMaterials, setProductionDemandMaterials] = useState([]);
     const [isProductionDemandEditPopupOpen, setProductionDemandEditPopupOpen] = useState(false);
     const [selectedMaterial, setSelectedMaterial] = useState(null);
-    const [incomingExistingStock, setIncomingExistingStock] = useState([]);
-    const [editRowData, setEditRowData] = useState(null);
-    const [isPaymentStatusPopupOpen, setIsPaymentStatusPopupOpen] = useState(false);
-    const [selectedRowData, setSelectedRowData] = useState(null);
-    const [isExistingIncomingPopupOpen, setExistingIncomingPopupOpen] = useState(false);
-
 
     const fetchData = async () => {
         const db = getFirestore();
@@ -74,6 +78,9 @@ const Store = () => {
             console.error("Error fetching materials: ", error);
         }
     };
+
+
+
     useEffect(() => {
         fetchData();
     }, []);
@@ -99,28 +106,6 @@ const Store = () => {
 
     useEffect(() => {
         fetchProductionDemandData();
-    }, []);
-
-    const fetchExistingIncomingStockData = async () => {
-        const db = getFirestore();
-        const existingIncoming = collection(db, 'Purchase_Orders');
-
-        try {
-            // Fetching production demand
-            const productionDemandQuery = query(
-                existingIncoming,
-                where('status', '==', 'QC Approved')
-            );
-            const productionDemandSnapshot = await getDocs(productionDemandQuery);
-            const productionDemandMaterial = productionDemandSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setIncomingExistingStock(productionDemandMaterial);
-        } catch (error) {
-            console.error("Error fetching materials: ", error);
-        }
-    };
-
-    useEffect(() => {
-        fetchExistingIncomingStockData();
     }, []);
 
     const handleEdit = (item) => {
@@ -209,8 +194,6 @@ const Store = () => {
         setSelectedItem(null);
     };
 
-
-    // Incoming Table 
     const incomingColumns = useMemo(
         () => [
             {
@@ -225,7 +208,7 @@ const Store = () => {
                 Header: 'Actions',
                 Cell: ({ row }) => (
                     <div>
-                        <button onClick={() => handleEdit(row.original)}>Edit</button>
+                        <span onClick={() => handleEdit(row.original)}><CiEdit className={style.editBtn} /></span>
                     </div>
                 ),
             },
@@ -233,102 +216,6 @@ const Store = () => {
         []
     );
 
-    const {
-        getTableProps: getIncomingTableProps,
-        getTableBodyProps: getIncomingTableBodyProps,
-        headerGroups: incomingHeaderGroups,
-        page: incomingPage,
-        prepareRow: prepareIncomingRow,
-        canPreviousPage: canPreviousIncomingPage,
-        canNextPage: canNextIncomingPage,
-        pageOptions: incomingPageOptions,
-        pageCount: incomingPageCount,
-        nextPage: nextIncomingPage,
-        previousPage: previousIncomingPage,
-        setPageSize: setIncomingPageSize,
-        state: { pageIndex: incomingPageIndex, pageSize: incomingPageSize },
-    } = useTable(
-        {
-            columns: incomingColumns,
-            data: incomingStock,
-            initialState: { pageIndex: 0 },
-        },
-        usePagination
-    );
-    // End Incoming Table
-
-    // Existing Incoming Table
-    const existingIncomingColumn = useMemo(
-        () => [
-            {
-                Header: 'ID',
-                accessor: 'materialId',
-            },
-            {
-                Header: 'Product Name',
-                accessor: 'materialName',
-            },
-            {
-                Header: 'Payments',
-                Cell: ({ row }) => (
-                    <div>
-                        <button onClick={() => handleUpdatePaymentStatus(row.original)}>Payment Status</button>
-                    </div>
-                ),
-            },
-            {
-                Header: 'Actions',
-                Cell: ({ row }) => (
-                    <div>
-                        <button onClick={() => handleEdittt(row.original)}>Edit</button>
-                    </div>
-                ),
-            },
-        ],
-        []
-    );
-
-    const {
-        getTableProps: getExistingIncomingTableProps,
-        getTableBodyProps: getExistingIncomingTableBodyProps,
-        headerGroups: ExistingIncomingHeaderGroups,
-        page: ExistingIncomingPage,
-        prepareRow: prepareExistingIncomingRow,
-        canPreviousPage: canPreviousExistingIncomingPage,
-        canNextPage: canNextExistingIncomingPage,
-        pageOptions: ExistingIncomingPageOptions,
-        pageCount: ExistingIncomingPageCount,
-        nextPage: nextExistingIncomingPage,
-        previousPage: previousExistingIncomingPage,
-        setPageSize: setExistingIncomingPageSize,
-        state: { pageIndex: ExistingIncomingPageIndex, pageSize: ExistingIncomingPageSize },
-    } = useTable(
-        {
-            columns: existingIncomingColumn,
-            data: incomingExistingStock,
-            initialState: { pageIndex: 0 },
-        },
-        usePagination
-    );
-    // Existing Incoming End
-
-    const handleEdittt = (rowData) => {
-        setEditRowData(rowData);
-        setExistingIncomingPopupOpen(true);
-    };
-
-    const handleUpdatePaymentStatus = (rowData) => {
-        setSelectedRowData(rowData);
-        setIsPaymentStatusPopupOpen(true);
-    };
-
-    // Function to close the popup
-    const closePaymentPopup = () => {
-        setIsPaymentStatusPopupOpen(false);
-        setSelectedRowData(null);
-    };
-
-    // Demand Material
     const demandMaterialColumns = useMemo(
         () => [
             {
@@ -355,9 +242,9 @@ const Store = () => {
                 Header: 'Actions',
                 Cell: ({ row }) => (
                     <div>
-                        <button onClick={() => handleDemandMaterialEdit(row.original)}>Edit</button>
-                        <button onClick={() => handleApprove(row.original)}>Approve</button>
-                        <button onClick={() => handleReject(row.original)}>Reject</button>
+                        <span onClick={() => handleDemandMaterialEdit(row.original)}><CiEdit className={style.editBtn} /></span>
+                        <span onClick={() => handleApprove(row.original)}><BsCheck2Square className={style.approveBtn} /></span>
+                        <span onClick={() => handleReject(row.original)}><VscClose className={style.rejectBtn} /></span>
                     </div>
                 ),
             },
@@ -387,7 +274,6 @@ const Store = () => {
         },
         usePagination
     );
-    // Demand Material End
 
     const handleEditt = (rowData) => {
         // Implement the edit functionality
@@ -395,8 +281,6 @@ const Store = () => {
     };
 
 
-
-    // Warehouse Table
     const warehouseColumns = useMemo(
         () => [
             {
@@ -428,6 +312,29 @@ const Store = () => {
     );
 
     const {
+        getTableProps: getIncomingTableProps,
+        getTableBodyProps: getIncomingTableBodyProps,
+        headerGroups: incomingHeaderGroups,
+        page: incomingPage,
+        prepareRow: prepareIncomingRow,
+        canPreviousPage: canPreviousIncomingPage,
+        canNextPage: canNextIncomingPage,
+        pageOptions: incomingPageOptions,
+        pageCount: incomingPageCount,
+        nextPage: nextIncomingPage,
+        previousPage: previousIncomingPage,
+        setPageSize: setIncomingPageSize,
+        state: { pageIndex: incomingPageIndex, pageSize: incomingPageSize },
+    } = useTable(
+        {
+            columns: incomingColumns,
+            data: incomingStock,
+            initialState: { pageIndex: 0 },
+        },
+        usePagination
+    );
+
+    const {
         getTableProps: getWarehouseTableProps,
         getTableBodyProps: getWarehouseTableBodyProps,
         headerGroups: warehouseHeaderGroups,
@@ -449,91 +356,7 @@ const Store = () => {
         },
         usePagination
     );
-    // End Warehouse Table
 
-    // Production Demand
-    const productionDemandMaterialColumns = useMemo(
-        () => [
-            {
-                Header: 'ID',
-                accessor: 'productionOrderId',
-            },
-            {
-                Header: 'Machine',
-                accessor: 'selectedMachine',
-            },
-            {
-                Header: 'MID',
-                accessor: 'requiredMaterials',
-                Cell: ({ row }) => {
-                    const requiredMaterials = row.original.requiredMaterials || [];
-                    return (
-                        <div>
-                            {requiredMaterials.map((material, index) => (
-                                <span key={index}>
-                                    {material.id}<br />
-                                </span>
-                            ))}
-                        </div>
-                    );
-                },
-            },
-            {
-                Header: 'Requested Quantity',
-                accessor: 'requiredQuantities',
-                Cell: ({ row }) => {
-                    const requiredMaterials = row.original.requiredMaterials || [];
-                    return (
-                        <div>
-                            {requiredMaterials.map((material, index) => (
-                                <span key={index}>
-                                    {material.requiredQuantity}  {material.unit}<br />
-                                </span>
-                            ))}
-                        </div>
-                    );
-                },
-            },
-            {
-                Header: 'Delivery Location',
-                accessor: 'assembelyCell',
-            },
-            {
-                Header: 'Actions',
-                Cell: ({ row }) => (
-                    <div>
-                        <button onClick={() => handleProductionDemandMaterialEdit(row.original)}>Edit</button>
-                        <button onClick={() => handleProductionDemandApprove(row.original)}>Approve</button>
-                        <button onClick={() => handleReject(row.original)}>Reject</button>
-                    </div>
-                ),
-            },
-        ],
-        []
-    );
-
-    const {
-        getTableProps: getProductionDemandTableProps,
-        getTableBodyProps: getProductionDemandTableBodyProps,
-        headerGroups: productionDemandHeaderGroups,
-        page: productionDemandPage,
-        prepareRow: prepareProductionDemandRow,
-        canPreviousPage: canPreviousProductionDemandPage,
-        canNextPage: canNextProductionDemandPage,
-        pageOptions: productionDemandPageOptions,
-        pageCount: productionDemandPageCount,
-        nextPage: nextProductionDemandPage,
-        previousPage: previousProductionDemandPage,
-        setPageSize: setProductionDemandPageSize,
-        state: { pageIndex: productionDemandPageIndex, pageSize: productionDemandPageSize },
-    } = useTable(
-        {
-            columns: productionDemandMaterialColumns,
-            data: productionDemandMaterials,
-            initialState: { pageIndex: 0 },
-        },
-        usePagination
-    );
     const handleProductionDemandApprove = async (productionOrder) => {
         const { productionOrderId, requiredMaterials } = productionOrder;
 
@@ -610,67 +433,178 @@ const Store = () => {
             console.error("Error in updating material allocation:", error);
         }
     };
-    // Production Demand End
+
+    const productionDemandMaterialColumns = useMemo(
+        () => [
+            {
+                Header: 'ID',
+                accessor: 'productionOrderId',
+            },
+            {
+                Header: 'Machine',
+                accessor: 'selectedMachine',
+            },
+            {
+                Header: 'MID',
+                accessor: 'requiredMaterials',
+                Cell: ({ row }) => {
+                    const requiredMaterials = row.original.requiredMaterials || [];
+                    return (
+                        <div>
+                            {requiredMaterials.map((material, index) => (
+                                <span key={index}>
+                                    {material.id}<br />
+                                </span>
+                            ))}
+                        </div>
+                    );
+                },
+            },
+            {
+                Header: 'Requested Quantity',
+                accessor: 'requiredQuantities',
+                Cell: ({ row }) => {
+                    const requiredMaterials = row.original.requiredMaterials || [];
+                    return (
+                        <div>
+                            {requiredMaterials.map((material, index) => (
+                                <span key={index}>
+                                    {material.requiredQuantity}  {material.unit}<br />
+                                </span>
+                            ))}
+                        </div>
+                    );
+                },
+            },
+            {
+                Header: 'Delivery Location',
+                accessor: 'assembelyCell',
+            },
+            {
+                Header: 'Actions',
+                Cell: ({ row }) => (
+                    <div>
+                        <span onClick={() => handleProductionDemandMaterialEdit(row.original)}><CiEdit className={style.editBtn} /></span>
+                        <span onClick={() => handleProductionDemandApprove(row.original)}><BsCheck2Square className={style.approveBtn} /></span>
+                        <span onClick={() => handleReject(row.original)}><VscClose className={style.rejectBtn} /></span>
+                    </div>
+                ),
+            },
+        ],
+        []
+    );
+
+
+    const {
+        getTableProps: getProductionDemandTableProps,
+        getTableBodyProps: getProductionDemandTableBodyProps,
+        headerGroups: productionDemandHeaderGroups,
+        page: productionDemandPage,
+        prepareRow: prepareProductionDemandRow,
+        canPreviousPage: canPreviousProductionDemandPage,
+        canNextPage: canNextProductionDemandPage,
+        pageOptions: productionDemandPageOptions,
+        pageCount: productionDemandPageCount,
+        nextPage: nextProductionDemandPage,
+        previousPage: previousProductionDemandPage,
+        setPageSize: setProductionDemandPageSize,
+        state: { pageIndex: productionDemandPageIndex, pageSize: productionDemandPageSize },
+    } = useTable(
+        {
+            columns: productionDemandMaterialColumns,
+            data: productionDemandMaterials,
+            initialState: { pageIndex: 0 },
+        },
+        usePagination
+    );
 
     return (
         <>
-            <div className="store-container">
-                <div id="main">
-                    <div className="store-header">
+            <div className={style.storeContainer}>
+                <div>
+                    <div className={style.storeHeader}>
                         <div>
+                            <i className="bi bi-graph-up"></i>
                             <h3>Store Analysis</h3>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum voluptates nostrum hic?</p>
                         </div>
-                        <div className='uniSearch'>
-                            <input type='search' placeholder='Search Demand,Incoming & Warehouse stock' />
-                        </div>
+                        <p>Analyze store performance with detailed insights on inventory levels, sales trends, and product demand. This data helps optimize stock management and improve overall store efficiency.</p>
+
+
+
                     </div>
                 </div>
+                <hr />
             </div>
-            <div className="total-stock" id="main">
-                <div className="total-stock-content">
-                    <div className='stock-header'>
-                        <h3>Demand Material</h3>
-                        <input type="text" placeholder='Search stock' />
+            <div className={style.totalStock} >
+                <div className={style.totalStockContent}>
+                    <div className={style.stockHeader}>
+                        <div>
+                            <div className={style.stockTitle}>
+                                <i className="bi bi-box-seam"></i>
+                                <h3>Demand Material</h3>
+                            </div>
+                            <p>Track and manage material demand based on current production needs, stock availability, and future forecasts. </p>
+                        </div>
+                        <div className={style.searchinputWrapper}>
+
+                            <input type="text" placeholder='Search stock' />
+                            <IoIosSearch className={style.searchIcon} />
+                        </div>
+
                     </div>
-                    <div className="stock-list">
-                        <table {...getDemandTableProps()}>
-                            <thead>
-                                {demandHeaderGroups.map(headerGroup => (
-                                    <tr {...headerGroup.getHeaderGroupProps()}>
-                                        {headerGroup.headers.map(column => (
-                                            <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                                        ))}
-                                    </tr>
-                                ))}
+                    <div className={style.stockList}>
+                        <table className={style.stockTable} {...getDemandTableProps()} >
+                            <thead className={style.stockTableHeader}>
+                                {demandHeaderGroups.map(headerGroup => {
+                                    const { key: headerGroupKey, ...headerGroupProps } = headerGroup.getHeaderGroupProps();
+                                    return (
+                                        <tr key={headerGroupKey} {...headerGroupProps}>
+                                            {headerGroup.headers.map(column => {
+                                                const { key: columnKey, ...columnProps } = column.getHeaderProps();
+                                                return (
+                                                    <th key={columnKey} {...columnProps}>
+                                                        {column.render('Header')}
+                                                    </th>
+                                                );
+                                            })}
+                                        </tr>
+                                    );
+                                })}
                             </thead>
                             <tbody {...getDemandTableBodyProps()}>
                                 {demandPage.map(row => {
                                     prepareDemandRow(row);
+                                    const { key: rowKey, ...rowProps } = row.getRowProps();
                                     return (
-                                        <tr {...row.getRowProps()}>
-                                            {row.cells.map(cell => (
-                                                <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                                            ))}
+                                        <tr key={rowKey} {...rowProps}>
+                                            {row.cells.map(cell => {
+                                                const { key: cellKey, ...cellProps } = cell.getCellProps();
+                                                return (
+                                                    <td key={cellKey} {...cellProps}>
+                                                        {cell.render('Cell')}
+                                                    </td>
+                                                );
+                                            })}
                                         </tr>
                                     );
                                 })}
                             </tbody>
                         </table>
+
                     </div>
-                    <div className="pagination d-flex">
-                        <div className='d-flex'>
-                            <button onClick={() => previousIncomingPage()} disabled={!canPreviousDemandPage}>
+                    <div className={style.pagination}>
+                        <div className={style.paginationCount}>
+                            <span onClick={() => previousIncomingPage()} disabled={!canPreviousDemandPage}>
                                 {'<'}
-                            </button>
+                            </span>
                             <span>
                                 {demandPageIndex + 1} of {demandPageOptions.length}
                             </span>
-                            <button onClick={() => nextIncomingPage()} disabled={!canNextDemandPage}>
+                            <span onClick={() => nextIncomingPage()} disabled={!canNextDemandPage}>
                                 {'>'}
-                            </button>
+                            </span>
                         </div>
-                        <div>
+                        <div className={style.select}>
                             <select
                                 value={demandPageSize}
                                 onChange={e => {
@@ -686,49 +620,76 @@ const Store = () => {
                         </div>
                     </div>
                 </div>
-                <div className="total-stock-content">
-                    <div className='stock-header'>
-                        <h3>Incoming Stock</h3>
-                        <input type="text" placeholder='Search stock' />
+                <hr className='hr' />
+                <div className={style.totalStockContent}>
+                    <div className={style.stockHeader}>
+                        <div>
+                            <div className={style.stockTitle}>
+                                <i className="bi bi-arrow-down-circle"></i>
+                                <h3>Incoming Material</h3>
+                            </div>
+                            <p>Monitor and manage the receipt of materials to ensure timely deliveries and maintain optimal inventory levels.</p>
+
+                        </div>
+                        <div className={style.searchinputWrapper}>
+
+                            <input type="text" placeholder='Search stock' />
+                            <IoIosSearch className={style.searchIcon} />
+                        </div>
                     </div>
-                    <div className="stock-list">
-                        <table {...getIncomingTableProps()}>
-                            <thead>
-                                {incomingHeaderGroups.map(headerGroup => (
-                                    <tr {...headerGroup.getHeaderGroupProps()}>
-                                        {headerGroup.headers.map(column => (
-                                            <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                                        ))}
-                                    </tr>
-                                ))}
+                    <div className={style.stockList}>
+                        <table {...getIncomingTableProps()} className={style.stockTable}>
+                            <thead className={style.stockTableHeader}>
+                                {incomingHeaderGroups.map(headerGroup => {
+                                    const { key: headerGroupKey, ...headerGroupProps } = headerGroup.getHeaderGroupProps(); // Extract key
+                                    return (
+                                        <tr key={headerGroupKey} {...headerGroupProps}>
+                                            {headerGroup.headers.map(column => {
+                                                const { key: columnKey, ...columnProps } = column.getHeaderProps(); // Extract key
+                                                return (
+                                                    <th key={columnKey} {...columnProps}>
+                                                        {column.render('Header')}
+                                                    </th>
+                                                );
+                                            })}
+                                        </tr>
+                                    );
+                                })}
                             </thead>
                             <tbody {...getIncomingTableBodyProps()}>
                                 {incomingPage.map(row => {
                                     prepareIncomingRow(row);
+                                    const { key: rowKey, ...rowProps } = row.getRowProps(); // Extract key
                                     return (
-                                        <tr {...row.getRowProps()}>
-                                            {row.cells.map(cell => (
-                                                <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                                            ))}
+                                        <tr key={rowKey} {...rowProps}>
+                                            {row.cells.map(cell => {
+                                                const { key: cellKey, ...cellProps } = cell.getCellProps(); // Extract key
+                                                return (
+                                                    <td key={cellKey} {...cellProps}>
+                                                        {cell.render('Cell')}
+                                                    </td>
+                                                );
+                                            })}
                                         </tr>
                                     );
                                 })}
                             </tbody>
                         </table>
+
                     </div>
-                    <div className="pagination d-flex">
-                        <div className='d-flex'>
-                            <button onClick={() => previousIncomingPage()} disabled={!canPreviousIncomingPage}>
+                    <div className={style.pagination}>
+                        <div className={style.paginationCount}>
+                            <span onClick={() => previousIncomingPage()} disabled={!canPreviousIncomingPage}>
                                 {'<'}
-                            </button>
+                            </span>
                             <span>
                                 {incomingPageIndex + 1} of {incomingPageOptions.length}
                             </span>
-                            <button onClick={() => nextIncomingPage()} disabled={!canNextIncomingPage}>
+                            <span onClick={() => nextIncomingPage()} disabled={!canNextIncomingPage}>
                                 {'>'}
-                            </button>
+                            </span>
                         </div>
-                        <div>
+                        <div className={style.select}>
                             <select
                                 value={incomingPageSize}
                                 onChange={e => {
@@ -744,109 +705,76 @@ const Store = () => {
                         </div>
                     </div>
                 </div>
+                <hr className='hr' />
+                <div className={style.totalStockContent}>
+                    <div className={style.stockHeader}>
+                        <div>
+                            <div className={style.stockTitle}>
+                                <i className="bi bi-box-seam"></i>
+                                <h3>Warehouse</h3>
+                            </div>
+                            <p>Efficiently manage inventory, storage, and material flow to support smooth operations and timely dispatches.</p>
 
-                <div className="total-stock-content">
-                    <div className='stock-header'>
-                        <h3>Existing Stock Orders</h3>
-                        <input type="text" placeholder='Search stock' />
+                        </div>
+                        <div className={style.searchinputWrapper}>
+
+                            <input type="text" placeholder='Search stock' />
+                            <IoIosSearch className={style.searchIcon} />
+                        </div>
                     </div>
-                    <div className="stock-list">
-                        <table {...getExistingIncomingTableProps()}>
-                            <thead>
-                                {ExistingIncomingHeaderGroups.map(headerGroup => (
-                                    <tr {...headerGroup.getHeaderGroupProps()}>
-                                        {headerGroup.headers.map(column => (
-                                            <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </thead>
-                            <tbody {...getExistingIncomingTableBodyProps()}>
-                                {ExistingIncomingPage.map(row => {
-                                    prepareExistingIncomingRow(row);
+                    <div className={style.stockList}>
+                        <table {...getWarehouseTableProps()} className={style.stockTable}>
+                            <thead className={style.stockTableHeader}>
+                                {warehouseHeaderGroups.map(headerGroup => {
+                                    const { key: headerGroupKey, ...headerGroupProps } = headerGroup.getHeaderGroupProps(); // Extract key
                                     return (
-                                        <tr {...row.getRowProps()}>
-                                            {row.cells.map(cell => (
-                                                <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                                            ))}
+                                        <tr key={headerGroupKey} {...headerGroupProps}>
+                                            {headerGroup.headers.map(column => {
+                                                const { key: columnKey, ...columnProps } = column.getHeaderProps(); // Extract key
+                                                return (
+                                                    <th key={columnKey} {...columnProps}>
+                                                        {column.render('Header')}
+                                                    </th>
+                                                );
+                                            })}
                                         </tr>
                                     );
                                 })}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div className="pagination d-flex">
-                        <div className='d-flex'>
-                            <button onClick={() => previousExistingIncomingPage()} disabled={!canPreviousExistingIncomingPage}>
-                                {'<'}
-                            </button>
-                            <span>
-                                {ExistingIncomingPageIndex + 1} of {ExistingIncomingPageOptions.length}
-                            </span>
-                            <button onClick={() => nextIncomingPage()} disabled={!canNextExistingIncomingPage}>
-                                {'>'}
-                            </button>
-                        </div>
-                        <div>
-                            <select
-                                value={ExistingIncomingPageSize}
-                                onChange={e => {
-                                    setIncomingPageSize(Number(e.target.value));
-                                }}
-                            >
-                                {[10, 20, 30, 40, 50].map(pageSize => (
-                                    <option key={pageSize} value={pageSize}>
-                                        Show {pageSize}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="total-stock-content">
-                    <div className='stock-header'>
-                        <h3>Warehouse Stock</h3>
-                        <input type="text" placeholder='Search stock' />
-                    </div>
-                    <div className="stock-list">
-                        <table {...getWarehouseTableProps()}>
-                            <thead>
-                                {warehouseHeaderGroups.map(headerGroup => (
-                                    <tr {...headerGroup.getHeaderGroupProps()}>
-                                        {headerGroup.headers.map(column => (
-                                            <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                                        ))}
-                                    </tr>
-                                ))}
                             </thead>
                             <tbody {...getWarehouseTableBodyProps()}>
                                 {warehousePage.map(row => {
                                     prepareWarehouseRow(row);
+                                    const { key: rowKey, ...rowProps } = row.getRowProps(); // Extract key
                                     return (
-                                        <tr {...row.getRowProps()}>
-                                            {row.cells.map(cell => (
-                                                <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                                            ))}
+                                        <tr key={rowKey} {...rowProps}>
+                                            {row.cells.map(cell => {
+                                                const { key: cellKey, ...cellProps } = cell.getCellProps(); // Extract key
+                                                return (
+                                                    <td key={cellKey} {...cellProps}>
+                                                        {cell.render('Cell')}
+                                                    </td>
+                                                );
+                                            })}
                                         </tr>
                                     );
                                 })}
                             </tbody>
                         </table>
+
                     </div>
-                    <div className="pagination d-flex">
-                        <div className='d-flex'>
-                            <button onClick={() => previousWarehousePage()} disabled={!canPreviousWarehousePage}>
+                    <div className={style.pagination}>
+                        <div className={style.paginationCount}>
+                            <span onClick={() => previousWarehousePage()} disabled={!canPreviousWarehousePage}>
                                 {'<'}
-                            </button>
+                            </span>
                             <span>
                                 {warehousePageIndex + 1} of {warehousePageOptions.length}
                             </span>
-                            <button onClick={() => nextWarehousePage()} disabled={!canNextWarehousePage}>
+                            <span onClick={() => nextWarehousePage()} disabled={!canNextWarehousePage}>
                                 {'>'}
-                            </button>
+                            </span>
                         </div>
-                        <div>
+                        <div className={style.select}>
                             <select
                                 value={warehousePageSize}
                                 onChange={e => {
@@ -862,49 +790,76 @@ const Store = () => {
                         </div>
                     </div>
                 </div>
+                <hr className='hr' />
                 <div className="total-stock-content">
-                    <div className='stock-header'>
-                        <h3>Production Demand</h3>
-                        <input type="text" placeholder='Search stock' />
+                    <div className={style.stockHeader}>
+                        <div>
+                            <div className={style.stockTitle}>
+                                <i className="bi bi-gear"></i>
+                                <h3>Production Demand</h3>
+                            </div>
+                            <p>Monitor and manage the production demand to align with manufacturing schedules, resource availability, and market requirements.</p>
+
+                        </div>
+                        <div className={style.searchinputWrapper}>
+
+                            <input type="text" placeholder='Search stock' />
+                            <IoIosSearch className={style.searchIcon} />
+                        </div>
                     </div>
-                    <div className="stock-list">
-                        <table {...getProductionDemandTableProps()}>
-                            <thead>
-                                {productionDemandHeaderGroups.map(headerGroup => (
-                                    <tr {...headerGroup.getHeaderGroupProps()}>
-                                        {headerGroup.headers.map(column => (
-                                            <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                                        ))}
-                                    </tr>
-                                ))}
+                    <div className={style.stockList}>
+                        <table {...getProductionDemandTableProps()} className={style.stockTable}>
+                            <thead className={style.stockTableHeader}>
+                                {productionDemandHeaderGroups.map(headerGroup => {
+                                    const { key: headerGroupKey, ...headerGroupProps } = headerGroup.getHeaderGroupProps(); // Extract key
+                                    return (
+                                        <tr key={headerGroupKey} {...headerGroupProps}>
+                                            {headerGroup.headers.map(column => {
+                                                const { key: columnKey, ...columnProps } = column.getHeaderProps(); // Extract key
+                                                return (
+                                                    <th key={columnKey} {...columnProps}>
+                                                        {column.render('Header')}
+                                                    </th>
+                                                );
+                                            })}
+                                        </tr>
+                                    );
+                                })}
                             </thead>
                             <tbody {...getProductionDemandTableBodyProps()}>
                                 {productionDemandPage.map(row => {
                                     prepareProductionDemandRow(row);
+                                    const { key: rowKey, ...rowProps } = row.getRowProps(); // Extract key
                                     return (
-                                        <tr {...row.getRowProps()}>
-                                            {row.cells.map(cell => (
-                                                <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                                            ))}
+                                        <tr key={rowKey} {...rowProps}>
+                                            {row.cells.map(cell => {
+                                                const { key: cellKey, ...cellProps } = cell.getCellProps(); // Extract key
+                                                return (
+                                                    <td key={cellKey} {...cellProps}>
+                                                        {cell.render('Cell')}
+                                                    </td>
+                                                );
+                                            })}
                                         </tr>
                                     );
                                 })}
                             </tbody>
                         </table>
+
                     </div>
-                    <div className="pagination d-flex">
-                        <div className='d-flex'>
-                            <button onClick={() => previousProductionDemandPage()} disabled={!canPreviousProductionDemandPage}>
+                    <div className={style.pagination}>
+                        <div className={style.paginationCount}>
+                            <span onClick={() => previousProductionDemandPage()} disabled={!canPreviousProductionDemandPage}>
                                 {'<'}
-                            </button>
+                            </span>
                             <span>
                                 {productionDemandPageIndex + 1} of {productionDemandPageOptions.length}
                             </span>
-                            <button onClick={() => nextProductionDemandPage()} disabled={!canNextProductionDemandPage}>
+                            <span onClick={() => nextProductionDemandPage()} disabled={!canNextProductionDemandPage}>
                                 {'>'}
-                            </button>
+                            </span>
                         </div>
-                        <div>
+                        <div className={style.select}>
                             <select
                                 value={productionDemandPageSize}
                                 onChange={e => {
@@ -938,18 +893,6 @@ const Store = () => {
                 <EditDemandMaterialPopup
                     material={selectedMaterial}
                     onClose={() => setProductionDemandEditPopupOpen(false)}
-                />
-            )}
-            {isExistingIncomingPopupOpen && (
-                <EditExistingPopup
-                    rowData={editRowData}
-                    onClose={() => setExistingIncomingPopupOpen(false)}
-                />
-            )}
-            {isPaymentStatusPopupOpen && (
-                <UpdateExistingPaymentPopup
-                    rowData={selectedRowData}
-                    onClose={closePaymentPopup}
                 />
             )}
         </>

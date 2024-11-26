@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fireDB, collection, query, where, getDocs, updateDoc, doc } from '../firebase/FirebaseConfig';
 import { serverTimestamp } from 'firebase/firestore';
-import './quality.css';
+
 import GreenTickGif from '../../assets/approve.mp4';
 
 function InProcessQuality() {
@@ -49,7 +49,7 @@ function InProcessQuality() {
     const handleApprove = async (id, productionOrderId, FGID) => {
         try {
             const docRef = doc(fireDB, 'Production_Orders', id);
-            await updateDoc(docRef, { 
+            await updateDoc(docRef, {
                 progressStatus: 'In Process Quality Approved',
                 InProcessQualityApprovalDate: serverTimestamp(),
             });

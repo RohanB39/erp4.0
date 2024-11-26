@@ -1,0 +1,280 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap");
+
+:root {
+  /* Base Background Colors */
+  --primary-dark-bg: #0d1117; /* Main background */
+  --secondary-dark-bg: #161b22; /* Section/Container background */
+  --tertiary-dark-bg: #1a1f28; /* Card background */
+
+  /* Accent Colors */
+  --accent-blue: #2979ff; /* Primary action color */
+  --hover-blue: #4189ff; /* Hover state for actions */
+  --focused-blue: #5e92ff; /* Focused or active state */
+
+  /* Text Colors */
+  --primary-text: #e0e6ed; /* Main text */
+  --secondary-text: #aab2c0; /* Subtitles/secondary text */
+  --muted-text: #6e7681; /* Disabled or muted text */
+  --body-text: #b0b8c3; /* Body text inside cards */
+
+  /* Card Colors */
+  --card-bg: #1a1f28; /* Card background */
+  --card-hover-bg: #202632; /* Card hover background */
+  --card-header-bg: #161b22; /* Card header background */
+  --card-border: #2a2f38; /* Card border */
+  --card-hover-border: #3a4a5b; /* Card hover border */
+  --card-shadow: rgba(0, 0, 0, 0.3); /* Card shadow */
+
+  /* Icon Background Colors */
+  --icon-bg-primary: #2979ff; /* Primary icons */
+  --icon-bg-success: #43a047; /* Success icons */
+  --icon-bg-warning: #ffb300; /* Warning icons */
+  --icon-bg-error: #d32f2f; /* Error icons */
+  --icon-bg-neutral: #424e5a; /* Neutral/Info icons */
+  --icon-color: #ffffff; /* Icon color */
+  --icon-color-secondary: #e0e6ed; /* Secondary icon color */
+
+  /* Badge Colors */
+  --badge-bg-success: #43a047; /* Success badges */
+  --badge-bg-warning: #ffb300; /* Warning badges */
+  --badge-bg-error: #d32f2f; /* Error badges */
+  --badge-text-color: #ffffff; /* Badge text color */
+
+  /* Input Fields & Borders */
+  --input-bg: #202a36; /* Input fields, dropdowns */
+  --input-border: #3b4754; /* Input border */
+  --input-focus-border: #5e92ff; /* Focused input border */
+
+  /* Button Colors */
+  --button-bg-primary: #2979ff; /* Primary button background */
+  --button-hover-bg-primary: #4189ff; /* Primary button hover */
+  --button-text-primary: #ffffff; /* Primary button text */
+  --button-bg-secondary: #2b3a46; /* Secondary button background */
+  --button-hover-bg-secondary: #3a4a5b; /* Secondary button hover */
+  --button-text-secondary: #b0b8c3; /* Secondary button text */
+
+  /* Data Table Colors */
+  --table-header-bg: #202632; /* Table header background */
+  --table-row-bg: #1a1f28; /* Table row background */
+  --table-row-hover-bg: #232933; /* Table row hover background */
+  --table-border: #2a2f38; /* Table borders */
+  --table-header-text: #aab2c0; /* Table header text */
+  --table-row-text: #e0e6ed; /* Table row text */
+  --table-row-alt-bg: #161b22; /* Alternate row background */
+  --table-row-active-bg: #3a4a5b; /* Active row background (selected) */
+  --table-footer-bg: #1a1f28; /* Footer area background */
+
+  /* Pagination Colors */
+  --pagination-bg: #202632; /* Pagination background */
+  --pagination-text: #aab2c0; /* Pagination text */
+  --pagination-active-bg: #2979ff; /* Active page background */
+  --pagination-active-text: #ffffff; /* Active page text */
+  --pagination-hover-bg: #3a4a5b; /* Hover state for pagination */
+
+  /* Miscellaneous */
+  --loader-bg: #2979ff; /* Loader background */
+  --loader-track-bg: #1a1f28; /* Loader track background */
+
+  /* Chart Colors */
+  --chart-line-primary: #2979ff; /* Main chart line */
+  --chart-line-secondary: #43a047; /* Secondary chart line */
+  --chart-fill-bg: rgba(41, 121, 255, 0.2); /* Area fill under lines */
+  --chart-bar-primary: #2979ff; /* Bar chart primary */
+  --chart-bar-secondary: #43a047; /* Bar chart secondary */
+  --chart-bar-error: #d32f2f; /* Error bars */
+  --chart-pie-bg: #161b22; /* Pie chart background */
+  --chart-grid-line: #3a4a5b; /* Grid lines in charts */
+  --chart-axis-label: #aab2c0; /* Axis labels */
+
+  /* Sidebar & Navbar Colors */
+  --sidebar-bg: #161b22; /* Sidebar background */
+  --sidebar-item-bg-hover: #202632; /* Sidebar item hover background */
+  --sidebar-text-color: #aab2c0; /* Sidebar text color */
+  --sidebar-icon-color: #e0e6ed; /* Sidebar icon color */
+
+  --navbar-bg: #1a1f28; /* Navbar background */
+  --navbar-text-color: #e0e6ed; /* Navbar text color */
+  --navbar-border: #2a2f38; /* Navbar bottom border */
+  --navbar-icon-color: #ffffff; /* Navbar icons */
+
+  /* Font Sizes */
+  --font-size-xs: 12px; /* Small text (labels, footnotes, etc.) */
+  --font-size-sm: 14px; /* Secondary text (sub-labels, captions) */
+  --font-size-md: 16px; /* Base text (body content, table content) */
+  --font-size-lg: 18px; /* Slightly larger (section headings, subheaders) */
+  --font-size-xl: 20px; /* Titles or important labels */
+  --font-size-xxl: 24px; /* Main titles (dashboard page titles, cards titles) */
+  --font-size-xxxl: 32px; /* Large headings (Hero titles, major section headings) */
+
+  /* Font Weights */
+  --font-weight-regular: 400; /* Regular text */
+  --font-weight-medium: 500; /* Medium importance (buttons, card titles) */
+  --font-weight-semibold: 600; /* Emphasized text (important labels, headers) */
+  --font-weight-bold: 700; /* Bold text (primary headings, call-to-actions) */
+}
+
+.CustomerHeader {
+  margin-top: 4rem;
+}
+.CustomerHeader div {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.CustomerHeader div i {
+  color: var(--badge-bg-warning);
+
+  padding: 4px 8px;
+  font-size: 1.3rem;
+}
+.CustomerHeader h4 {
+  color: var(--primary-text);
+  font-size: 20px;
+  letter-spacing: 0.9px;
+  padding-bottom: 6px;
+}
+.CustomerHeader p {
+  color: var(--secondary-text);
+  font-size: 14px;
+  width: 70%;
+  padding-bottom: 12px;
+  letter-spacing: 0.6px;
+}
+
+.CustomerForm {
+  margin-top: 2rem;
+  background-color: var(--secondary-dark-bg);
+  padding: 12px;
+  border-radius: 2px;
+  width: 100%;
+}
+.formRow {
+  padding: 16px;
+
+  margin-bottom: 12px;
+}
+.formRow label {
+  font-size: 18px;
+  color: var(--secondary-text);
+  padding: 12px 0px;
+  text-indent: 2px;
+}
+
+.formRow select,
+.rows select {
+  background-color: var(--secondary-dark-bg);
+  border: 1px dashed var(--input-border);
+  outline: 1px dashed var(--input-border);
+  padding: 6px 18px;
+  color: var(--primary-text);
+  width: fit-content;
+}
+.formRow option {
+  background-color: transparent !important;
+}
+
+.formData {
+  width: fit-content;
+  margin-top: 1rem;
+  padding: 2px 0px;
+  margin-bottom: 12px;
+  display: flex;
+  text-indent: 4px;
+  justify-content: space-between;
+
+  padding-right: 8px;
+}
+.formData .Row {
+  background-color: var(--badge-bg-warning);
+  color: var(--card-bg);
+  padding-right: 8px;
+  letter-spacing: 0.6px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+.formrow {
+  background-color: var(--pagination-bg);
+  font-size: 14px;
+  letter-spacing: 0.8px;
+  color: var(--secondary-text);
+  box-shadow: var(--card-shadow);
+  padding-right: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+.rows {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rows tr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  width: 100%;
+  margin-right: 1rem;
+  text-wrap: nowrap;
+}
+.amount {
+  /* background-color: var(--pagination-bg); */
+  display: flex;
+  align-items: center;
+  padding-top: 8px;
+  text-indent: 6px;
+  padding-bottom: -2px;
+  margin-bottom: 12px;
+}
+.amount td {
+  color: var(--badge-bg-warning);
+}
+.amount .rs {
+  color: var(--pagination-active-text);
+  text-align: center;
+  background-color: var(--icon-bg-neutral);
+  padding: 4px 12px;
+  width: fit-content;
+}
+
+.rows label {
+  margin-right: 12px;
+  color: var(--secondary-text);
+  font-size: 14px;
+  letter-spacing: 0.8px;
+}
+.rows input {
+  margin-top: 8px;
+  width: fit-content;
+  background-color: transparent;
+  border: 1px dashed var(--input-border);
+  border-radius: unset;
+}
+.totalAmount {
+  margin-top: 2rem;
+}
+.totalAmount td {
+  font-size: 14px;
+  color: var(--secondary-text);
+}
+.price {
+  color: var(--primary-text) !important;
+  font-weight: 600;
+  margin-left: 4px;
+  font-size: 16px !important;
+}
+.btn {
+  display: flex;
+  justify-content: end;
+}
+.btn button {
+  background-color: var(--button-bg-primary);
+  padding: 4px 12px;
+  font-size: 14px;
+}
+.btn button:hover {
+  background-color: var(--button-hover-bg-primary);
+}

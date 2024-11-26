@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Country, State, City } from "country-state-city";
-// import "./CustomerPopup.css";
 import { fireDB } from '../../../firebase/FirebaseConfig';
 import { doc, setDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
+
+import style from './popup.module.css';
+
+
 
 const CustomerPopup = ({ onClose }) => {
   const auth = getAuth();
@@ -161,46 +164,58 @@ const CustomerPopup = ({ onClose }) => {
   };
 
   return (
-    <div className="popup-overlay">
-      <div className="popup-content">
-        <div className="form-head">
-          <h3>Create Customer</h3>
-          <button onClick={onClose}>×</button>
+    <div className={style.popupOverlay}>
+      <div className={style.popupContent}>
+        <div className={style.formHead}>
+          <h4>Create Customer</h4>
+          <button onClick={onClose}><i className="ri-close-line"></i></button>
         </div>
         <hr />
-        <div className="customer-id"> <span>Customer ID : </span>  {uniqueID}</div>
-        {successMessage && <div className="success-message">{successMessage}</div>}
+        <div className={style.customerId}> <span>Customer ID : </span>  {uniqueID}</div>
+        {successMessage && <div className={style.successMessage}>{successMessage}</div>}
         <form onSubmit={handleSubmit}>
-          <div className="form-row">
-            <input
-              className="nameInput"
-              type="text"
-              placeholder="Customer Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-            <div className="checkbox">
+          <div className={style.formRow}>
+            <div>
+
+              <label htmlFor="name">Customer Name</label>
+              <input
+                className={style.nameInput}
+                type="text"
+                placeholder="Customer Name"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+            <div className={style.checkbox}>
               <input
                 type="checkbox"
                 id="sameAsShipping"
                 checked={sameAddress}
                 onChange={(e) => setSameAddress(e.target.checked)}
+                className={style.hiddenCheckbox}
               />
-              <label htmlFor="sameAsShipping">Same as Shipping Address</label>
+              <label htmlFor="sameAsShipping" className={style.customCheckboxLabel}>
+                <span className={style.customCheckbox}></span>
+                Same as Shipping Address
+              </label>
             </div>
+
+
           </div>
-          <div className="subContainerForm">
-            <div className="form-column">
-              <h3 className="form-title">Shipping Address</h3>
+          <hr />
+          <div className={style.subContainerForm}>
+            <div className={style.formColumn}>
+              <h4 className={style.formTitle}>Shipping Address</h4>
               <textarea
-                className="address-input"
+                className={style.addressInput}
                 placeholder="Shipping Address"
                 value={shippingAddress}
                 onChange={(e) => setShippingAddress(e.target.value)}
                 required
               />
-              <div className="selectForminput">
+              <div className={style.selectForminput}>
                 <select value={shippingCountry} onChange={(e) => setShippingCountry(e.target.value)} required>
                   <option value="">Select Shipping Country</option>
                   {countryData.map((country) => (
@@ -227,10 +242,10 @@ const CustomerPopup = ({ onClose }) => {
                 </select>
 
               </div>
-              <div className="formInputGroup">
+              <div className={style.formInputGroup}>
                 <input
                   type="text"
-                  className="address-input"
+                  className={style.addressInput}
                   placeholder="Shipping Taluka"
                   value={shippingTaluka}
                   onChange={(e) => setShippingTaluka(e.target.value)}
@@ -238,7 +253,7 @@ const CustomerPopup = ({ onClose }) => {
                 />
                 <input
                   type="text"
-                  className="address-input"
+                  className={style.addressInput}
                   placeholder="Shipping Pincode"
                   value={shippingPincode}
                   onChange={(e) => setShippingPincode(e.target.value)}
@@ -261,17 +276,17 @@ const CustomerPopup = ({ onClose }) => {
                 required
               />
             </div>
-            <div className="form-column">
-              <h3 className="form-title">Billing Address</h3>
+            <div className={style.formColumn}>
+              <h4 className={style.formTitle}>Billing Address</h4>
               <textarea
-                className="address-input"
+                className={style.addressInput}
                 placeholder="Billing Address"
                 value={billingAddress}
                 onChange={(e) => setBillingAddress(e.target.value)}
                 disabled={sameAddress}
                 required
               />
-              <div className="selectForminput">
+              <div className={style.selectForminput}>
                 <select value={billingCountry} onChange={(e) => setBillingCountry(e.target.value)} disabled={sameAddress} required>
                   <option value="">Select Billing Country</option>
                   {countryData.map((country) => (
@@ -299,12 +314,12 @@ const CustomerPopup = ({ onClose }) => {
                 </select>
               </div>
 
-              <div className="formInputGroup">
+              <div className={style.formInputGroup}>
 
 
                 <input
                   type="text"
-                  className="address-input"
+                  className={style.addressInput}
                   placeholder="Billing Taluka"
                   value={billingTaluka}
                   onChange={(e) => setBillingTaluka(e.target.value)}
@@ -313,7 +328,7 @@ const CustomerPopup = ({ onClose }) => {
                 />
                 <input
                   type="text"
-                  className="address-input"
+                  className={style.addressInput}
                   placeholder="Billing Pincode"
                   value={billingPincode}
                   onChange={(e) => setBillingPincode(e.target.value)}
@@ -330,7 +345,7 @@ const CustomerPopup = ({ onClose }) => {
                 />
               </div>
               <input
-                className="faxInput"
+                className={style.faxInput}
                 type="text"
                 placeholder="Billing Fax"
                 value={billingFax}
@@ -340,7 +355,7 @@ const CustomerPopup = ({ onClose }) => {
               />
             </div>
           </div>
-          <button type="submit" className="submit-button">Submit</button>
+          <button type="submit" className={style.submitButton}>Submit</button>
         </form>
       </div>
     </div>

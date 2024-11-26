@@ -3,14 +3,16 @@ import { fireDB } from '../../../firebase/FirebaseConfig';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useTable } from 'react-table';
 import AssignMachinePopup from '../machineAssignment/machineAssignPopup/AssignMachinePopup';
-import './machineAssignment.css';
+
 import AssemblyComponent from './AssemblyComponent';
+
+import style from './machineAssignment.module.css'
 
 const MachineAssignment = () => {
   const [materials, setMaterials] = useState([]);
   const [selectedMaterial, setSelectedMaterial] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('production'); 
+  const [activeTab, setActiveTab] = useState('assembly');
 
   useEffect(() => {
     const fetchMaterials = async () => {
@@ -181,24 +183,31 @@ const MachineAssignment = () => {
   });
 
   return (
-    <div className='main'>
-      <h4>Machine Assignment</h4>
-
-      {/* Tab Navigation */}
-      <div className="tabs">
-        <button
-          className={`tab ${activeTab === 'production' ? 'active' : ''}`}
-          onClick={() => setActiveTab('production')}
-        >
-          Production
-        </button>
-        <button
-          className={`tab ${activeTab === 'assembly' ? 'active' : ''}`}
-          onClick={() => setActiveTab('assembly')}
-        >
-          Assembly
-        </button>
+    <div className={style.machineAssignmentWrapper}>
+      <div className={style.machineHeader}>
+        <div className={style.title}>
+          <i class="ri-robot-line"></i>
+          <h4>Machine Assignment</h4>
+        </div>
+        {/* Tab Navigation */}
+        <div className={style.machineTbs}>
+          <button
+            className={`tab ${activeTab === 'production' ? 'active' : ''}`}
+            onClick={() => setActiveTab('production')}
+          >
+            Production
+          </button>
+          <button
+            className={`tab ${activeTab === 'assembly' ? 'active' : ''}`}
+            onClick={() => setActiveTab('assembly')}
+          >
+            Assembly
+          </button>
+        </div>
       </div>
+
+
+
 
       {/* Tab Content */}
       {activeTab === 'production' ? (
@@ -208,26 +217,30 @@ const MachineAssignment = () => {
           {Object.keys(groupedMaterials).map(date => (
             <div key={date}>
               <h5>{date}</h5> {/* Date Header */}
-              <table {...getTableProps()} className="react-table">
-                <thead>
-                  {headerGroups.map(headerGroup => (
-                    <tr {...headerGroup.getHeaderGroupProps()}>
-                      {headerGroup.headers.map(column => (
-                        <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+              <table {...getTableProps()} className={style.machineAssignmentTable}>
+                <thead className={style.machineAssignmentTableHeader}>
+                  {headerGroups.map((headerGroup, headerGroupIndex) => (
+                    <tr {...headerGroup.getHeaderGroupProps()} key={`headerGroup-${headerGroupIndex}`}>
+                      {headerGroup.headers.map((column, columnIndex) => (
+                        <th {...column.getHeaderProps()} key={`column-${columnIndex}`}>
+                          {column.render('Header')}
+                        </th>
                       ))}
                     </tr>
                   ))}
                 </thead>
-                <tbody {...getTableBodyProps()}>
-                  {groupedMaterials[date].map(material => {
+                <tbody {...getTableBodyProps()} className={style.machineAssignmentTableBody}>
+                  {groupedMaterials[date].map((material, materialIndex) => {
                     const rowIndex = rows.findIndex(row => row.original.id === material.id);
                     if (rowIndex !== -1) {
                       const row = rows[rowIndex];
                       prepareRow(row);
                       return (
-                        <tr {...row.getRowProps()}>
-                          {row.cells.map(cell => (
-                            <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                        <tr {...row.getRowProps()} key={`row-${row.id || rowIndex}`}>
+                          {row.cells.map((cell, cellIndex) => (
+                            <td {...cell.getCellProps()} key={`cell-${cell.column.id || cellIndex}`}>
+                              {cell.render('Cell')}
+                            </td>
                           ))}
                         </tr>
                       );
@@ -236,14 +249,15 @@ const MachineAssignment = () => {
                   })}
                 </tbody>
               </table>
+
             </div>
           ))}
 
           {/* Render the popup component */}
-          <AssignMachinePopup 
-            material={selectedMaterial} 
-            isOpen={isPopupOpen} 
-            onClose={closePopup} 
+          <AssignMachinePopup
+            material={selectedMaterial}
+            isOpen={isPopupOpen}
+            onClose={closePopup}
           />
         </>
       ) : (

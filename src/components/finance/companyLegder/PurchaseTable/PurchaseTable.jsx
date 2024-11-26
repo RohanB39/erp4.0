@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { fireDB } from '../../../firebase/FirebaseConfig';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
+import style from './Purchase.module.css';
+import { PiCurrencyInr } from "react-icons/pi";
+
 const PurchaseTable = () => {
   const [receivables, setReceivables] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -78,26 +81,20 @@ const PurchaseTable = () => {
     return <div>Loading...</div>;
   }
   return (
-    <div>
-      <h2>Raw Material Purchase</h2>
-      <div style={{
-        padding: '20px',
-        margin: '20px 0',
-        backgroundColor: '#f9f9f9',
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-        textAlign: 'center',
-        fontSize: '18px',
-        fontWeight: 'bold',
-        color: '#333',
-        width: '30%',
-        color: 'red',
-      }}>
-        Total Debit : {totalAmount.toFixed(2)} Rs
+    <div className={style.purchaseWrapper}>
+      <div className={style.purchaseHeader}>
+        <div className={style.title}>
+          <h2>Raw Material Purchase</h2>
+          <p>overview of raw materials.</p>
+
+        </div>
+        <div className={style.totalAmount}>
+          <span><PiCurrencyInr className={style.icon} />{totalAmount.toFixed(2)}</span>
+          Total Debit
+        </div>
       </div>
-      <table>
-        <thead>
+      <table className={style.purchaseTable}>
+        <thead className={style.purchaseTableHeader}>
           <tr>
             <th>SR/No</th>
             <th>Vendor Invoice</th>
@@ -108,7 +105,7 @@ const PurchaseTable = () => {
             <th>Amount</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className={style.purchaseTableBody}>
           {receivables.map((receivable, index) => (
             <tr key={receivable.id}>
               <td>{index + 1}</td>
@@ -122,56 +119,8 @@ const PurchaseTable = () => {
           ))}
         </tbody>
       </table>
-
-      <div className='main'>
-      <h2>Assets Purchase</h2>
-      <div style={{
-        padding: '20px',
-        margin: '20px 0',
-        backgroundColor: '#f9f9f9',
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-        textAlign: 'center',
-        fontSize: '18px',
-        fontWeight: 'bold',
-        color: '#333',
-        width: '50%',
-        color: 'green',
-      }}>
-        Total Investment On Assets: {totalAmountt.toFixed(2)} Rs
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Sr. No</th>
-            <th>Machine Name</th>
-            <th>Invoice Number</th>
-            <th>Installation Date</th>
-            <th>Model Number</th>
-            <th>Purchase Date</th>
-            <th>Payment Mode</th>
-            <th>Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentMachines.map((machine, index) => (
-            <tr key={machine.id}>
-              <td>{indexOfFirstMachine + index + 1}</td>
-              <td>{machine.machineName}</td>
-              <td>{machine.vendorInvoice}</td>
-              <td>{machine.installationDate}</td>
-              <td>{machine.modelNumber}</td>
-              <td>{machine.purchaseDate}</td>
-              <td>{machine.paymentStatus}</td>
-              <td>Rs. {machine.machinePrice}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
       {/* Pagination */}
-      <div className="pagination">
+      <div className={style.pagination}>
         {Array.from({ length: Math.ceil(machines.length / machinesPerPage) }, (_, index) => (
           <button
             key={index + 1}
@@ -183,10 +132,66 @@ const PurchaseTable = () => {
           </button>
         ))}
       </div>
-    </div>
-    </div>
+      <hr className='hr' />
 
-    
+      <div className={style.AssetsWrapper}>
+        <div className={style.purchaseHeader}>
+          <div className={style.title}>
+            <h2>Assets Purchase</h2>
+            <p>overview to help manage and track each asset efficiently.</p>
+
+          </div>
+          <div className={style.totalAmount}>
+            <span> <PiCurrencyInr className={style.icon} /> {totalAmountt.toFixed(2)}</span>
+            Total Investment On Assets
+          </div>
+        </div>
+        <table className={style.purchaseTable}>
+          <thead className={style.purchaseTableHeader}>
+            <tr>
+              <th>Sr. No</th>
+              <th>Machine Name</th>
+              <th>Invoice Number</th>
+              <th>Installation Date</th>
+              <th>Model Number</th>
+              <th>Purchase Date</th>
+              <th>Payment Mode</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody className={style.purchaseTableBody}>
+            {currentMachines.map((machine, index) => (
+              <tr key={machine.id}>
+                <td>{indexOfFirstMachine + index + 1}</td>
+                <td>{machine.machineName}</td>
+                <td>{machine.vendorInvoice}</td>
+                <td>{machine.installationDate}</td>
+                <td>{machine.modelNumber}</td>
+                <td>{machine.purchaseDate}</td>
+                <td>{machine.paymentStatus}</td>
+                <td>Rs. {machine.machinePrice}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Pagination */}
+        <div className={style.pagination}>
+          {Array.from({ length: Math.ceil(machines.length / machinesPerPage) }, (_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => paginate(index + 1)}
+              className={currentPage === index + 1 ? 'active' : ''}
+              style={{ margin: '5px', padding: '5px 10px' }}
+            >
+              {index + 1}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div >
+
+
   )
 }
 

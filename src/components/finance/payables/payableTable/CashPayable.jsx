@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { fireDB } from '../../../firebase/FirebaseConfig';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
+import style from './payable.module.css';
+
+import { PiCurrencyInr } from "react-icons/pi";
+
 const CashPayable = () => {
     const [receivables, setReceivables] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -21,7 +25,7 @@ const CashPayable = () => {
                         id: doc.id,
                         ...doc.data(),
                     }))
-                    .filter((receivable) => 
+                    .filter((receivable) =>
                         ['cash'].includes(receivable.paymentStatus)
                     );
 
@@ -31,7 +35,7 @@ const CashPayable = () => {
                     const amount = parseFloat(receivable.GrnInvoicePrice);
                     return acc + (isNaN(amount) ? 0 : amount); // Only add if it's a valid number
                 }, 0);
-    
+
                 setTotalAmount(total);
             } catch (error) {
                 console.error("Error fetching receivables: ", error);
@@ -46,29 +50,23 @@ const CashPayable = () => {
     if (loading) {
         return <div>Loading...</div>;
     }
-  return (
-    <div>
-            <h2>Cash Payment</h2>
-            <div style={{
-                padding: '20px',
-                margin: '20px 0',
-                backgroundColor: '#f9f9f9',
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-                textAlign: 'center',
-                fontSize: '18px',
-                fontWeight: 'bold',
-                color: '#333',
-                width: '30%',
-                color: 'red',
-            }}>
-                Total Cash Debit : {totalAmount.toFixed(2)} Rs
+    return (
+        <div className={style.wrapper} >
+            <div className={style.Header}>
+                <div className={style.title}>
+                    <h2>Cash Payment</h2>
+                    <p>Lorem ipsum dolor sit amet consectetur.</p>
+
+                </div>
+                <div className={style.credits}>
+                    <span><PiCurrencyInr className={style.icon} />{totalAmount.toFixed(2)}</span>
+                    Total Cash Debit
+                </div>
             </div>
-            <table>
-                <thead>
+            <table className={style.table}>
+                <thead className={style.tableHeader}>
                     <tr>
-                    <th>SR/No</th>
+                        <th>SR/No</th>
                         <th>Vendor Invoice</th>
                         <th>Material Name</th>
                         <th>Material Id</th>
@@ -78,7 +76,7 @@ const CashPayable = () => {
                         <th>Amount</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className={style.tableBody}>
                     {receivables.map((receivable, index) => (
                         <tr key={receivable.id}>
                             <td>{index + 1}</td>
@@ -94,7 +92,7 @@ const CashPayable = () => {
                 </tbody>
             </table>
         </div>
-  )
+    )
 }
 
 export default CashPayable

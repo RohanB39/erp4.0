@@ -3,7 +3,7 @@ import { useTable, useSortBy, usePagination } from "react-table";
 import { collection, addDoc, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { fireDB } from "../../firebase/FirebaseConfig";
 import CustomerPopup from "./customerPopup/CustomerPopup";
-import './customerlist.css';
+import style from './customerlist.module.css';
 
 const columns = (handleDeleteCustomer) => [
   {
@@ -124,21 +124,21 @@ function CustomerList() {
   };
 
   return (
-    <div className="main customerList" id="main">
-      <div className="table-container">
-        <div className="table-title">
+    <div className={style.customerList}>
+      <div className={style.tableContainer}>
+        {/* <div className={style.tableTitle}>
           <h3>Customer Lists</h3>
-          <button className="table-btn" onClick={handleCreateCustomer}>
+          <button className={style.tableBtn} onClick={handleCreateCustomer}>
             <i className="bi bi-plus-lg px-2"></i>
             Create Customer
           </button>
-        </div>    
+        </div> */}
 
 
         {showPopup && <CustomerPopup onClose={handleClosePopup} onSave={handleSaveCustomer} />}
 
-        <table {...getTableProps()}>
-          <thead>
+        <table {...getTableProps()} className={style.customerTable}>
+          <thead className={style.customerTableHeader}>
             {headerGroups.map((headerGroup) => (
               <tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column) => (
@@ -149,7 +149,7 @@ function CustomerList() {
               </tr>
             ))}
           </thead>
-          <tbody {...getTableBodyProps()}>
+          <tbody {...getTableBodyProps()} className={style.customerTableBody}>
             {rows.map((row) => {
               prepareRow(row);
               return (
@@ -162,13 +162,13 @@ function CustomerList() {
             })}
           </tbody>
         </table>
-        <div className="pagination">
+        {/* <div className={style.pagination}>
           <button onClick={previousPage}>Prev</button>
           <div>
             <span>{pageIndex + 1} of {pageCount}</span>
           </div>
           <button onClick={nextPage}>Next</button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

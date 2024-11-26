@@ -1,13 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { useTable, usePagination } from 'react-table';
-import './quality.css'
+import style from './quality.module.css';
 
 function AllQualityContent() {
     const [data, setData] = useState([
         { srNo: 1, itemName: 'Item 1', status: 'Approved' },
         { srNo: 2, itemName: 'Item 2', status: 'Hold' },
         { srNo: 3, itemName: 'Item 3', status: 'Rejected' },
-    
+
     ]);
 
     const columns = useMemo(
@@ -62,13 +62,13 @@ function AllQualityContent() {
         {
             columns,
             data,
-            initialState: { pageIndex: 0, pageSize: 5 }, 
+            initialState: { pageIndex: 0, pageSize: 5 },
         },
         usePagination
     );
 
     return (
-        <div className='qualityTable'>
+        <div className={style.qualityTable}>
             {/* <table {...getTableProps()}>
                 <thead>
                     {headerGroups.map(headerGroup => (

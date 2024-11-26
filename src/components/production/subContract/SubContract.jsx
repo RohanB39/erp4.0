@@ -1,6 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { useTable, usePagination } from 'react-table';
 
+
+import style from './subContract.module.css'
+
 function SubContract() {
     const data = useMemo(() => [
         // Sample data
@@ -104,43 +107,49 @@ function SubContract() {
     );
 
     return (
-        <div className="allproduction">
-            <div className="info">
-                <h3>Production</h3>
+        <div className={style.subContractWrapper}>
+            <div className={style.info}>
+                <h3>Production</h3> <span>/</span>
                 <p>Sub Contract</p>
             </div>
-            <div className="allproduction-table">
-                <div className="allproduction-table-header">
-                    <div className='productionsearch'>
-                        <input type="text" placeholder='Search' />
-                    </div>
+            <hr className='hr' />
+            <div className={style.contactTable}>
+
+                <div className={style.contractSearch}>
+                    <input type="text" placeholder='Search' />
                 </div>
-                <div className="production-item-list">
-                    <table {...getTableProps()} className="table">
-                        <thead>
-                            {headerGroups.map(headerGroup => (
-                                <tr {...headerGroup.getHeaderGroupProps()}>
-                                    {headerGroup.headers.map(column => (
-                                        <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+
+                <div className={style.contactItemList}>
+                    <table {...getTableProps()} className={style.contractTable}>
+                        <thead className={style.contractTableHeader}>
+                            {headerGroups.map((headerGroup, headerGroupIndex) => (
+                                <tr {...headerGroup.getHeaderGroupProps()} key={`headerGroup-${headerGroupIndex}`}>
+                                    {headerGroup.headers.map((column, columnIndex) => (
+                                        <th {...column.getHeaderProps()} key={`column-${columnIndex}`}>
+                                            {column.render('Header')}
+                                        </th>
                                     ))}
                                 </tr>
                             ))}
                         </thead>
-                        <tbody {...getTableBodyProps()}>
-                            {page.map(row => {
+                        <tbody {...getTableBodyProps()} className={style.contractTableBody}>
+                            {page.map((row, rowIndex) => {
                                 prepareRow(row);
                                 return (
-                                    <tr {...row.getRowProps()}>
-                                        {row.cells.map(cell => (
-                                            <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                                    <tr {...row.getRowProps()} key={`row-${rowIndex}`}>
+                                        {row.cells.map((cell, cellIndex) => (
+                                            <td {...cell.getCellProps()} key={`cell-${rowIndex}-${cellIndex}`}>
+                                                {cell.render('Cell')}
+                                            </td>
                                         ))}
                                     </tr>
                                 );
                             })}
                         </tbody>
                     </table>
+
                 </div>
-                <div className="pagination">
+                <div className={style.pagination}>
                     <button onClick={() => previousPage()} disabled={!canPreviousPage}>
                         {'<'}
                     </button>

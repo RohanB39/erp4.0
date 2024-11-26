@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import './production.css';
+import React, { useState } from 'react';
+import style from './production.module.css';
 import OrderCreation from './productionComponents/orderCreation/OrderCreation';
 import MaterialAllocation from './productionComponents/materialAllocation/MaterialAllocation';
 import MachineAssignment from './productionComponents/machineAssignment/MachineAssignment';
@@ -8,37 +8,58 @@ import QualityControl from './productionComponents/qualityControl/QualityControl
 import Reporting from './productionComponents/reporting/Reporting';
 
 function AllProduction() {
-    const [productionData, setProductionData] = useState([]);
-    const [currentStep, setCurrentStep] = useState('orderCreation'); 
+    const [currentStep, setCurrentStep] = useState('orderCreation');
+
     return (
-        <div className='main' id='main'>
-            <div className="production-container">
-                <h4>Production</h4>
-                <div className="production-nav-cards wd-100">
-                    <div className="flex">
-                        <div className="padd">
-                            <h3><button onClick={() => setCurrentStep('orderCreation')}>Order Creation</button></h3>
-                        </div>
-                        <div className="padd">
-                            <h3><button onClick={() => setCurrentStep('materialAllocation')}>Material Allocation</button></h3>
-                        </div>
-                        <div className=" padd">
-                            <h3><button onClick={() => setCurrentStep('workCenter')}>Machine Assignment</button></h3>
-                        </div>
-                        <div className=" padd">
-                            <h3><button onClick={() => setCurrentStep('execution')}>Production Execution</button></h3>
-                        </div>
-                        <div className=" padd">
-                            <h3><button onClick={() => setCurrentStep('qualityControl')}>Quality Control</button></h3>
-                        </div>
-                        <div className=" padd">
-                            <h3><button onClick={() => setCurrentStep('reporting')}>Reporting</button></h3>
-                        </div>
+        <div className={style.productionWrapper}>
+            <div className={style.productionContainer}>
+                <div className={style.title}>
+                    <i class="ri-settings-3-line"></i>
+                    <h4>Production</h4>
+                </div>
+                <p>Optimizing each phase for streamlined and efficient production.</p>
+
+                <hr className={style.hr} />
+                <div className={style.productionNavCards}>
+                    <div
+                        className={`${style.singleProductionCard} ${currentStep === 'orderCreation' ? style.active : ''}`}
+                        onClick={() => setCurrentStep('orderCreation')}
+                    ><i class="ri-file-list-3-line"></i>
+                        <h3>Order Creation</h3>
+                    </div>
+                    <div
+                        className={`${style.singleProductionCard} ${currentStep === 'materialAllocation' ? style.active : ''}`}
+                        onClick={() => setCurrentStep('materialAllocation')}
+                    ><i class="ri-share-line"></i>
+                        <h3>Material Allocation</h3>
+                    </div>
+                    <div
+                        className={`${style.singleProductionCard} ${currentStep === 'workCenter' ? style.active : ''}`}
+                        onClick={() => setCurrentStep('workCenter')}
+                    ><i class="ri-user-add-line"></i>
+                        <h3>Machine Assignment</h3>
+                    </div>
+                    <div
+                        className={`${style.singleProductionCard} ${currentStep === 'execution' ? style.active : ''}`}
+                        onClick={() => setCurrentStep('execution')}
+                    ><i class="ri-bar-chart-line"></i>
+                        <h3>Production Execution</h3>
+                    </div>
+                    <div
+                        className={`${style.singleProductionCard} ${currentStep === 'qualityControl' ? style.active : ''}`}
+                        onClick={() => setCurrentStep('qualityControl')}
+                    ><i class="ri-shield-check-line"></i>
+                        <h3>Quality Control</h3>
+                    </div>
+                    <div
+                        className={`${style.singleProductionCard} ${currentStep === 'reporting' ? style.active : ''}`}
+                        onClick={() => setCurrentStep('reporting')}
+                    ><i class="ri-file-text-line"></i>
+                        <h3>Reporting</h3>
                     </div>
                 </div>
 
-                {/* Conditional Rendering based on the current step */}
-                <div className="step-content">
+                <div className={style.stepContent}>
                     {currentStep === 'orderCreation' && <OrderCreation />}
                     {currentStep === 'materialAllocation' && <MaterialAllocation />}
                     {currentStep === 'workCenter' && <MachineAssignment />}

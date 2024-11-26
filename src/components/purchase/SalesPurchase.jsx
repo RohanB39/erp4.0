@@ -1,10 +1,11 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { Link } from 'react-router-dom'
 import { useTable, usePagination } from 'react-table';
 import { MdOutlineFileDownload } from "react-icons/md";
 import { IoAdd } from "react-icons/io5";
-import './salesPurchase.css';
+import style from './Purchase.module.css'
 import InvoicePopup from '../purchase/invoicePopup/InvoicePopup';
-import 'jspdf-autotable'; // Table Sathi
+import 'jspdf-autotable';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { fireDB } from '../firebase/FirebaseConfig';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +13,13 @@ import jsPDF from 'jspdf';
 import logo from '../../assets/Tectigon_logo.png';
 import * as XLSX from 'xlsx';
 import ExportModal from '../purchase/exportModel/ExportModal';
+
+
+
+import { CiSearch } from "react-icons/ci";
+import { LiaFileInvoiceSolid } from "react-icons/lia";
+import { IoIosThumbsUp } from "react-icons/io";
+import { IoAlertOutline } from "react-icons/io5";
 
 function SalesPurchase() {
     // const [isPopupOpen, setPopupOpen] = useState(false);
@@ -70,7 +78,7 @@ function SalesPurchase() {
             { Header: 'Invoice Details', accessor: 'vendorInvoice' },
             { Header: 'Status', accessor: 'status' },
             { Header: 'Vendor & Details', accessor: 'vendorName' },
-            { Header: 'Amount', accessor: 'GrnInvoicePrice' },
+            { Header: 'Amount', accessor: 'price' },
         ],
         []
     );
@@ -155,7 +163,7 @@ function SalesPurchase() {
             return materialNameMatch || vendorNameMatch;
         });
     }, [searchInput, purchaseStock]);
-    
+
 
     const {
         getTableProps: getPurchaseTableProps,
@@ -168,13 +176,13 @@ function SalesPurchase() {
         pageOptions: purchasePageOptions,
         pageCount: purchasePageCount,
         nextPage: nextpurchasePage,
-        previousPage: previouspurchasePage,
+        previousPage: previousPage,
         setPageSize: setPurchasePageSize,
         state: { pageIndex: purchasePageIndex, pageSize: purchasePageSize },
     } = useTable(
         {
             columns: purchasecolumns,
-            data: filteredData, 
+            data: filteredData,
             initialState: { pageIndex: 0 },
         },
         usePagination
@@ -184,26 +192,36 @@ function SalesPurchase() {
     return (
         <>
             <div className={`sales-purchase-container`}>
-                <div className='main purchase-box' id='main'>
-                    <div className="purchase-header">
-                        <div className="purchase-title">
-                            <h3>Purchase Invoice</h3>
+                <div className={style.purchaseBox} >
+                    <div className={style.purchaseHeader}>
+                        <div className={style.purchaseTitle}>
+                            <div>
+                                <i className="bi bi-receipt"></i>
+                                <h3>Purchase Overview</h3>
+                            </div>
+                            <p>Explore recent purchase invoices, view detailed transaction history, and manage supplier information efficiently.</p>
                         </div>
-                        <div className="purchase-process">
-                            <button onClick={() => setExportModalOpen(true)}><MdOutlineFileDownload className='icon' /> Export</button>
-                            <button onClick={handleCreatePurchaseOrder}> <IoAdd className='icon' />Create Purchase Order</button>
+                        <div className={style.purchaseProcess}>
+                            <button onClick={() => setExportModalOpen(true)}><MdOutlineFileDownload className={style.icon} /> Export</button>
+                            <Link to='/purchaseOrder'><button onClick={handleCreatePurchaseOrder}> <IoAdd className={style.icon} /> Create  Order</button></Link>
                         </div>
                     </div>
-                    <hr />
-                    <div className="purchase-serch-filter">
-                        <div className='purchase-tabs'>
+                    <hr className='hr' />
+                    <div className={style.purchaseFilter}>
+                        <div className={style.purchaseTabs}>
                             <div
                                 className={filterStatus === 'All' ? 'active' : ''}
                                 onClick={() => setFilterStatus('All')}
+
                             >
-                                <h3>All Purchase</h3>
+                                <div>
+
+                                    <LiaFileInvoiceSolid className={style.cardIcon} />
+                                    <h3 className={style.cardtitle}>All Purchase</h3>
+                                    <span className={style.cardsubtitle}>Total Orders Processed</span>
+                                </div>
                                 {/* Show the last serial number */}
-                                <p className={filterStatus === '' ? 'active' : ''}>
+                                <p className={`${style.cardData} ${filterStatus === '' ? 'active' : ''}`}>
                                     {totalItemsCount}
                                 </p>
                             </div>
@@ -211,88 +229,133 @@ function SalesPurchase() {
                             <div
                                 className={filterStatus === 'All' ? 'active' : ''}
                                 onClick={() => setFilterStatus('All')}
+
                             >
-                                <h3>Approved</h3>
-                                <p className={filterStatus === '' ? 'active' : ''}>
+                                <div>
+
+                                    <IoIosThumbsUp className={style.cardIconApprove} />
+                                    <h3 className={style.cardtitle}>Approved</h3>
+                                    <span className={style.cardsubtitle}>Total Approved</span>
+                                </div>
+                                <p className={`${style.cardData} ${filterStatus === '' ? 'active' : ''}`}>
                                     {purchaseStock.length > 0 ? purchaseStock.length : 0}
                                 </p>
                             </div>
                             <div>
-                                <h3>Rejected</h3>
-                                <p>{hold}</p>
+                                <div>
+                                    <IoAlertOutline className={style.cardIconReject} />
+                                    <h3 className={style.cardtitle}>Rejected</h3>
+                                    <span className={style.cardsubtitle}>Total Rejected</span>
+                                </div>
+                                <p className={style.cardData}>{hold}</p>
                             </div>
                         </div>
-                        <div className='serch'>
-                            <input
-                                type="text"
-                                placeholder='Search by invoice'
-                                value={searchInput}
-                                onChange={(e) => setSearchInput(e.target.value)}
-                            />
-                        </div>
+
+
                     </div>
-                    <div className="process-item-list">
-                        <table {...getPurchaseTableProps()}>
-                            <thead>
-                                {purchaseHeaderGroups.map(headerGroup => (
-                                    <tr {...headerGroup.getHeaderGroupProps()}>
-                                        {headerGroup.headers.map(column => (
-                                            <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                                        ))}
-                                    </tr>
-                                ))}
+                    <div className={style.processItemList}>
+                        <div>
+                            <div className={style.purchaseTitle}>
+                                <div>
+                                    <i className="bi bi-clipboard-data"></i>
+                                    <h4>Purchase Data Overview</h4>
+                                </div>
+                                <p>Detailed list of recent purchase  invoice details, names,& payment statuses.</p>
+
+                            </div>
+
+                            <div className={style.search}>
+                                <div className={style.searchinputWrapper}>
+                                    <input
+                                        type="text"
+                                        placeholder="Search by invoice"
+                                        value={searchInput}
+                                        onChange={(e) => setSearchInput(e.target.value)}
+                                        className={style.searchinput}
+                                    />
+                                    <CiSearch className={style.searchIcon} />
+                                </div>
+                            </div>
+                        </div>
+                        <table {...getPurchaseTableProps()} className={style.table}>
+                            <thead className={style.header}>
+                                {purchaseHeaderGroups.map(headerGroup => {
+                                    const { key, ...headerGroupProps } = headerGroup.getHeaderGroupProps();
+                                    return (
+                                        <tr key={key} {...headerGroupProps}>
+                                            {headerGroup.headers.map(column => {
+                                                const { key: columnKey, ...columnProps } = column.getHeaderProps();
+                                                return (
+                                                    <th key={columnKey} {...columnProps}>
+                                                        {column.render('Header')}
+                                                    </th>
+                                                );
+                                            })}
+                                        </tr>
+                                    );
+                                })}
                             </thead>
-                            <tbody {...getPurchaseTableBodyProps()}>
+                            <tbody className={style.body} {...getPurchaseTableBodyProps()}>
                                 {purchasePage.map(row => {
                                     preparePurchaseRow(row);
+                                    const { key: rowKey, ...rowProps } = row.getRowProps();
                                     return (
-                                        <tr {...row.getRowProps()}>
-                                            {row.cells.map(cell => (
-                                                <td {...cell.getCellProps()}>
-                                                    {cell.render('Cell')}
-                                                </td>
-                                            ))}
+                                        <tr key={rowKey} {...rowProps}>
+                                            {row.cells.map(cell => {
+                                                const { key: cellKey, ...cellProps } = cell.getCellProps();
+                                                return (
+                                                    <td key={cellKey} {...cellProps}>
+                                                        {cell.render('Cell')}
+                                                    </td>
+                                                );
+                                            })}
                                         </tr>
                                     );
                                 })}
                             </tbody>
                         </table>
-                        <div className="pagination">
-                            <button onClick={() => previousPage()} disabled={!canPreviousWarehousePage}>
-                                {'<'}
-                            </button>
-                            <span>
-                                Showing{' '}
-                                {purchasePageIndex + 1} of {purchasePageOptions.length}
-                            </span>
-                            <button onClick={() => nextpurchasePage()} disabled={!canNextPurchasePage}>
-                                {'>'}
-                            </button>
-                        </div>
-                        <div>
-                            <select
-                                value={purchasePageSize}
-                                onChange={e => {
-                                    setPurchasePageSize(Number(e.target.value));
-                                }}
-                            >
-                                {[10, 20, 30, 40, 50].map(pageSize => (
-                                    <option key={pageSize} value={pageSize}>
-                                        Show {pageSize}
-                                    </option>
-                                ))}
-                            </select>
+                        <div className={style.pagination}>
+                            <div className={style.paginationCount}>
+
+                                <button onClick={() => previousPage()} disabled={!canPreviousWarehousePage}>
+                                    {'<'}
+                                </button>
+                                <span>
+
+                                    {purchasePageIndex + 1} of {purchasePageOptions.length}
+                                </span>
+                                <button onClick={() => nextpurchasePage()} disabled={!canNextPurchasePage}>
+                                    {'>'}
+                                </button>
+                            </div>
+                            <div className={style.select}>
+                                <select
+                                    value={purchasePageSize}
+                                    onChange={e => {
+                                        setPurchasePageSize(Number(e.target.value));
+                                    }}
+                                >
+                                    {[10, 20, 30, 40, 50].map(pageSize => (
+                                        <option key={pageSize} value={pageSize}>
+                                            Show {pageSize}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
+
+                </div >
+            </div >
             {/* <InvoicePopup isOpen={isPopupOpen} onClose={() => setPopupOpen(false)} /> */}
-            {isExportModalOpen && (
-                <ExportModal
-                    onClose={() => setExportModalOpen(false)}
-                    onExport={handleExport}
-                />
-            )}
+            {
+                isExportModalOpen && (
+                    <ExportModal
+                        onClose={() => setExportModalOpen(false)}
+                        onExport={handleExport}
+                    />
+                )
+            }
         </>
     );
 }

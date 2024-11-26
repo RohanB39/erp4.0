@@ -118,11 +118,10 @@
   display: flex;
   gap: 3.6rem;
   height: 100vh;
-  background: var(--tertiary-dark-bg);
 }
 
 .leftSide {
-  background-image: url(../../assets/baner9.jpeg.jpg);
+  background-image: url(../../assets/baner10.jpeg);
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -132,6 +131,17 @@
   top: 0;
   left: 0;
 }
+.logoIcon h4 {
+  font-size: 28px;
+  font-weight: bold;
+  background-color: var(--primary-dark-bg);
+  width: fit-content;
+  padding: 1rem 1rem;
+  font-family: "Cinzel", serif;
+  margin: 2.4rem 2rem;
+  letter-spacing: 1px;
+  color: var(--pagination-active-text);
+}
 .logo {
   margin: 2rem 2rem;
 }
@@ -139,19 +149,27 @@
   font-weight: 600;
   text-transform: capitalize;
   letter-spacing: 2px;
-  font-size: 34px;
+  font-size: 28px;
   padding-bottom: 12px;
-  color: var(--tertiary-dark-bg);
+  color: var(--primary-dark-bg);
   font-family: "Cinzel", serif;
+  position: absolute;
+  bottom: 3rem;
+}
+.logo .title span {
+  font-family: "Cinzel", serif;
+  color: var(-);
 }
 .text {
-  color: var(--card-border);
+  color: var(--secondary-dark-bg);
   font-size: 14px;
   width: 80%;
   font-family: "Cinzel", serif;
   font-weight: 500;
   text-transform: capitalize;
-  letter-spacing: 1px;
+  letter-spacing: 1.6px;
+  position: absolute;
+  bottom: 1rem;
 }
 
 .formContainer {
@@ -166,18 +184,18 @@
   overflow-y: auto;
 }
 .heading {
-  font-size: 24px;
-  font-weight: 500;
+  font-size: 28px;
+  font-weight: 600;
   color: var(--primary-text);
   padding-bottom: 6px;
   text-align: start;
 }
 .subText {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--secondary-text);
   letter-spacing: 0.8px;
   width: 80%;
-  padding-bottom: 12px;
+  margin-bottom: 20px;
 }
 form {
   display: flex;
@@ -237,6 +255,9 @@ button:hover {
   color: var(--badge-bg-warning);
   font-size: 14px;
   letter-spacing: 0.9px;
+}
+.alertDanger {
+  color: var(--icon-bg-error);
 }
 .resendOtp {
   font-size: 14px;

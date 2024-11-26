@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { fireDB } from "../../firebase/FirebaseConfig";
 import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
-import { useNavigate } from 'react-router-dom';
-import './grn.css';
+
+import style from './grn.module.css'
 
 const Grn = () => {
   const [grnNumber, setGrnNumber] = useState('');
@@ -18,9 +18,8 @@ const Grn = () => {
   const [GRNDate, setGRNDate] = useState('');
   const [status, setStatus] = useState('');
   const [items, setItems] = useState([]);
+  const [purchaseOrderId, setPurchaseOrderId] = useState('');
   const [vendorInvoice, setVendorInvoice] = useState('');
-  const [GrnInvoicePrice, setGrnInvoicePrice] = useState('');
-  const navigate = useNavigate();
 
   // Generate GRN number when the component mounts
   useEffect(() => {
@@ -105,7 +104,6 @@ const Grn = () => {
       quantityReceived,
       GRNDate,
       vendorInvoice,
-      GrnInvoicePrice,
       status: status === 'Approved' ? 'GRN Approved, QC Pending' : status,
     };
 
@@ -113,7 +111,12 @@ const Grn = () => {
       const materialDocRef = doc(fireDB, "Items", materialId);
       await updateDoc(materialDocRef, updatedMaterial);
 
-      alert("Material status updated successfully");
+      if (purchaseOrderId) {
+        const purchaseOrderDocRef = doc(fireDB, "Purchase_Orders", purchaseOrderId);
+        await updateDoc(purchaseOrderDocRef, { status: "Assigned" });
+      }
+
+      alert("Material and Purchase Order status updated successfully");
     } catch (error) {
       alert("Error updating material or purchase order: ", error);
     }
@@ -130,29 +133,57 @@ const Grn = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Fetch purchase order based on vendorId and materialId
+  useEffect(() => {
+    const fetchPurchaseOrder = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(fireDB, "Purchase_Orders"));
+        const purchaseOrders = querySnapshot.docs
+          .filter(doc =>
+            doc.data().materialId === materialId &&
+            doc.data().vendorId === vendorId &&
+            doc.data().status === "Not Assigned"
+          )
+          .map(doc => doc.id);
+
+        if (purchaseOrders.length > 0) {
+          setPurchaseOrderId(purchaseOrders[0]);
+        } else {
+          setPurchaseOrderId("PO Not Created");
+        }
+      } catch (error) {
+        console.error("Error fetching purchase orders: ", error);
+      }
+    };
+
+    if (materialId && vendorId) {
+      fetchPurchaseOrder();
+    }
+  }, [materialId, vendorId]);
+
   const handleVendorInvoice = (e) => {
     setVendorInvoice(e.target.value);
   };
 
-  const handleGrnInvoicePrice = (e) => {
-    setGrnInvoicePrice(e.target.value);
-  };
-
-  const handleButtonClick = () => {
-    navigate('/existing-material-grn');
-  };
-
   return (
-    <div className='main' id='main'>
-      <div className='grn-page'>
-        <h4>GRN Form</h4>
+    <div className={style.grnWrapper}>
+      <div className={style.dot}>
+
+      </div>
+      <div className={style.grnPage}>
         <div>
-          <button onClick={handleButtonClick}>Existing</button>
+          <div className={style.title}>
+            <i class="ri-clipboard-line"></i>
+            <h4>GRN Form</h4>
+          </div>
+          <p>Record the details of received goods, including quantity, condition, and supplier information. The GRN form ensures accurate tracking of inventory and validates incoming materials against purchase orders.</p>
         </div>
-        <form onSubmit={handleSubmit} className='grnForm'>
-          <div className='grnSerch'>
-            <div className='grnNum'>
-              <label htmlFor='grnNumber'>GRN Number:</label>
+        <hr className='hr' />
+
+        <form onSubmit={handleSubmit} className={style.grnForm}>
+          <div className={style.grnSearch}>
+            <div className={style.grnNum}>
+              <label htmlFor='grnNumber' className={style.label}>GRN Number:</label>
               <input
                 type='text'
                 id='grnNumber'
@@ -161,21 +192,22 @@ const Grn = () => {
               />
             </div>
 
-            <div className="custom-dropdown serchVendor" ref={dropdownRef}>
-              <label htmlFor='vendorId'>Search Vendor:</label>
+            <div className={`${style.customDropdown}${style.searchVendor}`} ref={dropdownRef}>
+              <label htmlFor='vendorId' className={style.label}>Search Vendor:</label>
               <input
                 type='text'
+                className={style.vendorSearch}
                 placeholder='Select Vendor'
                 value={searchTerm}
                 onChange={handleInputChange}
                 onClick={() => setIsDropdownOpen(searchTerm.length > 0)}
               />
               {isDropdownOpen && filteredVendors.length > 0 && (
-                <div className="dropdown-options">
+                <div className={style.dropdownOption}>
                   {filteredVendors.map(vendor => (
                     <div
                       key={vendor.id}
-                      className="dropdown-option"
+                      className={style.dropdownOption}
                       onClick={() => handleVendorSelect(vendor)}
                     >
                       {vendor.name}
@@ -184,89 +216,91 @@ const Grn = () => {
                 </div>
               )}
               {isDropdownOpen && filteredVendors.length === 0 && (
-                <div className="dropdown-option">No vendors found</div>
+                <div className={style.dropdownOption}>No vendors found</div>
               )}
             </div>
           </div>
-          <hr />
-          <div className="vendorInfo">
+          <hr className='hr' />
+          <div className={style.vendorInfo}>
             <div>
-              <label htmlFor='vendorName'>Vendor Name:</label>
-              <input
-                type='text'
-                id='vendorName'
-                value={vendorName}
-                readOnly
-              />
+
+              <div className={style.subDiv}>
+                <label htmlFor='vendorName'>Vendor Name:</label>
+                <input
+                  type='text'
+                  id='vendorName'
+                  value={vendorName}
+                  readOnly
+                />
+              </div>
+
+              <div className={style.subDiv}>
+                <label htmlFor='vendorId'>Vendor ID:</label>
+                <input
+                  type='text'
+                  id='vendorId'
+                  value={vendorId}
+                  readOnly
+                />
+              </div>
+            </div>
+            <div>
+
+              <div className={style.subDiv}>
+                <label htmlFor='vendorInvoice'>Vendor Invoice:</label>
+                <input
+                  type='text'
+                  id='vendorInvoice'
+                  value={vendorInvoice}
+                  onChange={handleVendorInvoice}
+                />
+              </div>
+
+              <div className={style.subDiv}>
+                <label htmlFor='materialId'>Material:</label>
+                <select
+                  id='materialId'
+                  value={materialId}
+                  onChange={(e) => handleItemSelect(
+                    items.find(item => item.id === e.target.value)
+                  )}
+                  required
+                >
+                  <option value=''>Select Material</option>
+                  {items.map(item => (
+                    <option key={item.id} value={item.id}>{item.id}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div>
+
+              <div className={style.subDiv}>
+                <label htmlFor='materialDescription'>Material Description:</label>
+                <input
+                  type='text'
+                  id='materialDescription'
+                  value={materialDescription}
+                  readOnly
+                />
+              </div>
+
+              <div className={style.subDiv}>
+                <label htmlFor='batchNumber'>Batch Number:</label>
+                <input
+                  type='text'
+                  id='batchNumber'
+                  value={batchNumber}
+                  readOnly
+                />
+              </div>
             </div>
 
-            <div>
-              <label htmlFor='vendorId'>Vendor ID:</label>
-              <input
-                type='text'
-                id='vendorId'
-                value={vendorId}
-                readOnly
-              />
-            </div>
 
-            <div>
-              <label htmlFor='vendorInvoice'>Vendor Invoice:</label>
-              <input
-                type='text'
-                id='vendorInvoice'
-                value={vendorInvoice}
-                onChange={handleVendorInvoice}
-              />
-            </div>
-            <div>
-              <label htmlFor='vendorInvoice'>Invoice Price:</label>
-              <input
-                type='text'
-                id='vendorInvoice'
-                value={GrnInvoicePrice}
-                onChange={handleGrnInvoicePrice}
-              />
-            </div>
-            <div>
-              <label htmlFor='materialId'>Material:</label>
-              <select
-                id='materialId'
-                value={materialId}
-                onChange={(e) => handleItemSelect(
-                  items.find(item => item.id === e.target.value)
-                )}
-              >
-                <option value=''>Select Material</option>
-                {items.map(item => (
-                  <option key={item.id} value={item.id}>{item.id}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor='materialDescription'>Material Description:</label>
-              <input
-                type='text'
-                id='materialDescription'
-                value={materialDescription}
-                readOnly
-              />
-            </div>
-
-            <div>
-              <label htmlFor='batchNumber'>Batch Number:</label>
-              <input
-                type='text'
-                id='batchNumber'
-                value={batchNumber}
-                readOnly
-              />
-            </div>
           </div>
-          <hr />
-          <div className="vendorInfo">
-            <div>
+          <hr className='hr' />
+          <div className={style.vendorInfo}>
+            <div className={style.subDiv}>
               <label htmlFor='quantityReceived'>Quantity Received:</label>
               <input
                 type='text'
@@ -277,7 +311,7 @@ const Grn = () => {
               />
             </div>
 
-            <div>
+            <div className={style.subDiv}>
               <label htmlFor='GRNDate'>GRN Date:</label>
               <input
                 type='date'
@@ -288,7 +322,7 @@ const Grn = () => {
               />
             </div>
 
-            <div>
+            <div className={style.subDiv}>
               <label htmlFor='status'>Status:</label>
               <select
                 id='status'
@@ -302,8 +336,9 @@ const Grn = () => {
               </select>
             </div>
           </div>
+          <hr className='hr' />
 
-          <button type='submit' className='grnBtn'>
+          <button type='submit' className={style.grnBtn}>
             Submit GRN
           </button>
         </form>

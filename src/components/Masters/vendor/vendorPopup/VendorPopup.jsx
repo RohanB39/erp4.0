@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-// import "./vendorPopup.css";
+
 import { fireDB } from "../../../firebase/FirebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
 import { Country, State, City } from "country-state-city";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+
+import style from '../../customer/customerPopup/popup.module.css';
 
 const VendorPopup = ({ onClose }) => {
     const auth = getAuth();
@@ -109,44 +111,55 @@ const VendorPopup = ({ onClose }) => {
     };
 
     return (
-        <div className="popup-overlay">
-            <div className="popup-content">
-                <div className="form-head">
-                    <h3>Create Vendor</h3>
-                    <button onClick={onClose}>×</button>
+        <div className={style.popupOverlay}>
+            <div className={style.popupContent}>
+                <div className={style.formHead}>
+                    <h4>Create Vendor</h4>
+                    <button onClick={onClose}><i className="ri-close-line"></i></button>
                 </div>
-                <div className="vendor-id customer-id">  <span> Vendor ID: </span>  {uniqueID}</div>
-                {successMessage && <div className="success-message">{successMessage}</div>}
+                <hr />
+                <div className={style.customerId}>  <span> Vendor ID: </span>  {uniqueID}</div>
+                {successMessage && <div className={style.successMessage}>{successMessage}</div>}
                 <form onSubmit={handleSubmit}>
-                    <div className="form-row">
-                        <input
-                            type="text"
-                            placeholder="Vendor Name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            required
-                        />
-                        <div className="checkbox-container">
+                    <div className={style.formRow}>
+                        <div>
+                            <label htmlFor="vendorname">Vendor Name</label>
+                            <input
+                                type="text"
+                                placeholder="Vendor Name"
+                                value={name}
+                                id="vendorname"
+                                onChange={(e) => setName(e.target.value)}
+                                required
+
+                            />
+                        </div>
+                        <div className={style.checkbox}>
                             <input
                                 type="checkbox"
                                 id="sameAsShipping"
                                 checked={sameAddress}
+                                className={style.hiddenCheckbox}
                                 onChange={(e) => setSameAddress(e.target.checked)}
                             />
-                            <label htmlFor="sameAsShipping" >Same as Shipping Address</label>
+                            <label htmlFor="sameAsShipping" className={style.customCheckboxLabel}>
+                                <span className={style.customCheckbox}></span>
+                                Same as Shipping Address
+                            </label>
                         </div>
                     </div>
-                    <div className="subContainerForm">
-                        <div className="form-column">
-                            <h3 className="form-title">Shipping Address</h3>
+                    <hr />
+                    <div className={style.subContainerForm}>
+                        <div className={style.formColumn}>
+                            <h4 className={style.formTitle}>Shipping Address</h4>
                             <textarea
-                                className="address-input"
+                                className={style.addressInput}
                                 placeholder="Shipping Address"
                                 value={shippingAddress}
                                 onChange={(e) => setShippingAddress(e.target.value)}
                                 required
                             />
-                            <div className="selectForminput">
+                            <div className={style.selectForminput}>
                                 <select value={shippingCountry} onChange={(e) => setShippingCountry(e.target.value)} required>
                                     <option value="">Select Shipping Country</option>
                                     {countryData.map((country) => (
@@ -172,10 +185,10 @@ const VendorPopup = ({ onClose }) => {
                                     ))}
                                 </select>
                             </div>
-                            <div className="formInputGroup">
+                            <div className={style.formInputGroup}>
                                 <input
                                     type="text"
-                                    className="address-input"
+                                    className={style.addressInput}
                                     placeholder="Shipping Taluka"
                                     value={shippingTaluka}
                                     onChange={(e) => setShippingTaluka(e.target.value)}
@@ -183,7 +196,7 @@ const VendorPopup = ({ onClose }) => {
                                 />
                                 <input
                                     type="text"
-                                    className="address-input"
+                                    className={style.addressInput}
                                     placeholder="Shipping Pincode"
                                     value={shippingPincode}
                                     onChange={(e) => setShippingPincode(e.target.value)}
@@ -206,17 +219,16 @@ const VendorPopup = ({ onClose }) => {
                                 required
                             />
                         </div>
-                        <div className="form-column">
-                            <h3 className="form-title">Billing Address</h3>
+                        <div className={style.formColumn}>
+                            <h4 className={style.formTitle}>Billing Address</h4>
                             <textarea
-                                className="address-input"
-                                placeholder="Billing Address"
+                                className={style.addressInput} placeholder="Billing Address"
                                 value={billingAddress}
                                 onChange={(e) => setBillingAddress(e.target.value)}
                                 disabled={sameAddress}
                                 required
                             />
-                            <div className="selectForminput">
+                            <div className={style.selectForminput}>
                                 <select value={billingCountry} onChange={(e) => setBillingCountry(e.target.value)} disabled={sameAddress} required>
                                     <option value="">Select Billing Country</option>
                                     {countryData.map((country) => (
@@ -242,10 +254,10 @@ const VendorPopup = ({ onClose }) => {
                                     ))}
                                 </select>
                             </div>
-                            <div className="formInputGroup">
+                            <div className={style.formInputGroup}>
                                 <input
                                     type="text"
-                                    className="address-input"
+                                    className={style.addressInput}
                                     placeholder="Billing Taluka"
                                     value={billingTaluka}
                                     onChange={(e) => setBillingTaluka(e.target.value)}
@@ -281,7 +293,7 @@ const VendorPopup = ({ onClose }) => {
                             />
                         </div>
                     </div>
-                    <button type="submit" className="submit-button">Submit</button>
+                    <button type="submit" className={style.submitButton}>Submit</button>
                 </form>
             </div>
         </div>

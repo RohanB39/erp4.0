@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import './masters.css';
+
 import DataTable from '../Masters/Subpages/DataTable';
 import { AiOutlineClose } from "react-icons/ai";
 import { MdEdit, MdDelete } from "react-icons/md";
@@ -11,6 +11,9 @@ import RawMaterialsPopup from './rawMaterial/rawMaterialPopup/RawMaterialsPopup.
 import SemiFinishedPopup from './semiFinished/semiFinishedPopup/SemiFinishedPopup.jsx';
 import FinishedPopup from './finished/finishedPopup/FinishedPopup.jsx';
 import FGPopup from './FGProducts/FGPopup/FGPopup.jsx';
+
+
+import style from './masters.module.css';
 
 function MasterDash() {
     const [isFormVisible, setIsFormVisible] = useState(false);
@@ -30,17 +33,17 @@ function MasterDash() {
     const getAddButtonLabel = () => {
         switch (currentTable) {
             case 'customer':
-                return "+ Add Customer";
+                return " + Add Customer";
             case 'vendor':
-                return "+ Add Vendor";
+                return " + Add Vendor";
             case 'items':
-                return "+ Add Item";
+                return " + Add Item";
             case 'rawMaterial':
-                return "+ Add Raw Materials";
+                return " + Add Raw Materials";
             case 'semiFinished':
-                return "+ Add Semi Finished Materials";
+                return " + Add Semi Finished";
             case 'finished':
-                return "+ Add Finished Materials";
+                return "+ Add Finished";
             case 'finishedGoods':
                 return "+Add FG"
             default:
@@ -105,7 +108,7 @@ function MasterDash() {
                         id: doc.id
                     }));
                     setData(prevData => ({ ...prevData, finished: items }));
-                }else if (currentTable === 'finishedGoods') {
+                } else if (currentTable === 'finishedGoods') {
                     try {
                         const querySnapshot = await getDocs(collection(fireDB, 'Finished_Goods'));
                         const FG = querySnapshot.docs.map(doc => ({
@@ -204,8 +207,8 @@ function MasterDash() {
         accessor: 'action',
         Cell: ({ row }) => (
             <div>
-                <button onClick={() => handleEdit(row.original)}><MdEdit /></button>
-                <button onClick={() => handleDelete(row.original)}><MdDelete /></button>
+                <button className={style.icon} onClick={() => handleEdit(row.original)}><MdEdit /></button>
+                <button className={style.icon} onClick={() => handleDelete(row.original)}><MdDelete /></button>
             </div>
         ),
     };
@@ -306,10 +309,10 @@ function MasterDash() {
                         accessor: 'id',
                         Cell: ({ row }) => row.index + 1
                     },
-                    { Header: 'FGID', accessor: 'uniqueID'},
-                    { Header: 'Name', accessor: 'FGname'},
-                    { Header: 'Status', accessor: 'status'},
-                    { Header: 'Customer', accessor: 'customerID'},
+                    { Header: 'FGID', accessor: 'uniqueID' },
+                    { Header: 'Name', accessor: 'FGname' },
+                    { Header: 'Status', accessor: 'status' },
+                    { Header: 'Customer', accessor: 'customerID' },
                     actionColumn
                 ];
             default:
@@ -320,17 +323,17 @@ function MasterDash() {
     const getHeader = () => {
         switch (currentTable) {
             case 'customer':
-                return "Customer Table";
+                return "Total Customers";
             case 'vendor':
-                return "Vendor Table";
+                return "Total Vendors ";
             case 'items':
-                return "Items Table";
+                return "Total Items ";
             case 'rawMaterial':
-                return "Raw Material Table";
+                return "Raw Materials";
             case 'semiFinished':
-                return "Semi-Finished Goods Table";
+                return "Semi-Finished Goods";
             case 'finished':
-                return "Finished Goods Table";
+                return "Finished Goods";
             case 'finishedGoods':
                 return "FG Table";
             default:
@@ -340,51 +343,75 @@ function MasterDash() {
 
     return (
         <>
-            <div className="master-container">
-                <div className="master-header" id='main'>
-                    <div className='h3'>
-                        <h3>Master Analysis</h3>
+            <div className={style.masterContainer}>
+                <div className={style.masterHeader}>
+                    <div className={style.title}>
+                        <div>
+                            <i className="ri-bar-chart-line"></i>
+                            <h4>Master Analysis</h4>
+                        </div>
                         <p>See your latest Master Analysis</p>
                     </div>
+
                     <div className='buttons'>
-                        <button onClick={() => setCurrentTable('customer')}>Total Customer</button>
-                        <button onClick={() => setCurrentTable('vendor')}>Total Vendor</button>
-                        <button onClick={() => setCurrentTable('items')}>Total Items</button>
-                        <button onClick={() => setCurrentTable('finishedGoods')}>Finished Goods</button>
+                        <button onClick={() => setCurrentTable('customer')}>
+                            <i className="ri-group-line"></i> Total Customer
+                        </button>
+
+                        <button onClick={() => setCurrentTable('vendor')}>
+                            <i className="ri-store-2-line"></i> Total Vendor
+                        </button>
+
+                        <button onClick={() => setCurrentTable('items')}>
+                            <i className="ri-stack-line"></i> Total Items
+                        </button>
+
+                        <button onClick={() => setCurrentTable('finishedGoods')}>
+                            <i className="ri-archive-line"></i> Finished Goods
+                        </button>
+
                     </div>
                 </div>
             </div>
+            <hr className='hr' />
 
-            <div className="master-cards-item" id='main'>
-                <div className="single-card-item" onClick={() => setCurrentTable('rawMaterial')}>
+            <div className={style.masterCardsItem}>
+                <div className={style.singleCardItem} onClick={() => setCurrentTable('rawMaterial')}>
                     <div>
+                        <i className="ri-stack-line"></i>
                         <h3>Raw Material</h3>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia commodi quam accusantium?</p>
+                        <p>Essential resources and base materials used in production, ensuring quality and consistency for manufacturing processes.</p>
+
                     </div>
                 </div>
-                <div className="single-card-item" onClick={() => setCurrentTable('semiFinished')}>
+                <div className={style.singleCardItem} onClick={() => setCurrentTable('semiFinished')}>
                     <div>
+                        <i className="ri-loader-3-line"></i>
                         <h3>Semi Finished</h3>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia commodi quam accusantium?</p>
+                        <p>Partially completed products that undergo further processing or assembly to become finished goods, ensuring seamless production workflows.</p>
+
                     </div>
                 </div>
-                <div className="single-card-item" onClick={() => setCurrentTable('finished')}>
+                <div className={style.singleCardItem} onClick={() => setCurrentTable('finished')}>
                     <div>
+                        <i className="ri-check-double-line"></i>
                         <h3>Finished</h3>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia commodi quam accusantium?</p>
+                        <p>Fully completed products that meet quality standards and are ready for dispatch or distribution to customers.</p>
+
                     </div>
                 </div>
             </div>
 
-            <div className="customer-list" id="main">
-                <div className="customer-section">
-                    <div className="title">
+            <div className={style.customerList} >
+                <div className={style.customerSection}>
+                    <div className={style.title}>
                         <h3>{getHeader()}</h3>
-                        <button className='button primary-button' onClick={() => setIsPopupVisible(true)}>
+                        <button className={style.tablebtn} onClick={() => setIsPopupVisible(true)}>
                             {getAddButtonLabel()}
                         </button>
                     </div>
-                    <div className="content">
+                    <hr className='hr' />
+                    <div className={style.content}>
                         <DataTable data={data[currentTable]} columns={columns} />
                     </div>
                 </div>

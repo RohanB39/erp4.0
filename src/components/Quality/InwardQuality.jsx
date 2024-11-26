@@ -2,7 +2,15 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useTable } from 'react-table';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { fireDB } from "../firebase/FirebaseConfig";
-import './quality.css';
+
+import style from './quality.module.css'
+
+import { IoMdCheckmark } from "react-icons/io";
+
+
+import { IoMdClose } from "react-icons/io";
+
+
 
 function InwardQuality() {
     const [data, setData] = useState([]);
@@ -40,7 +48,7 @@ function InwardQuality() {
 
     const showApprovalPopup = (item, status) => {
         setPopupData(item);
-        setPopupStatus(status); 
+        setPopupStatus(status);
     };
 
     const closePopup = () => {
@@ -86,8 +94,8 @@ function InwardQuality() {
 
                 return (
                     <div>
-                        <button onClick={handleApproveClick}>Approve</button>
-                        <button onClick={handleRejectClick}>Reject</button>
+                        <button onClick={handleApproveClick}><IoMdCheckmark className={style.icon} /></button>
+                        <button onClick={handleRejectClick}><IoMdClose className={style.icon} /></button>
                     </div>
                 );
             }
@@ -103,27 +111,27 @@ function InwardQuality() {
     } = useTable({ columns, data });
 
     return (
-        <div className='qualityTable'>
-            <div className='tab-content'>
+        <div className={style.qualityTable}>
+            <div className={style.tabContent}>
                 <table {...getTableProps()} style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                        {headerGroups.map(headerGroup => (
-                            <tr {...headerGroup.getHeaderGroupProps()}>
-                                {headerGroup.headers.map(column => (
-                                    <th {...column.getHeaderProps()}>
+                    <thead className={style.qualityTableHeader} >
+                        {headerGroups.map((headerGroup, i) => (
+                            <tr {...headerGroup.getHeaderGroupProps()} key={`headerGroup-${i}`}>
+                                {headerGroup.headers.map((column, j) => (
+                                    <th {...column.getHeaderProps()} key={`column-${j}`}>
                                         {column.render('Header')}
                                     </th>
                                 ))}
                             </tr>
                         ))}
                     </thead>
-                    <tbody {...getTableBodyProps()}>
-                        {rows.map(row => {
+                    <tbody {...getTableBodyProps()} className={style.qualityTableBody}>
+                        {rows.map((row, rowIndex) => {
                             prepareRow(row);
                             return (
-                                <tr {...row.getRowProps()}>
-                                    {row.cells.map(cell => (
-                                        <td {...cell.getCellProps()}>
+                                <tr {...row.getRowProps()} key={`row-${rowIndex}`}>
+                                    {row.cells.map((cell, cellIndex) => (
+                                        <td {...cell.getCellProps()} key={`cell-${rowIndex}-${cellIndex}`}>
                                             {cell.render('Cell')}
                                         </td>
                                     ))}
@@ -132,6 +140,7 @@ function InwardQuality() {
                         })}
                     </tbody>
                 </table>
+
             </div>
 
             {/* Popup component */}

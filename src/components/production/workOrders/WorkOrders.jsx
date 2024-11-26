@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useTable, usePagination } from 'react-table';
+import style from './workOrder.module.css'
 
 function WorkOrders() {
     const data = useMemo(
@@ -56,35 +57,40 @@ function WorkOrders() {
     );
 
     return (
-        <div className="allproduction">
-            <div className="info">
-                <h3>Production</h3>
+        <div className={style.allproduction}>
+            <div className={style.info}>
+                <h3>Production</h3> <span>/</span>
                 <p>Work Orders</p>
             </div>
-            <div className="allproduction-table">
-                <div className="allproduction-table-header">
-                    <div className='productionsearch'>
+            <div className={style.allproductionTable}>
+                <div className={style.allproductionTableHeader}>
+                    <div className={style.productionsearch}>
                         <input type="text" placeholder='Search' />
                     </div>
                 </div>
-                <div className="production-item-list">
-                    <table {...getTableProps()}>
-                        <thead>
-                            {headerGroups.map(headerGroup => (
-                                <tr {...headerGroup.getHeaderGroupProps()}>
-                                    {headerGroup.headers.map(column => (
-                                        <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+
+                <div className={style.productionItemList}>
+                    <table {...getTableProps()} className={style.productionItemTable}>
+                        <thead className={style.productionItemTableHeader}>
+                            {headerGroups.map((headerGroup, headerGroupIndex) => (
+                                <tr {...headerGroup.getHeaderGroupProps()} key={`headerGroup-${headerGroupIndex}`}>
+                                    {headerGroup.headers.map((column, columnIndex) => (
+                                        <th {...column.getHeaderProps()} key={`column-${columnIndex}`}>
+                                            {column.render('Header')}
+                                        </th>
                                     ))}
                                 </tr>
                             ))}
                         </thead>
-                        <tbody {...getTableBodyProps()}>
-                            {page.map(row => {
+                        <tbody {...getTableBodyProps()} className={style.productionItemTableBody}>
+                            {page.map((row, rowIndex) => {
                                 prepareRow(row);
                                 return (
-                                    <tr {...row.getRowProps()}>
-                                        {row.cells.map(cell => (
-                                            <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                                    <tr {...row.getRowProps()} key={`row-${rowIndex}`}>
+                                        {row.cells.map((cell, cellIndex) => (
+                                            <td {...cell.getCellProps()} key={`cell-${rowIndex}-${cellIndex}`}>
+                                                {cell.render('Cell')}
+                                            </td>
                                         ))}
                                     </tr>
                                 );
@@ -92,8 +98,9 @@ function WorkOrders() {
                         </tbody>
                     </table>
 
+
                 </div>
-                <div className="pagination">
+                <div className={style.pagination}>
 
                     <button onClick={() => previousPage()} disabled={!canPreviousPage}>
                         {'<'}

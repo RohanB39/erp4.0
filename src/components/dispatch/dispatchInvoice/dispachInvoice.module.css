@@ -1,0 +1,433 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap");
+
+:root {
+  /* Base Background Colors */
+  --primary-dark-bg: #0d1117; /* Main background */
+  --secondary-dark-bg: #161b22; /* Section/Container background */
+  --tertiary-dark-bg: #1a1f28; /* Card background */
+
+  /* Accent Colors */
+  --accent-blue: #2979ff; /* Primary action color */
+  --hover-blue: #4189ff; /* Hover state for actions */
+  --focused-blue: #5e92ff; /* Focused or active state */
+
+  /* Text Colors */
+  --primary-text: #e0e6ed; /* Main text */
+  --secondary-text: #aab2c0; /* Subtitles/secondary text */
+  --muted-text: #6e7681; /* Disabled or muted text */
+  --body-text: #b0b8c3; /* Body text inside cards */
+
+  /* Card Colors */
+  --card-bg: #1a1f28; /* Card background */
+  --card-hover-bg: #202632; /* Card hover background */
+  --card-header-bg: #161b22; /* Card header background */
+  --card-border: #2a2f38; /* Card border */
+  --card-hover-border: #3a4a5b; /* Card hover border */
+  --card-shadow: rgba(0, 0, 0, 0.3); /* Card shadow */
+
+  /* Icon Background Colors */
+  --icon-bg-primary: #2979ff; /* Primary icons */
+  --icon-bg-success: #43a047; /* Success icons */
+  --icon-bg-warning: #ffb300; /* Warning icons */
+  --icon-bg-error: #d32f2f; /* Error icons */
+  --icon-bg-neutral: #424e5a; /* Neutral/Info icons */
+  --icon-color: #ffffff; /* Icon color */
+  --icon-color-secondary: #e0e6ed; /* Secondary icon color */
+
+  /* Badge Colors */
+  --badge-bg-success: #43a047; /* Success badges */
+  --badge-bg-warning: #ffb300; /* Warning badges */
+  --badge-bg-error: #d32f2f; /* Error badges */
+  --badge-text-color: #ffffff; /* Badge text color */
+
+  /* Input Fields & Borders */
+  --input-bg: #202a36; /* Input fields, dropdowns */
+  --input-border: #3b4754; /* Input border */
+  --input-focus-border: #5e92ff; /* Focused input border */
+
+  /* Button Colors */
+  --button-bg-primary: #2979ff; /* Primary button background */
+  --button-hover-bg-primary: #4189ff; /* Primary button hover */
+  --button-text-primary: #ffffff; /* Primary button text */
+  --button-bg-secondary: #2b3a46; /* Secondary button background */
+  --button-hover-bg-secondary: #3a4a5b; /* Secondary button hover */
+  --button-text-secondary: #b0b8c3; /* Secondary button text */
+
+  /* Data Table Colors */
+  --table-header-bg: #202632; /* Table header background */
+  --table-row-bg: #1a1f28; /* Table row background */
+  --table-row-hover-bg: #232933; /* Table row hover background */
+  --table-border: #2a2f38; /* Table borders */
+  --table-header-text: #aab2c0; /* Table header text */
+  --table-row-text: #e0e6ed; /* Table row text */
+  --table-row-alt-bg: #161b22; /* Alternate row background */
+  --table-row-active-bg: #3a4a5b; /* Active row background (selected) */
+  --table-footer-bg: #1a1f28; /* Footer area background */
+
+  /* Pagination Colors */
+  --pagination-bg: #202632; /* Pagination background */
+  --pagination-text: #aab2c0; /* Pagination text */
+  --pagination-active-bg: #2979ff; /* Active page background */
+  --pagination-active-text: #ffffff; /* Active page text */
+  --pagination-hover-bg: #3a4a5b; /* Hover state for pagination */
+
+  /* Miscellaneous */
+  --loader-bg: #2979ff; /* Loader background */
+  --loader-track-bg: #1a1f28; /* Loader track background */
+
+  /* Chart Colors */
+  --chart-line-primary: #2979ff; /* Main chart line */
+  --chart-line-secondary: #43a047; /* Secondary chart line */
+  --chart-fill-bg: rgba(41, 121, 255, 0.2); /* Area fill under lines */
+  --chart-bar-primary: #2979ff; /* Bar chart primary */
+  --chart-bar-secondary: #43a047; /* Bar chart secondary */
+  --chart-bar-error: #d32f2f; /* Error bars */
+  --chart-pie-bg: #161b22; /* Pie chart background */
+  --chart-grid-line: #3a4a5b; /* Grid lines in charts */
+  --chart-axis-label: #aab2c0; /* Axis labels */
+
+  /* Sidebar & Navbar Colors */
+  --sidebar-bg: #161b22; /* Sidebar background */
+  --sidebar-item-bg-hover: #202632; /* Sidebar item hover background */
+  --sidebar-text-color: #aab2c0; /* Sidebar text color */
+  --sidebar-icon-color: #e0e6ed; /* Sidebar icon color */
+
+  --navbar-bg: #1a1f28; /* Navbar background */
+  --navbar-text-color: #e0e6ed; /* Navbar text color */
+  --navbar-border: #2a2f38; /* Navbar bottom border */
+  --navbar-icon-color: #ffffff; /* Navbar icons */
+
+  /* Font Sizes */
+  --font-size-xs: 12px; /* Small text (labels, footnotes, etc.) */
+  --font-size-sm: 14px; /* Secondary text (sub-labels, captions) */
+  --font-size-md: 16px; /* Base text (body content, table content) */
+  --font-size-lg: 18px; /* Slightly larger (section headings, subheaders) */
+  --font-size-xl: 20px; /* Titles or important labels */
+  --font-size-xxl: 24px; /* Main titles (dashboard page titles, cards titles) */
+  --font-size-xxxl: 32px; /* Large headings (Hero titles, major section headings) */
+
+  /* Font Weights */
+  --font-weight-regular: 400; /* Regular text */
+  --font-weight-medium: 500; /* Medium importance (buttons, card titles) */
+  --font-weight-semibold: 600; /* Emphasized text (important labels, headers) */
+  --font-weight-bold: 700; /* Bold text (primary headings, call-to-actions) */
+}
+
+.invoiceContainer {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  max-height: 100vh;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.invoiceForm {
+  width: 60%;
+  overflow-y: auto;
+  max-height: 100%;
+  padding-right: 12px;
+  margin-right: 1rem;
+}
+
+.invoiceFormHeader {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--badge-bg-error);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.returnIcon {
+  background-color: var(--card-bg);
+  padding: 8px;
+  font-size: 2rem;
+  color: white;
+  cursor: pointer;
+}
+.returnIcon:hover {
+  background-color: var(--pagination-bg);
+  color: var(--badge-bg-warning);
+}
+
+.invoiceFormHeader h3 {
+  color: var(--pagination-active-text);
+  font-size: 20px;
+  letter-spacing: 0.9px;
+  width: 100%;
+}
+.invoiceFormHeader p {
+  font-size: 14px;
+  letter-spacing: 0.9px;
+  color: var(--secondary-text);
+}
+.invoiceFormBody,
+.formBottomBody {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+.invoiceFormBody label,
+.formBottomBody label {
+  color: var(--secondary-text);
+  text-wrap: nowrap;
+  font-size: 14px;
+  letter-spacing: 0.9px;
+}
+.invoiceFormBody input,
+.invoiceFormBody select,
+.formBottomBody input,
+.formBottomBody select {
+  width: 100%;
+  background-color: transparent;
+  height: 5vh;
+  margin-bottom: 12px;
+  border: none;
+}
+.invoiceFormBody select,
+.formBottomBody select {
+  outline: 1px solid var(--input-border);
+  border-radius: 2px;
+  color: var(--secondary-text);
+  text-indent: 5px;
+  background-color: var(--primary-dark-bg);
+}
+.invoiceDataHeader h3 {
+  color: var(--pagination-active-text);
+  font-size: 16px;
+  letter-spacing: 0.9px;
+  font-weight: 500;
+  padding-bottom: 12px;
+}
+.invoiceItemTable {
+  width: 100%;
+}
+.invoiceItemTableHeader {
+  background-color: var(--table-header-bg);
+  height: 5vh;
+}
+.invoiceItemTableHeader th {
+  color: var(--secondary-text);
+  font-weight: 500;
+  font-size: 14px;
+}
+.invoiceItemTableBody tr {
+  color: var(--secondary-text);
+  text-align: center;
+  font-size: 14px;
+}
+.invoiceItemTableBody tr input {
+  background-color: transparent;
+  text-align: center;
+  outline: none;
+  margin-top: 8px;
+}
+.invoiceDetails {
+  padding: 2px 0px;
+  background-color: var(--card-header-bg);
+}
+.invoiceDetailsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-inline: 8px;
+}
+.invoiceDetailsHeader h3,
+.tallyBody h3 {
+  margin-top: unset;
+  padding-top: 0;
+  color: var(--pagination-active-text);
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.9px;
+}
+.invoiceDetailsHeader p,
+.tallyBody > div p {
+  color: var(--pagination-active-text);
+  font-size: 14px;
+  letter-spacing: 0.9px;
+  margin-top: 2px;
+}
+.tallyBody,
+.tallyBody > div {
+  display: flex;
+  justify-content: space-between;
+  padding-inline: 8px;
+  align-items: center;
+}
+.tallyBody > div {
+  gap: 12px;
+}
+.tallyBody input {
+  background-color: transparent;
+  width: 40px;
+}
+.checkboxes {
+  display: flex;
+  justify-content: space-between;
+  padding-inline: 8px;
+  flex-direction: column;
+}
+.checkboxes input {
+  outline: none;
+  margin-left: 12px;
+}
+.checkboxes label {
+  text-align: end;
+  color: var(--secondary-text);
+  font-size: 14px;
+  letter-spacing: 0.9px;
+  font-weight: 500;
+}
+.checkboxes input[type="check"] {
+  height: 5vh;
+  width: 14px;
+}
+
+.checkboxes > div {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+.checkboxes .checkedInput {
+  display: flex;
+}
+.checkboxes .checkedInput input {
+  width: 100%;
+}
+.checkboxGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-wrap: nowrap;
+}
+.checkboxes .checkedInput {
+  display: flex;
+}
+
+.checkboxGroup input[type="checkbox"] {
+  display: none;
+}
+
+.checkboxGroup label {
+  font-size: 14px;
+  position: relative;
+  padding-left: 2rem;
+  cursor: pointer;
+}
+
+.checkboxGroup label:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  outline: 1px solid #007bff;
+
+  background-color: transparent;
+  transition: background-color 0.3s;
+}
+
+.checkboxGroup input[type="checkbox"]:checked + label:before {
+  background-color: #007bff;
+}
+
+.checkboxGroup input[type="checkbox"]:checked + label:after {
+  content: "✓";
+  position: absolute;
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: #fff;
+}
+
+.checkboxes input[type="number"] {
+  width: 30%;
+
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+}
+.advance,
+.advance > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+  padding-inline: 8px;
+  align-items: center;
+}
+.advance > div input {
+  width: fit-content;
+  color: var(--secondary-text);
+}
+.advance label {
+  color: var(--badge-bg-warning);
+  font-size: 14px;
+  letter-spacing: 0.9px;
+  font-weight: 500;
+}
+.advance p {
+  color: var(--pagination-active-text);
+}
+.invoiceTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-inline: 8px;
+  padding-top: 1rem;
+  background-color: var(--input-bg);
+}
+.invoiceTotal h4 {
+  color: var(--pagination-active-text);
+  font-weight: 500;
+  letter-spacing: 0.9px;
+}
+.invoiceTotal p {
+  color: var(--pagination-active-text);
+}
+.invoiceBottomInfo {
+  background-color: var(--primary-dark-bg);
+  padding-top: 12px;
+}
+.invoiceBottomInfo h4 {
+  color: var(--chart-line-primary);
+  font-weight: 500;
+  font-size: 14px;
+  padding-bottom: 4px;
+}
+.invoiceBottomInfo textarea {
+  width: 100%;
+  background-color: transparent;
+  border: 1px solid var(--input-border);
+  min-width: 100%;
+  max-width: 100%;
+  min-height: 20vh;
+  max-height: 30vh;
+  outline: none;
+  text-indent: 8px;
+  padding: 8px;
+  color: var(--secondary-text);
+  letter-spacing: 0.9px;
+  font-weight: 500;
+}
+.invoiceBottomInfo input {
+  width: 100%;
+  background-color: transparent;
+  font-size: 14px;
+}
+.invoiceBtns {
+  display: flex;
+  gap: 12px;
+  justify-content: end;
+  margin-top: 12px;
+  margin-bottom: 1rem;
+}
+.invoiceBtns button {
+  padding-inline: 8px;
+  font-size: 14px;
+}

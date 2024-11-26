@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getFirestore, collection, doc, setDoc } from 'firebase/firestore';
 import { app } from '../../firebase/FirebaseConfig';
-import './addMachines.css'
+import style from './addMachines.module.css';
 
 const AddMachines = () => {
   const [uniqueId, setUniqueId] = useState('');
@@ -16,9 +16,6 @@ const AddMachines = () => {
   const [installationDate, setInstallationDate] = useState('');
   const [operatingLocation, setOperatingLocation] = useState('');
   const [machineStatus, setMachineStatus] = useState('');
-  const [machinePrice, setMachinePrice] = useState('');
-  const [vendorInvoice, setVendorInvoice] = useState('');
-  const [paymentStatus, setPaymentStatus] = useState('');
 
   const machineTypes = [
     "Lathe Machine",
@@ -154,9 +151,6 @@ const AddMachines = () => {
   const handleInstallationDateChange = (e) => setInstallationDate(e.target.value);
   const handleoperationLocationChange = (e) => setOperatingLocation(e.target.value);
   const handleMachineStatus = (e) => setMachineStatus(e.target.value);
-  const handleMachinePriceChange = (e) => setMachinePrice(e.target.value);
-  const handleVendorInvoiceChange = (e) => setVendorInvoice(e.target.value);
-  const handlePaymentStatus = (e) => setPaymentStatus(e.target.value);
 
   const handleSaveMachine = async () => {
     const db = getFirestore(app);
@@ -171,9 +165,6 @@ const AddMachines = () => {
       purchaseDate,
       installationDate,
       operatingLocation,
-      vendorInvoice,
-      machinePrice,
-      paymentStatus,
       machineStatus,
     };
 
@@ -187,11 +178,18 @@ const AddMachines = () => {
   };
 
   return (
-    <div className='main' id='main'>
-      <div className="demandConteiner">
-        <h4>Add Machines</h4>
-        <div className="demandHeader">
-          <div>
+    <div className={style.addMachineWrapper}>
+      <div className={style.demandConteiner}>
+        <div className={style.title}>
+          <i class="ri-add-line"></i>
+          <h4>Add Machines</h4>
+        </div>
+        <hr className='hr' />
+        <div className={style.demandInputContainer}>
+
+
+          <div className={style.demandHeader}>
+
             <label htmlFor="uniqueId">Machine ID : </label>
             <input
               type="text"
@@ -199,8 +197,8 @@ const AddMachines = () => {
               value={uniqueId}
               readOnly
             />
-          </div>
-          <div>
+
+
             <label htmlFor="requestDate">Date : </label>
             <input
               type="date"
@@ -208,11 +206,11 @@ const AddMachines = () => {
               value={requestDate}
               onChange={handleDateChange}
             />
-          </div>
-          <hr />
-        </div>
-        <div className="prioritySelections">
-          <div>
+
+
+
+
+
             <label htmlFor="machineName">Machine Name:</label>
             <input
               type="text"
@@ -223,9 +221,9 @@ const AddMachines = () => {
               style={{ marginRight: '10px' }}
               required
             />
-          </div>
 
-          <div>
+
+
             <label htmlFor="machineType">Machine Type:</label>
             <select
               id="priority"
@@ -239,9 +237,8 @@ const AddMachines = () => {
                 </option>
               ))}
             </select>
-          </div>
 
-          <div>
+
             <label htmlFor="ManufacturerName">Manufacturer Name:</label>
             <input
               type="text"
@@ -252,11 +249,10 @@ const AddMachines = () => {
               style={{ marginRight: '10px' }}
               required
             />
-          </div>
-        </div>
-        <hr />
-        <div className="models">
-          <div>
+
+
+
+
             <label htmlFor="machineName">Model Number:</label>
             <input
               type="text"
@@ -267,9 +263,8 @@ const AddMachines = () => {
               style={{ marginRight: '10px' }}
               required
             />
-          </div>
 
-          <div>
+
             <label htmlFor="machineName">Serial Number:</label>
             <input
               type="text"
@@ -280,9 +275,9 @@ const AddMachines = () => {
               style={{ marginRight: '10px' }}
               required
             />
-          </div>
 
-          <div>
+
+
             <label htmlFor="ManufacturerName">Year of Manufacture</label>
             <input
               type="date"
@@ -293,10 +288,10 @@ const AddMachines = () => {
               style={{ marginRight: '10px' }}
               required
             />
-          </div>
 
 
-          <div>
+
+
             <label htmlFor="machineName">Purchase Date:</label>
             <input
               type="date"
@@ -307,9 +302,9 @@ const AddMachines = () => {
               style={{ marginRight: '10px' }}
               required
             />
-          </div>
 
-          <div>
+
+
             <label htmlFor="machineName">Installation Date:</label>
             <input
               type="date"
@@ -320,9 +315,9 @@ const AddMachines = () => {
               style={{ marginRight: '10px' }}
               required
             />
-          </div>
 
-          <div>
+
+
             <label htmlFor="ManufacturerName">Operating Location:</label>
             <input
               type="text"
@@ -333,51 +328,8 @@ const AddMachines = () => {
               style={{ marginRight: '10px' }}
               required
             />
-          </div>
 
-          <div>
-            <label htmlFor="vendorInvoice">Vendor Invoice:</label>
-            <input
-              type="text"
-              id="vendorInvoice"
-              value={vendorInvoice}
-              onChange={handleVendorInvoiceChange}
-              placeholder="Enter Invoice Number"
-              style={{ marginRight: '10px' }}
-              required
-            />
-          </div>
 
-          <div>
-            <label htmlFor="ManufacturerName">Machine Price:</label>
-            <input
-              type="number"
-              id="machineprice"
-              value={machinePrice}
-              onChange={handleMachinePriceChange}
-              placeholder="Enter Machine Price"
-              style={{ marginRight: '10px' }}
-              required
-            />
-          </div>
-
-          <div>
-            <label htmlFor="paymentStatus">Payment Status:</label>
-            <select
-              id="payment"
-              value={paymentStatus}
-              onChange={handlePaymentStatus}
-            >
-              <option value="" disabled>Select Payment Status</option>
-              <option value="cash" >Cash</option>
-              <option value="internetBanking">Internet Banking</option>
-              <option value="upi">UPI</option>
-              <option value="creditCard">Credit Card</option>
-              <option value="debitCard">Debit Card</option>
-            </select>
-          </div>
-
-          <div>
             <label htmlFor="machineName">Machine Status:</label>
             <select
               id="priority"
@@ -389,9 +341,10 @@ const AddMachines = () => {
               <option value="Inactive">Inactive</option>
               <option value="Under Maintenance">Under Maintenance</option>
             </select>
+
           </div>
         </div>
-        <button onClick={handleSaveMachine} className='submit-button'>
+        <button onClick={handleSaveMachine} className={style.addBtn}>
           Add Machine
         </button>
       </div>

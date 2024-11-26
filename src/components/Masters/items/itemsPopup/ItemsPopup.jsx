@@ -3,7 +3,7 @@ import { fireDB } from "../../../firebase/FirebaseConfig";
 import { collection, getDocs, setDoc, doc } from "firebase/firestore";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-// import "./itemsPopup.css";
+import style from '../../customer/customerPopup/popup.module.css';
 
 const ItemsPopup = ({ onClose }) => {
     const [uniqueID, setUniqueID] = useState("");
@@ -21,6 +21,8 @@ const ItemsPopup = ({ onClose }) => {
     const [qty, setQty] = useState("");
     const [status] = useState("QC Pending");
     const [unit, setUnit] = useState("Nos");
+    const [price, setPrice] = useState("");
+    const [totalPrice, setTotalPrice] = useState("");
 
     const generateUniqueID = (name) => {
         const initials = name.split(' ').map(word => word.charAt(0).toLowerCase()).join('');
@@ -84,6 +86,8 @@ const ItemsPopup = ({ onClose }) => {
                 batchDate: batchDate.toISOString(),
                 qty: fullQty,
                 status,
+                perItemPrice: price,
+                price: totalPrice,
                 materialId: uniqueID
             });
             alert("Item added successfully!");
@@ -104,52 +108,66 @@ const ItemsPopup = ({ onClose }) => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        if (qty && price) {
+            setTotalPrice((parseFloat(qty) * parseFloat(price)).toFixed(2));
+        } else {
+            setTotalPrice("");
+        }
+    }, [qty, price]);
+
+
+
     return (
-        <div className="popup-overlay">
-            <div className="popup-content" ref={dropdownRef}>
-                <div className="form-head">
-                    <h3 >Add Item</h3>
-                    <button onClick={onClose}>x
+        <div className={style.popupOverlay}>
+            <div className={style.popupContent} ref={dropdownRef}>
+                <div className={style.formHead}>
+                    <h4>Add Item</h4>
+                    <button onClick={onClose} className={style.closeButton}>
+                        <i className="ri-close-line"></i>
                     </button>
                 </div>
                 <hr />
-                <form onSubmit={handleSubmit}>
-                    <div className="selectForminput">
-
-
+                <form onSubmit={handleSubmit} >
+                    {/* Vendor Section */}
+                    <div className={style.formGroup}>
+                        <label>Vendor ID</label>
                         <input
                             type="text"
                             placeholder="Vendor Id"
                             value={vendorId}
                             readOnly
                         />
+
+                        <label>Vendor Name</label>
                         <div className="custom-dropdown">
                             <input
                                 type="text"
-                                placeholder="Select Vendor"
+                                placeholder="Search Vendor"
                                 value={searchTerm}
                                 onChange={handleInputChange}
                                 onClick={() => setIsDropdownOpen(searchTerm.length > 0)}
                             />
-                            {isDropdownOpen && filteredVendors.length > 0 && (
-                                <div className="dropdown-options">
-                                    {filteredVendors.map(vendor => (
-                                        <div
-                                            key={vendor.id}
-                                            className="dropdown-option"
-                                            onClick={() => handleOptionSelect(vendor)}
-                                        >
-                                            {vendor.name}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            {isDropdownOpen && filteredVendors.length === 0 && (
-                                <div className="dropdown-option">
-                                    No vendors found
+                            {isDropdownOpen && (
+                                <div className={style.dropdownOptions}>
+                                    {filteredVendors.length > 0 ? (
+                                        filteredVendors.map((vendor) => (
+                                            <div
+                                                key={vendor.id}
+                                                className="dropdown-option"
+                                                onClick={() => handleOptionSelect(vendor)}
+                                            >
+                                                {vendor.name}
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className={style.dropdownOptionsMsg}>No vendors found</div>
+                                    )}
                                 </div>
                             )}
                         </div>
+
+                        <label>Material Type</label>
                         <select
                             value={materialType}
                             onChange={(e) => setMaterialType(e.target.value)}
@@ -157,11 +175,13 @@ const ItemsPopup = ({ onClose }) => {
                         >
                             <option value="">Select Material Type</option>
                             <option value="Raw Material">Raw Material</option>
-                            <option value="Semi Finished Material">Semi Finished Material</option>
+                            <option value="Semi Finished Material">
+                                Semi Finished Material
+                            </option>
                             <option value="Finished Material">Finished Material</option>
                         </select>
-                    </div>
-                    <div className="selectForminput">
+
+                        <label>Material Name</label>
                         <input
                             type="text"
                             placeholder="Material Name"
@@ -169,6 +189,8 @@ const ItemsPopup = ({ onClose }) => {
                             onChange={(e) => setMaterialName(e.target.value)}
                             required
                         />
+
+                        <label>Specifications</label>
                         <input
                             type="text"
                             placeholder="Specifications"
@@ -176,6 +198,8 @@ const ItemsPopup = ({ onClose }) => {
                             onChange={(e) => setSpecifications(e.target.value)}
                             required
                         />
+
+                        <label>HSN Code</label>
                         <input
                             type="text"
                             placeholder="HSN Code"
@@ -183,8 +207,8 @@ const ItemsPopup = ({ onClose }) => {
                             onChange={(e) => setHsnCode(e.target.value)}
                             required
                         />
-                    </div>
-                    <div className="selectForminput">
+
+                        <label>Batch Number</label>
                         <input
                             type="text"
                             placeholder="Batch Number"
@@ -192,6 +216,18 @@ const ItemsPopup = ({ onClose }) => {
                             onChange={(e) => setBatchNumber(e.target.value)}
                             required
                         />
+
+                        <label>Batch Date</label>
+                        <DatePicker
+                            selected={batchDate}
+                            onChange={(date) => setBatchDate(date)}
+                            dateFormat="dd/MM/yyyy"
+                            className="date-picker"
+                            placeholderText="Batch Date"
+                            required
+                        />
+
+                        <label>Quantity</label>
                         <input
                             type="text"
                             placeholder="Quantity"
@@ -199,7 +235,13 @@ const ItemsPopup = ({ onClose }) => {
                             onChange={(e) => setQty(e.target.value)}
                             required
                         />
-                        <select value={unit} onChange={(e) => setUnit(e.target.value)} required>
+
+                        <label>Unit</label>
+                        <select
+                            value={unit}
+                            onChange={(e) => setUnit(e.target.value)}
+                            required
+                        >
                             <option value="Nos">Nos</option>
                             <option value="KG">KG</option>
                             <option value="GRAM">GRAM</option>
@@ -210,36 +252,50 @@ const ItemsPopup = ({ onClose }) => {
                             <option value="LITER">LITER</option>
                             <option value="OTHER">OTHER</option>
                         </select>
-                    </div>
-                    <div className="selectForminput">
+
+
+
+
+                        <label>Price Per Unit</label>
                         <input
-                            type="hidden"
-                            value={status}
-                        />
-
-                        <DatePicker
-                            selected={batchDate}
-                            onChange={date => setBatchDate(date)}
-                            dateFormat="dd/MM/yyyy"
-                            className="date-picker"
-                            placeholderText="Batch Date"
-
+                            type="text"
+                            placeholder="Price Per Unit"
+                            value={price}
+                            onChange={(e) => setPrice(e.target.value)}
                             required
                         />
-                    </div>
 
-                    <input
-                        type="text"
-                        className="faxInput"
-                        placeholder="Material Id"
-                        value={uniqueID}
-                        readOnly
-                    />
-                    <button type="submit" className="submit-button">Add</button>
+
+                        <label>Total Price</label>
+                        <input
+                            type="text"
+                            placeholder="Total Price"
+                            value={totalPrice}
+                            readOnly
+                        />
+
+
+
+
+
+                        <label>Material ID</label>
+                        <input
+                            type="text"
+                            placeholder="Material ID"
+                            value={uniqueID}
+                            readOnly
+                        />
+                    </div>
+                    <br />
+
+                    {/* Submit Button */}
+                    <button type="submit" className="submit-button">
+                        Add Item
+                    </button>
                 </form>
             </div>
-
         </div>
+
     );
 };
 

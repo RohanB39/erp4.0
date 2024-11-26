@@ -2,6 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { fireDB } from '../../../firebase/FirebaseConfig';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
+import style from './sales.module.css';
+
+
+import { PiCurrencyInr } from "react-icons/pi";
+
 const SaleTable = () => {
     const [receivables, setReceivables] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -42,26 +47,20 @@ const SaleTable = () => {
     }
 
     return (
-        <div>
-            <h2>Total Sale</h2>
-            <div style={{
-                padding: '20px',
-                margin: '20px 0',
-                backgroundColor: '#f9f9f9',
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-                textAlign: 'center',
-                fontSize: '18px',
-                fontWeight: 'bold',
-                color: '#333',
-                width: '30%',
-                color: 'green',
-            }}>
-                Total Credit : {totalAmount.toFixed(2)} Rs
+        <div className={style.Saleswrapper}>
+            <div className={style.salesHeader}>
+                <div className={style.title}>
+                    <h2>Total Sales</h2>
+                    <p>Overview of total sales data</p>
+
+                </div>
+                <div className={style.salesTotalCredit}>
+                    <span><PiCurrencyInr className={style.icon} /> {totalAmount.toFixed(2)} </span>
+                    Total Credit
+                </div>
             </div>
-            <table>
-                <thead>
+            <table className={style.salesTable}>
+                <thead className={style.salesTableHeader}>
                     <tr>
                         <th>SR/No</th>
                         <th>Invoice No</th>
@@ -74,7 +73,7 @@ const SaleTable = () => {
                         <th>Amount</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className={style.salesTableBody}>
                     {receivables.map((receivable, index) => (
                         <tr key={receivable.id}>
                             <td>{index + 1}</td>

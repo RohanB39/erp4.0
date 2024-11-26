@@ -243,7 +243,7 @@ const Attendance = () => {
     return (
         <>
             <div className="attendence-bg">
-                <div className="main" id="main">
+                <div>
                     <div className="attendace-head-content">
                         <div className="attendace-title">
                             <h3>Attendance</h3>

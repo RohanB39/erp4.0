@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTable, usePagination } from 'react-table';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, getFirestore } from 'firebase/firestore';
 import { fireDB } from '../firebase/FirebaseConfig';
-import './dispach.css';
+
+import style from './dispach.module.css';
 import EditInvoicePopup from './editDispatchInvoicePopup/EditInvoicePopup';
 import EditDirectdispatchPopup from './editDirectDispatchPopup/EditDirectdispatchPopup';
 import PaymentUpdatePopup from './paymentUpdatePopup/PaymentUpdatePopup';
@@ -14,8 +15,9 @@ function Dispach() {
   const [productionOrders, setProductionOrders] = useState([]);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isDDPopup, setisDDPopup] = useState(false);
-  const [selectedInvoice, setSelectedInvoice] = useState(null); 
-  const [selectedDD, setselectedDD] = useState(null); 
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [selectedDD, setselectedDD] = useState(null);
+  const db = getFirestore();
   const [isPaymentPopupOpen, setIsPaymentPopupOpen] = useState(false);
   const [selectedRowData, setSelectedRowData] = useState(null);
 
@@ -23,34 +25,32 @@ function Dispach() {
     const fetchProductionOrders = async () => {
       try {
         const productionOrdersCollection = collection(fireDB, 'Production_Orders');
-        const productionQuery = query(
-          productionOrdersCollection,
-          where('dispatchOrInventory', '==', 'Dispatch'),
-          where('progressStatus', '==', 'Ready To Dispatch'),
-          where('productionStatus', '==', 'Production Completed')
-        );
+        const productionQuery = query(productionOrdersCollection, where('dispatchOrInventory', '==', 'Dispatch'));
         const querySnapshot = await getDocs(productionQuery);
-  
+
         const fetchedData = querySnapshot.docs.map(doc => {
           const data = doc.data();
-          const dispatchData = data.dispatchData || [];
+          const dispatchData = data.dispatchData || []; // Default to empty array if not present
+
+          // Ensure dispatchData has elements before accessing the first element
           const dispatchInfo = dispatchData.length > 0 ? dispatchData[0] : {};
+
           return {
             ...data,
             dispatchInvoiceNo: dispatchInfo.invoiceNo, // Set invoiceNo from the first dispatchData
             dispatchCustomerName: dispatchInfo.customerName, // Set customerName from the first dispatchData
           };
         });
-  
+
         setProductionOrdersData(fetchedData);
       } catch (error) {
         console.error('Error fetching production orders: ', error);
       }
     };
-  
+
     fetchProductionOrders();
   }, []);
-  
+
 
   useEffect(() => {
     const fetchDispatchOrders = async () => {
@@ -113,7 +113,6 @@ function Dispach() {
     setIsPaymentPopupOpen(false);
   };
 
-  // Columns for dispatch details
   const dispatchColumns = useMemo(
     () => [
       {
@@ -126,7 +125,7 @@ function Dispach() {
       },
       {
         Header: 'Time of Dispatch',
-        accessor: row => row.dispatchDetails.dispatchTime 
+        accessor: row => row.dispatchDetails.dispatchTime
       },
       {
         Header: 'Dispatch Vehicle',
@@ -152,9 +151,9 @@ function Dispach() {
         Header: 'Payment',
         Cell: ({ row }) => (
           <button
-            onClick={() => handlePaymentUpdate(row.original)} 
+            onClick={() => handlePaymentUpdate(row.original)}
           >
-            Update Payment Status
+            <i className="ri-refresh-line"></i>
           </button>
         )
       }
@@ -162,7 +161,7 @@ function Dispach() {
     []
   );
 
-  // Columns for Dispatch Orders Table
+  // Columns for Dispatch Operations Table
   const productionOrdersColumns = useMemo(
     () => [
       {
@@ -196,14 +195,13 @@ function Dispach() {
       {
         Header: 'Action',
         accessor: (row) => (
-          <button onClick={() => DirectDispatchEditHandle(row)}>Edit</button>
+          <button onClick={() => DirectDispatchEditHandle(row)}><i className="ri-edit-2-fill"></i></button>
         ),
       },
     ],
     []
   );
 
-  // Columns for dispatch invoice
   const dispatchInvoiceColumns = useMemo(
     () => [
       {
@@ -241,7 +239,7 @@ function Dispach() {
       {
         Header: 'Action',
         accessor: (row) => (
-          <button onClick={() => handleEdit(row)}>Edit</button>
+          <button onClick={() => handleEdit(row)}><i className="ri-edit-2-fill"></i></button>
         ),
       },
     ],
@@ -270,7 +268,7 @@ function Dispach() {
     usePagination
   );
 
-  // Dispatch Orders Table configuration
+  // Dispatch Operations Table configuration
   const {
     getTableProps: getProductionTableProps,
     getTableBodyProps: getProductionTableBodyProps,
@@ -315,166 +313,208 @@ function Dispach() {
 
   return (
     <>
-      <div className="dispach-container">
-        <div id="main">
-          <div className="dispach-title">
-            <div>
+      <div className={style.dispatchWrapper}>
+        <div className={style.dispachHeader}>
+          <div className={style.dispachHead}>
+
+            <div className={style.dispachTitle}>
+              <i className="ri-send-plane-line"></i>
               <h3>Overview of Dispatch Items</h3>
-              <p>See the updated items for dispatch work here.</p>
             </div>
+            <p>See the updated items for dispatch work here.</p>
+          </div>
+
+
+          <div className={style.dispachBtns}>
+            <Link to={'/DispachInvoice'}>
+              <button><i className="ri-file-add-line"></i> Create Invoice</button>
+            </Link>
+            <Link to={'/Packging'}>
+              <button><i className="ri-red-packet-line"></i> Packaging</button>
+            </Link>
+          </div>
+
+        </div>
+        <hr className='hr' />
+
+
+
+        {/* Dispatch Details Table */}
+        <div className={style.dispachTableContainer} >
+          <div className={style.title}>
             <div>
-              <Link to={'/DispachInvoice'}>
-                <button>Create Invoice</button>
-              </Link>
-              <Link to={'/Packging'}>
-                <button>Packaging</button>
-              </Link>
+
+              <i className="ri-file-list-line"></i>
+              <h4>Dispatch Details</h4>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Dispatch Details Table */}
-      <div className="dispach-table-container" id="main">
-        <div>
-          <h4>Dispatch Details</h4>
-        </div>
-        <div className="dispach-table">
-          <table {...getDispatchTableProps()} className="table">
-            <thead>
-              {dispatchHeaderGroups.map(headerGroup => (
-                <tr {...headerGroup.getHeaderGroupProps()}>
-                  {headerGroup.headers.map(column => (
-                    <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody {...getDispatchTableBodyProps()}>
-              {dispatchPage.map(row => {
-                prepareDispatchRow(row);
-                return (
-                  <tr {...row.getRowProps()}>
-                    {row.cells.map(cell => (
-                      <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+          <div className={style.dispachTable}>
+            <table {...getDispatchTableProps()} className={style.table}>
+              <thead className={style.dispachTableHeader}>
+                {dispatchHeaderGroups.map((headerGroup, headerGroupIndex) => (
+                  <tr {...headerGroup.getHeaderGroupProps()} key={`headerGroup-${headerGroupIndex}`}>
+                    {headerGroup.headers.map((column, columnIndex) => (
+                      <th {...column.getHeaderProps()} key={`column-${columnIndex}`}>
+                        {column.render('Header')}
+                      </th>
                     ))}
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <div className="pagination">
-          <button onClick={() => previousDispatchPage()} disabled={!canPreviousDispatchPage}>
-            {'<'}
-          </button>
-          <span>
-            {dispatchPageIndex + 1} of {dispatchPageOptions.length}
-          </span>
-          <button onClick={() => nextDispatchPage()} disabled={!canNextDispatchPage}>
-            {'>'}
-          </button>
-        </div>
-        <div>
-        </div>
-        <div>
-          <h4>Dispatch Orders</h4>
-        </div>
-        <div className="dispach-table">
-          <table {...getProductionTableProps()} className="table">
-            <thead>
-              {productionHeaderGroups.map(headerGroup => (
-                <tr {...headerGroup.getHeaderGroupProps()}>
-                  {headerGroup.headers.map(column => (
-                    <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody {...getProductionTableBodyProps()}>
-              {productionPage.map(row => {
-                prepareProductionRow(row);
-                return (
-                  <tr {...row.getRowProps()}>
-                    {row.cells.map(cell => (
-                      <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                ))}
+              </thead>
+              <tbody {...getDispatchTableBodyProps()} className={style.dispachTableBody}>
+                {dispatchPage.map((row, rowIndex) => {
+                  prepareDispatchRow(row);
+                  return (
+                    <tr {...row.getRowProps()} key={`row-${rowIndex}`}>
+                      {row.cells.map((cell, cellIndex) => (
+                        <td {...cell.getCellProps()} key={`cell-${rowIndex}-${cellIndex}`}>
+                          {cell.render('Cell')}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+          </div>
+          <div className={style.pagination}>
+            <button onClick={() => previousDispatchPage()} disabled={!canPreviousDispatchPage}>
+              {'<'}
+            </button>
+            <span>
+              {dispatchPageIndex + 1} of {dispatchPageOptions.length}
+            </span>
+            <button onClick={() => nextDispatchPage()} disabled={!canNextDispatchPage}>
+              {'>'}
+            </button>
+          </div>
+          <hr className='hr' />
+          <div className={style.title}>
+            <div>
+
+              <i className="ri-send-plane-line"></i>
+              <h4>Dispatch Orders</h4>
+            </div>
+
+          </div>
+          <div className={style.dispachTable}>
+            <table {...getProductionTableProps()} className={style.table}>
+              <thead className={style.dispachTableHeader}>
+                {productionHeaderGroups.map((headerGroup, headerGroupIndex) => (
+                  <tr {...headerGroup.getHeaderGroupProps()} key={`headerGroup-${headerGroupIndex}`}>
+                    {headerGroup.headers.map((column, columnIndex) => (
+                      <th {...column.getHeaderProps()} key={`column-${columnIndex}`}>
+                        {column.render('Header')}
+                      </th>
                     ))}
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <div className="pagination">
-          <button onClick={() => previousProductionPage()} disabled={!canPreviousProductionPage}>
-            {'<'}
-          </button>
-          <span>
-            {productionPageIndex + 1} of {productionPageOptions.length}
-          </span>
-          <button onClick={() => nextProductionPage()} disabled={!canNextProductionPage}>
-            {'>'}
-          </button>
-        </div>
+                ))}
+              </thead>
+              <tbody {...getProductionTableBodyProps()} className={style.dispachTableBody}>
+                {productionPage.map((row, rowIndex) => {
+                  prepareProductionRow(row);
+                  return (
+                    <tr {...row.getRowProps()} key={`row-${rowIndex}`}>
+                      {row.cells.map((cell, cellIndex) => (
+                        <td {...cell.getCellProps()} key={`cell-${rowIndex}-${cellIndex}`}>
+                          {cell.render('Cell')}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
 
+          </div>
+          <div className={style.pagination}>
+            <button onClick={() => previousProductionPage()} disabled={!canPreviousProductionPage}>
+              {'<'}
+            </button>
+            <span>
+              {productionPageIndex + 1} of {productionPageOptions.length}
+            </span>
+            <button onClick={() => nextProductionPage()} disabled={!canNextProductionPage}>
+              {'>'}
+            </button>
+          </div>
 
-        <div>
-          <h4>Invoices</h4>
-        </div>
-        <div className="dispach-table">
-          <table {...getInvoiceTableProps()} className="table">
-            <thead>
-              {InvoiceHeaderGroups.map(headerGroup => (
-                <tr {...headerGroup.getHeaderGroupProps()}>
-                  {headerGroup.headers.map(column => (
-                    <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody {...getInvoiceTableBodyProps()}>
-              {InvoicePage.map(row => {
-                prepareInvoiceRow(row);
-                return (
-                  <tr {...row.getRowProps()}>
-                    {row.cells.map(cell => (
-                      <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+          <hr className='hr' />
+          <div className={style.title}>
+            <div>
+
+              <i className="ri-receipt-line"></i>
+              <h4>Invoices</h4>
+            </div>
+          </div>
+          <div className={style.dispachTable}>
+            <table {...getInvoiceTableProps()} className={style.table}>
+              <thead className={style.dispachTableHeader}>
+                {InvoiceHeaderGroups.map((headerGroup, headerGroupIndex) => (
+                  <tr {...headerGroup.getHeaderGroupProps()} key={`headerGroup-${headerGroupIndex}`}>
+                    {headerGroup.headers.map((column, columnIndex) => (
+                      <th {...column.getHeaderProps()} key={`column-${columnIndex}`}>
+                        {column.render('Header')}
+                      </th>
                     ))}
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                ))}
+              </thead>
+              <tbody {...getInvoiceTableBodyProps()} className={style.dispachTableBody}>
+                {InvoicePage.map((row, rowIndex) => {
+                  prepareInvoiceRow(row);
+                  return (
+                    <tr {...row.getRowProps()} key={`row-${rowIndex}`}>
+                      {row.cells.map((cell, cellIndex) => (
+                        <td {...cell.getCellProps()} key={`cell-${rowIndex}-${cellIndex}`}>
+                          {cell.render('Cell')}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+          </div>
+          <div className={style.pagination}>
+            <button onClick={() => previousInvoicePage()} disabled={!canPreviousInvoicePage}>
+              {'<'}
+            </button>
+            <span>
+              {InvoicePageIndex + 1} of {InvoicePageOptions.length}
+            </span>
+            <button onClick={() => nextInvoicePage()} disabled={!canNextInvoicePage}>
+              {'>'}
+            </button>
+          </div>
+          {
+            isPopupOpen && (
+              <EditInvoicePopup
+                invoice={selectedInvoice}
+                onClose={closePopup}
+              />
+            )
+          }
+          {
+            isDDPopup && (
+              <EditDirectdispatchPopup
+                invoice={selectedDD}
+                onClose={closeDD}
+              />
+            )
+          }
+          {
+            isPaymentPopupOpen && (
+              <PaymentUpdatePopup
+                rowData={selectedRowData}
+                onClose={handleClosePopup}
+              />
+            )
+          }
+
         </div>
-        <div className="pagination">
-          <button onClick={() => previousInvoicePage()} disabled={!canPreviousInvoicePage}>
-            {'<'}
-          </button>
-          <span>
-            {InvoicePageIndex + 1} of {InvoicePageOptions.length}
-          </span>
-          <button onClick={() => nextInvoicePage()} disabled={!canNextInvoicePage}>
-            {'>'}
-          </button>
-        </div>
-        {isPopupOpen && (
-          <EditInvoicePopup
-            invoice={selectedInvoice}
-            onClose={closePopup}
-          />
-        )}
-        {isDDPopup && (
-          <EditDirectdispatchPopup
-            invoice={selectedDD}
-            onClose={closeDD}
-          />
-        )}
-        {isPaymentPopupOpen && (
-        <PaymentUpdatePopup
-          rowData={selectedRowData}
-          onClose={handleClosePopup}
-        />
-      )}
       </div>
     </>
   );

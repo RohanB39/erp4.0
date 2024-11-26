@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fireDB, query, where, collection, getDocs } from '../../../firebase/FirebaseConfig';
+import style from './cash.module.css';
 
 const CashFlow = () => {
     const [cashFlowData, setCashFlowData] = useState([]);
@@ -147,26 +148,26 @@ const CashFlow = () => {
 
 
     return (
-        <div>
-            <h2>Cash Received</h2>
-            <div style={{
-                padding: '20px',
-                margin: '20px 0',
-                backgroundColor: '#f9f9f9',
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-                textAlign: 'center',
-                fontSize: '18px',
-                fontWeight: 'bold',
-                color: '#333',
-                width: '40%',
-                color: 'green',
-            }}>
-                Total Cash Recived : {totalAmount.toFixed(2)} Rs
+        <div className={style.Wrapper}>
+            <div className={style.header}>
+
+                <div className={style.title}>
+
+                    <i className="ri-cash-line"></i>
+                    <h4>Cash Received</h4>
+                </div>
+                <div className={style.cash}>
+                    <div>
+                        {totalAmount.toFixed(2)} RS
+                    </div>
+
+                    <span>  Total Cash Recived</span>
+
+                </div>
             </div>
-            <table>
-                <thead>
+            <hr className='hr' />
+            <table className={style.table}>
+                <thead className={style.tableHeader}>
                     <tr>
                         <th>Customer</th>
                         <th>Invoice No</th>
@@ -174,7 +175,7 @@ const CashFlow = () => {
                         <th>Amount</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className={style.tableBody}>
                     {currentRows.length > 0 ? (
                         currentRows.map((entry) => (
                             <tr key={entry.id}>
@@ -193,40 +194,37 @@ const CashFlow = () => {
             </table>
 
             {/* Pagination controls */}
-            <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className={style.pagination}>
                 <button onClick={handlePreviousPage} disabled={currentPage === 1}>
-                    Previous
+                    {'<'}
                 </button>
-                <span>Page {currentPage} of {totalPages}</span>
+                <span> {currentPage} of {totalPages}</span>
                 <button onClick={handleNextPage} disabled={currentPage === totalPages}>
-                    Next
+                    {'>'}
                 </button>
             </div>
 
-            <div style={{ marginTop: '30px' }}>
-
-            </div>
+            <hr />
 
             {/* Cash Paid Section */}
-            <h2>Cash Paid</h2>
-            <div style={{
-                padding: '20px',
-                margin: '20px 0',
-                backgroundColor: '#f9f9f9',
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-                textAlign: 'center',
-                fontSize: '18px',
-                fontWeight: 'bold',
-                color: '#333',
-                width: '40%',
-                color: 'red',
-            }}>
-                Total Cash Paid : {totalCashPaidAmount.toFixed(2)} Rs
+            <div className={style.header}>
+                <div className={style.title}>
+
+                    <i className="ri-cash-line"></i>
+
+                    <h4>Cash Paid</h4>
+                </div>
+                <div className={style.cash}>
+                    <div>
+                        {totalCashPaidAmount.toFixed(2)} Rs
+                    </div>
+                    <span>  Total Cash Paid </span>
+
+                </div>
             </div>
-            <table>
-                <thead>
+            <hr className='hr' />
+            <table className={style.table}>
+                <thead className={style.tableHeader}>
                     <tr>
                         <th>Vendor Invoice</th>
                         <th>Material Name</th>
@@ -234,7 +232,7 @@ const CashFlow = () => {
                         <th>Amount</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className={style.tableBody}>
                     {currentCashPaidRows.length > 0 ? (
                         currentCashPaidRows.map((entry) => (
                             <tr key={entry.id}>
@@ -251,36 +249,32 @@ const CashFlow = () => {
                     )}
                 </tbody>
             </table>
-            <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <button onClick={handlePreviousPaidPage} disabled={currentCashPaidPage === 1}>Previous</button>
-                <span>Page {currentCashPaidPage} of {totalCashPaidPages}</span>
-                <button onClick={handleNextPaidPage} disabled={currentCashPaidPage === totalCashPaidPages}>Next</button>
+            <div className={style.pagination}>
+                <button onClick={handlePreviousPaidPage} disabled={currentCashPaidPage === 1}>   {'<'}</button>
+                <span> {currentCashPaidPage} of {totalCashPaidPages}</span>
+                <button onClick={handleNextPaidPage} disabled={currentCashPaidPage === totalCashPaidPages}>   {'>'}</button>
             </div>
 
-            <div style={{ marginTop: '30px' }}>
-
-            </div>
+            <hr />
 
             {/* Cash Paid Section */}
-            <h2>Cash Paid On Assets</h2>
-            <div style={{
-                padding: '20px',
-                margin: '20px 0',
-                backgroundColor: '#f9f9f9',
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-                textAlign: 'center',
-                fontSize: '18px',
-                fontWeight: 'bold',
-                color: '#333',
-                width: '40%',
-                color: 'red',
-            }}>
-                Total Cash Paid : {totalAssetsDataAmount.toFixed(2)} Rs
+            <div className={style.header}>
+                <div className={style.title}>
+
+                    <i className="ri-cash-line"></i>
+                    <h4>Cash Paid On Assets</h4>
+
+                </div>
+                <div className={style.cash}>
+                    <div>
+                        {totalAssetsDataAmount.toFixed(2)} Rs
+                    </div>
+                    <span>   Total Cash Paid  </span>
+                </div>
             </div>
-            <table>
-                <thead>
+            <hr className='hr' />
+            <table className={style.table}>
+                <thead className={style.tableHeader}>
                     <tr>
                         <th>Vendor Invoice</th>
                         <th>Manifacturing Company</th>
@@ -290,16 +284,16 @@ const CashFlow = () => {
                         <th>Amount</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className={style.tableBody}>
                     {currentAssetsRows.length > 0 ? (
                         currentAssetsRows.map((entry) => (
                             <tr key={entry.id}>
                                 <td>{entry.invoice}</td>
                                 <td>{entry.manifacturingCompany}</td>
                                 <td>{entry.machinename}</td>
-                                <td>{entry.modelnumber}</td> 
-                                <td>{entry.purchaseDate}</td> 
-                                <td>{entry.amount}</td> 
+                                <td>{entry.modelnumber}</td>
+                                <td>{entry.purchaseDate}</td>
+                                <td>{entry.amount}</td>
                             </tr>
                         ))
                     ) : (
@@ -309,10 +303,10 @@ const CashFlow = () => {
                     )}
                 </tbody>
             </table>
-            <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <button onClick={handlePreviousAssetsPage} disabled={currentAssetsDataPage === 1}>Previous</button>
+            <div className={style.pagination}>
+                <button onClick={handlePreviousAssetsPage} disabled={currentAssetsDataPage === 1}>   {'<'}</button>
                 <span>Page {currentAssetsDataPage} of {totalAssetsPages}</span>
-                <button onClick={handleNextAssetPage} disabled={currentAssetsDataPage === totalAssetsPages}>Next</button>
+                <button onClick={handleNextAssetPage} disabled={currentAssetsDataPage === totalAssetsPages}>  {'>'}</button>
             </div>
         </div>
     );
