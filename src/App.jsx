@@ -41,13 +41,14 @@ import Attendance from './components/hr/attendance/Attendance';
 import AttendanceCalendar from './components/hr/attendance/AttendanceCalander/AttendanceCalander';
 import Payroll from './components/hr/payments/payrollOverview/Payroll';
 import NewInvoice from './components/dispatch/dispatchInvoice/NewInvoice';
+import SalaryDetails from './components/hr/SalaryDetails/SalaryDetails';
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const handleLogin = () => {
         setIsLoggedIn(true);
     };
-    
+
     return (
         <BrowserRouter>
             {!isLoggedIn ? (
@@ -119,10 +120,6 @@ function App() {
                                 path="/CompanyLegder"
                                 element={isLoggedIn ? <CompanyLegder /> : <Navigate to="/" />}
                             />
-
-
-
-
                             <Route
                                 path="/Dispach"
                                 element={isLoggedIn ? <Dispach /> : <Navigate to="/" />}
@@ -169,7 +166,7 @@ function App() {
                                 element={isLoggedIn ? <EmployeeLogin /> : <Navigate to="/" />}
                             />
                             <Route
-                                path="/onboardEmployee"
+                                path="/onboardEmployee/:id"
                                 element={isLoggedIn ? <OnboardEmployee /> : <Navigate to="/" />}
                             />
                             <Route
@@ -183,6 +180,10 @@ function App() {
                             <Route
                                 path="/Payroll"
                                 element={isLoggedIn ? <Payroll /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/salaryDetails"
+                                element={isLoggedIn ? <SalaryDetails /> : <Navigate to="/" />}
                             />
 
                         </Routes>
