@@ -10,7 +10,7 @@ const SalaryDetailsPopup = ({ employeeData, onClose }) => {
   const [basicPay, setBasicPay] = useState(0);
   const [conveyance, setConveyance] = useState(0);
   const [bonus, setBonus] = useState(0);
-  const employerPF = 1800;
+  const employerPF = 21600;
   const [flexibleComponents, setFlexibleComponents] = useState(0);
   const [totalFixedPay, setTotalFixedPay] = useState(0);
   const [totalVariablePay, setTotalVariablePay] = useState(0);
