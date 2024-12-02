@@ -116,6 +116,14 @@ function Payroll() {
         calculateMonthEndDates();
     }, []);
 
+    function convertTo24Hour(time) {
+        const [timePart, modifier] = time.split(" ");
+        let [hours, minutes, seconds] = timePart.split(":").map(Number);
+        if (modifier === "PM" && hours !== 12) hours += 12;
+        if (modifier === "AM" && hours === 12) hours = 0;
+        return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
@@ -129,20 +137,36 @@ function Payroll() {
                     const employee = docSnapshot.data();
                     const employeeId = employee.employeeId;
                     console.log("Employee Id: " + employeeId);
-
                     const signInOutRef = collection(fireDB, 'EMP_SIGNIN_SIGNOUT');
                     const signInOutDocRef = doc(signInOutRef, employeeId);
                     const signInOutDocSnapshot = await getDoc(signInOutDocRef);
                     let signInOutDays = 0;
                     if (signInOutDocSnapshot.exists()) {
                         const signInOutData = signInOutDocSnapshot.data();
-
+                        console.log(signInOutData);
                         Object.keys(signInOutData).forEach((date) => {
                             const signInOutDate = dayjs(date, 'YYYY-MM-DD');
-                            console.log("Signin Date: ", signInOutDate.format('YYYY-MM-DD'));
-
                             if (signInOutDate.month() === currentMonth && signInOutDate.year() === currentYear) {
-                                signInOutDays += 1;
+                                const entry = signInOutData[date];
+                                const signInTime = entry?.signInTime || "00:00:00 AM";
+                                const signOutTime = entry?.signOutTime || "00:00:00 PM";
+                                console.log("Sign in time " + signInTime);
+                                console.log("Sign out time " + signOutTime);
+                                const signInDate = new Date(`1970-01-01T${convertTo24Hour(signInTime)}Z`);
+                                const signOutDate = new Date(`1970-01-01T${convertTo24Hour(signOutTime)}Z`);
+                                const timeDiffMs = signOutDate - signInDate;
+                                const timeDiffHours = timeDiffMs / (1000 * 60 * 60);
+                                console.log("hours: " + timeDiffHours.toFixed(2));
+                                if (timeDiffHours.toFixed(2) < 5) {
+                                    signInOutDays += 0;
+                                } else if (timeDiffHours.toFixed(2) >= 5 && timeDiffHours.toFixed(2) < 8) {
+                                    signInOutDays += 0.5;
+                                } else if (timeDiffHours.toFixed(2) >= 8) {
+                                    signInOutDays += 1;
+                                }
+                                // signInOutDays += 1;
+                            } else {
+                                console.log("No sign in out data found")
                             }
                         });
                     } else {
@@ -182,12 +206,11 @@ function Payroll() {
                         })()
                         : 0;
 
-                    const grossPay = employee.SalaryDetails?.totalCTC || 0;
-                    const fixedPay = employee.SalaryDetails?.totalFixedPay || 0;
+                    const grossPay = employee.SalaryDetails?.totalFixedPay || 0;
+                    const employeePF = employee.SalaryDetails?.employerPF || 0;
+                    const gratuity = employee.SalaryDetails?.gratuity || 0;
                     const PM = (grossPay / 12).toFixed(2);
-                    const FP = (fixedPay / 12).toFixed(2);
-                    const PD = (Number(FP) / 30).toFixed(2);
-                    
+                    const PD = (Number(PM) / 30).toFixed(2);
                     let workingDays = 0;
                     if (authorizedLeaves <= 3) {
                         workingDays = authorizedLeaves + signInOutDays;
@@ -196,7 +219,7 @@ function Payroll() {
                         workingDays = takenLeaves + signInOutDays;
                     }
                     const netPaye = (PD * workingDays).toFixed(2);
-                    const deduction = (PM - FP).toFixed(2);
+                    const deduction = ((employeePF + gratuity) / 12).toFixed(2);
 
                     const currentDay = dayjs().date();
                     const absentDays = (currentDay - signInOutDays);
@@ -209,7 +232,7 @@ function Payroll() {
                         const currentMonthh = new Date().getMonth() + 1;
                         const currentYearr = new Date().getFullYear();
                         const currentMonthKey = `${currentYearr}-${String(currentMonthh).padStart(2, '0')}`;
-                        console.log("Current month end date: " + currentMonthKey);
+                        // console.log("Current month end date: " + currentMonthKey);
                         if (salaryData[currentMonthKey] && salaryData[currentMonthKey].Status) {
                             status = salaryData[currentMonthKey].Status;
                         }
@@ -345,6 +368,28 @@ function Payroll() {
         }
     ], []);
 
+    const totalGrossPay = data.reduce((total, item) => total + parseFloat(item.PM || 0), 0);
+    const formattedTotal = new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 2,
+    }).format(totalGrossPay);
+
+    const totalNetPay = data.reduce((total, item) => total + parseFloat(item.netPaye || 0), 0);
+    const formattednetPay = new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 2,
+    }).format(totalNetPay);
+
+    const totaldeduction = data.reduce((total, item) => total + parseFloat(item.deduction || 0), 0);
+    const formattedDeduction = new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 2,
+    }).format(totaldeduction);
+
+
 
     return (
         <main className='main' id='main'>
@@ -383,8 +428,7 @@ function Payroll() {
                                 <h3>Payroll Cost</h3>
                                 <div className='d-flex'>
                                     <div>
-                                        <h2> <span>Rs.</span> 122 <span>/-</span></h2>
-                                        <p>-2% since Last Quarter</p>
+                                        <h2> <span>Rs.</span> {formattedTotal} <span>/-</span></h2>
                                     </div>
                                     <div className='icon'>
                                         <RiMoneyRupeeCircleFill />
@@ -397,8 +441,7 @@ function Payroll() {
                                 <h3>Net Salary</h3>
                                 <div className='d-flex'>
                                     <div>
-                                        <h2>122</h2>
-                                        <p>-2% since Last Quarter</p>
+                                        <h2>{formattednetPay}</h2>
                                     </div>
                                     <div className='icon'>
                                         <IoWalletOutline />
@@ -409,20 +452,7 @@ function Payroll() {
                                 <h3>Deduction</h3>
                                 <div className='d-flex'>
                                     <div>
-                                        <h2>122</h2>
-                                        <p>-2% since Last Quarter</p>
-                                    </div>
-                                    <div className='icon'>
-                                        <BiRupee />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="single-card">
-                                <h3>Statutory Pay</h3>
-                                <div className='d-flex'>
-                                    <div>
-                                        <h2>122</h2>
-                                        <p>-2% since Last Quarter</p>
+                                        <h2 className='ded'>{formattedDeduction}</h2>
                                     </div>
                                     <div className='icon'>
                                         <BiRupee />
