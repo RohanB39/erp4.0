@@ -232,6 +232,9 @@ const Sidebar = () => {
               <li className={location.pathname === '/HrDashboard' ? style.activeLink : ''}>
                 <Link to="/HrDashboard">Hr Dashboard</Link>
               </li>
+              <li className={location.pathname === '/salaryDetails' ? style.activeLink : ''}>
+                <Link to="/salaryDetails">Salary</Link>
+              </li>
               <li className={location.pathname === './hrLeave' ? style.activeLink : ''}>
                 <Link to="./hrLeave">Leave</Link>
               </li>
