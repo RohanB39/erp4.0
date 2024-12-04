@@ -28,34 +28,60 @@ const AttendanceCalendar = () => {
       }
     };
 
+    function convertTo24Hour(time) {
+      const [timePart, modifier] = time.split(" ");
+      let [hours, minutes, seconds] = timePart.split(":").map(Number);
+      if (modifier === "PM" && hours !== 12) hours += 12;
+      if (modifier === "AM" && hours === 12) hours = 0;
+      return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
     const fetchAttendance = async () => {
       try {
-        // Fetch attendance data from "EMP_SIGNIN_SIGNOUT"
         const attendanceCollectionRef = collection(fireDB, 'EMP_SIGNIN_SIGNOUT');
         const snapshot = await getDocs(attendanceCollectionRef);
         const attendanceRecords = {};
-
+        const currentDate = new Date();
+        const currentMonthYear = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}`;
         snapshot.forEach(doc => {
-          const employeeId = doc.id; // employeeId matches the doc.id in this collection
+          const employeeId = doc.id;
           const employeeData = doc.data();
-
-          // For each employee's attendance data, check the date fields (e.g., "2024-11-09")
           Object.keys(employeeData).forEach(date => {
-            if (date !== 'employeeName' && date !== 'designation') {
-              if (!attendanceRecords[employeeId]) {
-                attendanceRecords[employeeId] = {};
+            const dateMonthYear = date.slice(0, 7);
+            if (dateMonthYear === currentMonthYear) {
+              const dailyAttendance = employeeData[date];
+              if (dailyAttendance.signInTime && dailyAttendance.signOutTime) {
+                const entry = employeeData[date];
+                const signInTime = entry?.signInTime || "00:00:00 AM";
+                const signOutTime = entry?.signOutTime || "00:00:00 PM";
+                const signInDate = new Date(`1970-01-01T${convertTo24Hour(signInTime)}Z`);
+                const signOutDate = new Date(`1970-01-01T${convertTo24Hour(signOutTime)}Z`);
+                const timeDiffMs = signOutDate - signInDate;
+                const timeDiffHours = timeDiffMs / (1000 * 60 * 60);
+                let status = 'Absent';
+                if (timeDiffHours >= 8) {
+                  status = 'Present';
+                } else if (timeDiffHours >= 5) {
+                  status = 'Half Day';
+                }
+                if (!attendanceRecords[employeeId]) {
+                  attendanceRecords[employeeId] = {};
+                }
+                attendanceRecords[employeeId][date] = status;
+              } else {
+                if (!attendanceRecords[employeeId]) {
+                  attendanceRecords[employeeId] = {};
+                }
+                attendanceRecords[employeeId][date] = 'Absent';
               }
-              attendanceRecords[employeeId][date] = employeeData[date] === 'present' ? 'Present' : 'Absent';
             }
           });
         });
-
         setAttendanceData(attendanceRecords);
       } catch (error) {
         console.error('Error fetching attendance data: ', error);
       }
     };
-
     fetchEmployees();
     fetchAttendance();
   }, []);
@@ -85,8 +111,8 @@ const AttendanceCalendar = () => {
               <div className="attendance-details">
                 {Object.keys(attendanceData[employee.employeeId] || {}).map(date => (
                   <div key={date} className="attendance-day">
-                    <span>{dayjs(date).format('YYYY-MM-DD')}</span>: 
-                    <span className={attendanceData[employee.employeeId][date] === 'Present' ? 'present' : 'absent'}>
+                    <span className='dd'>{dayjs(date).format('YYYY-MM-DD')}</span>:
+                    <span className='dd'>
                       {attendanceData[employee.employeeId][date]}
                     </span>
                   </div>
