@@ -8,9 +8,11 @@ import { IoWalletOutline } from "react-icons/io5";
 import { CiWallet } from "react-icons/ci";
 import PayRollEmpList from './PayRollEmpList';
 import { fireDB, doc } from '../../../firebase/FirebaseConfig';
-import { collection, getDocs, query, where, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, getDoc, updateDoc } from 'firebase/firestore';
 import dayjs from 'dayjs';
 import SalaryPopup from './SalaryPopup/SalaryPopup';
+import { Navigate } from 'react-router-dom';
+import emailjs from 'emailjs-com';
 
 function Payroll() {
     const [onboardEmployee, setOnboardEmployee] = useState(0);
@@ -21,6 +23,8 @@ function Payroll() {
     const [data, setData] = useState([]);
     const [selectedRow, setSelectedRow] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
+    const [paidEmployees, setPaidEmployees] = useState([]);
+    const [isPopupVisible, setIsPopupVisible] = useState(false);
 
     useEffect(() => {
         const fetchEmployeesCount = async () => {
@@ -136,6 +140,8 @@ function Payroll() {
                 for (const docSnapshot of querySnapshot.docs) {
                     const employee = docSnapshot.data();
                     const employeeId = employee.employeeId;
+                    const employeeEmail = employee.personalInfo.personalEmail;
+                    console.log("Email: " + employeeEmail);
                     console.log("Employee Id: " + employeeId);
                     const signInOutRef = collection(fireDB, 'EMP_SIGNIN_SIGNOUT');
                     const signInOutDocRef = doc(signInOutRef, employeeId);
@@ -242,6 +248,7 @@ function Payroll() {
                     employeesData.push({
                         employeeName: `${employee.personalInfo?.firstName || ''} ${employee.personalInfo?.lastName || ''}`,
                         employeeId: employee.employeeId || '',
+                        email: employee.personalInfo.personalEmail || '',
                         leaves: totalLeaves,
                         authorizedLeaves,
                         signInOutDays,
@@ -263,8 +270,6 @@ function Payroll() {
 
         fetchEmployees();
     }, []);
-
-
 
     const columns = useMemo(() => [
         {
@@ -368,6 +373,20 @@ function Payroll() {
         }
     ], []);
 
+    useEffect(() => {
+        // Filter employees with "Paid" status
+        const filteredEmployees = data.filter(employee => employee.status === 'Paid');
+        setPaidEmployees(filteredEmployees);
+    }, [data]);
+
+    const handlePayClick = () => {
+        setIsPopupVisible(true);
+    };
+
+    const closePopup = () => {
+        setIsPopupVisible(false);
+    };
+
     const totalGrossPay = data.reduce((total, item) => total + parseFloat(item.PM || 0), 0);
     const formattedTotal = new Intl.NumberFormat('en-IN', {
         style: 'currency',
@@ -389,7 +408,81 @@ function Payroll() {
         minimumFractionDigits: 2,
     }).format(totaldeduction);
 
-
+    const handleSendEmail = () => {
+        // Get the current year and month
+        const currentDate = new Date();
+        const currentYearr = currentDate.getFullYear();  // Get current year
+        const currentMonth = currentDate.getMonth() + 1; // Get current month (1-12)
+    
+        const emailData = paidEmployees.map(employee => ({
+            name: employee.employeeName,
+            id: employee.employeeId,
+            email: employee.email,
+            leaves: employee.leaves,
+            authorizedLeaves: employee.authorizedLeaves,
+            workingDays: employee.workingDays,
+            absentDays: employee.absentDays,
+            GrossSalary: employee.PM,
+            netPaye: employee.netPaye,
+            status: employee.status
+        }));
+    
+        emailData.forEach(async (employee) => {
+            const templateParams = {
+                to_name: employee.email, // recipient email address
+                name: employee.name,
+                id: employee.id,
+                leaves: employee.leaves,
+                authorizedLeaves: employee.authorizedLeaves,
+                workingDays: employee.workingDays,
+                absentDays: employee.absentDays,
+                GrossSalary: employee.GrossSalary,
+                netPaye: employee.netPaye,
+                status: employee.status,
+            };
+    
+            try {
+                // Send the email using EmailJS
+                await emailjs.send('service_o2439vh', 'template_na8e8om', templateParams, 'P8CxtoSj7N9TPkNkQ');
+                console.log('Email sent successfully!');
+    
+                // Reference to the Salary_Details document
+                const salaryDetailsRef = doc(fireDB, 'Salary_Details', employee.id);
+    
+                // Fetch the document to check if the "year-month" reference object exists
+                const salaryDetailsSnapshot = await getDoc(salaryDetailsRef);
+    
+                if (salaryDetailsSnapshot.exists()) {
+                    // Get the document data
+                    const salaryData = salaryDetailsSnapshot.data();
+    
+                    // Construct the year-month key
+                    const yearMonthKey = `${currentYearr}-${String(currentMonth).padStart(2, '0')}`;
+    
+                    // Check if the year-month object exists
+                    if (salaryData[yearMonthKey]) {
+                        // If the year-month object exists, update the Status field
+                        await updateDoc(salaryDetailsRef, {
+                            [`${yearMonthKey}.Status`]: 'Sent',
+                        });
+    
+                        console.log('Status updated successfully');
+                    } else {
+                        console.log(`The year-month ${yearMonthKey} does not exist in the document`);
+                    }
+                } else {
+                    console.log('Salary details document not found');
+                }
+    
+                alert('Email sent and status updated successfully!');
+            } catch (err) {
+                console.error('Error sending email:', err);
+                alert('Failed to send email. Please try again.');
+            }
+        });
+    };
+    
+    
 
     return (
         <main className='main' id='main'>
@@ -472,6 +565,9 @@ function Payroll() {
                             <div className="payroll-btn">
                                 <button>Payroll Details</button>
                             </div>
+                            <div className="payroll-btn">
+                                <button onClick={handlePayClick}>Pay</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -494,6 +590,21 @@ function Payroll() {
                     setShowPopup={setShowPopup}
                     selectedRow={selectedRow}
                 />
+            )}
+
+            {isPopupVisible && (
+                <div className="popup">
+                    <div className="popup-content">
+                        <h3>Paid Employee Emails</h3>
+                        <ul>
+                            {paidEmployees.map(employee => (
+                                <li key={employee.email}>{employee.email}</li>
+                            ))}
+                        </ul>
+                        <button onClick={handleSendEmail}>Send</button>
+                        <button onClick={closePopup}>Close</button>
+                    </div>
+                </div>
             )}
         </main>
     );
