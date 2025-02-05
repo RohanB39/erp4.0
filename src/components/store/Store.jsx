@@ -1,19 +1,11 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { useTable, usePagination } from 'react-table';
 import { getFirestore, collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
-
-
-
 import style from './Store.module.css'
-
 import EditStoreProduct from './editStoreProduct/EditStoreProduct';
 import DemandMaterialEdit from '../production/demandMaterial/DemandMaterialEdit';
 import EditDemandMaterialPopup from '../store/editDemandMaterialPopup/EditDemandMaterialPopup';
 import { fireDB } from '../firebase/FirebaseConfig';
-
-
-
-
 import { IoIosSearch } from "react-icons/io";
 import { CiEdit } from "react-icons/ci";
 import { VscClose } from "react-icons/vsc";
@@ -78,8 +70,6 @@ const Store = () => {
             console.error("Error fetching materials: ", error);
         }
     };
-
-
 
     useEffect(() => {
         fetchData();
@@ -621,6 +611,7 @@ const Store = () => {
                     </div>
                 </div>
                 <hr className='hr' />
+
                 <div className={style.totalStockContent}>
                     <div className={style.stockHeader}>
                         <div>
@@ -706,6 +697,7 @@ const Store = () => {
                     </div>
                 </div>
                 <hr className='hr' />
+
                 <div className={style.totalStockContent}>
                     <div className={style.stockHeader}>
                         <div>
@@ -791,6 +783,7 @@ const Store = () => {
                     </div>
                 </div>
                 <hr className='hr' />
+
                 <div className="total-stock-content">
                     <div className={style.stockHeader}>
                         <div>

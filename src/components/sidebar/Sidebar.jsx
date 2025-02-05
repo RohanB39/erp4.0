@@ -11,8 +11,6 @@ const Sidebar = () => {
 
   const toggleSidebar = () => {
     setSidebarClosed(!isSidebarClosed);
-
-
     const subMenus = sidebarRef.current.getElementsByClassName(style.show);
     Array.from(subMenus).forEach((ul) => {
       ul.classList.remove(style.show);
